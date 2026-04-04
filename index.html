@@ -1,0 +1,395 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Raiders of the Chain — Web3 Marketing Intelligence</title>
+  <meta name="description" content="AI-powered raid bots, buy/sell alerts, and meme campaigns for Web3 projects. Powered by GSB Agent Gas Bible.">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="style.css">
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'><rect width='32' height='32' rx='4' fill='%23FF4D00'/><text x='16' y='22' text-anchor='middle' font-family='monospace' font-weight='900' font-size='16' fill='%23000'>⚔</text></svg>">
+</head>
+<body>
+
+  <!-- NAV -->
+  <nav class="nav">
+    <a href="/" class="logo" aria-label="Raiders of the Chain">
+      <svg viewBox="0 0 40 40" fill="none" width="36" height="36" aria-hidden="true">
+        <rect width="40" height="40" rx="6" fill="#FF4D00"/>
+        <path d="M8 20 L16 12 L20 16 L24 12 L32 20 L24 28 L20 24 L16 28 Z" fill="#000" stroke="none"/>
+        <circle cx="20" cy="20" r="3" fill="#FF4D00"/>
+      </svg>
+      <span class="logo-text">Raiders<span class="logo-sub"> of the Chain</span></span>
+    </a>
+    <div class="nav-links">
+      <a href="#bots">Bots</a>
+      <a href="#pricing">Pricing</a>
+      <a href="#how">How it works</a>
+      <a href="#deploy" class="nav-cta">Deploy Your Raid →</a>
+    </div>
+    <button class="nav-mobile-btn" id="mobileMenuBtn" aria-label="Menu">
+      <span></span><span></span><span></span>
+    </button>
+  </nav>
+
+  <!-- HERO -->
+  <section class="hero">
+    <div class="hero-bg">
+      <div class="grid-lines"></div>
+      <div class="glow glow-1"></div>
+      <div class="glow glow-2"></div>
+    </div>
+    <div class="container">
+      <div class="hero-badge">
+        <span class="badge-dot"></span>
+        Powered by GSB Agent Gas Bible on Base
+      </div>
+      <h1 class="hero-title">
+        Raid. Alert.<br>
+        <span class="title-accent">Dominate.</span>
+      </h1>
+      <p class="hero-sub">
+        Three AI agents. One service. Unlimited campaigns.<br>
+        Coordinate Telegram raids, track whale moves, flood feeds with memes —<br>
+        all running autonomously while you sleep.
+      </p>
+      <div class="hero-actions">
+        <a href="#deploy" class="btn btn-primary">Deploy Your Raid →</a>
+        <a href="#bots" class="btn btn-ghost">See the bots ↓</a>
+      </div>
+      <div class="hero-stats">
+        <div class="stat">
+          <span class="stat-num">3</span>
+          <span class="stat-label">AI Agents</span>
+        </div>
+        <div class="stat-divider"></div>
+        <div class="stat">
+          <span class="stat-num">24/7</span>
+          <span class="stat-label">Autonomous</span>
+        </div>
+        <div class="stat-divider"></div>
+        <div class="stat">
+          <span class="stat-num">Base</span>
+          <span class="stat-label">Chain Native</span>
+        </div>
+        <div class="stat-divider"></div>
+        <div class="stat">
+          <span class="stat-num">USDC</span>
+          <span class="stat-label">Pay per campaign</span>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- BOTS -->
+  <section class="section" id="bots">
+    <div class="container">
+      <div class="section-label">The Arsenal</div>
+      <h2 class="section-title">Three bots. One mission.</h2>
+      <p class="section-sub">Each bot is a specialized AI agent. Deploy one or all three. Pay only for what you fire.</p>
+
+      <div class="bots-grid">
+
+        <!-- RAID BOT -->
+        <div class="bot-card bot-raid" id="bot-raid">
+          <div class="bot-icon">⚔️</div>
+          <div class="bot-tag">Raid Bot</div>
+          <h3 class="bot-name">The Raider</h3>
+          <p class="bot-desc">Coordinates organized Telegram and X campaigns for your token. Sends synchronized messages to targeted groups, tracks engagement, and adapts the message as momentum builds.</p>
+          <ul class="bot-features">
+            <li>Telegram group targeting</li>
+            <li>X coordinated threads</li>
+            <li>Message templates + AI variation</li>
+            <li>Real-time engagement tracking</li>
+            <li>Escalating raid sequences</li>
+          </ul>
+          <div class="bot-price">
+            <span class="price-from">from</span>
+            <span class="price-num">$9.95</span>
+            <span class="price-unit">/ campaign</span>
+          </div>
+          <a href="#deploy" class="btn btn-bot" data-bot="raid">Deploy Raider →</a>
+        </div>
+
+        <!-- ALERT BOT -->
+        <div class="bot-card bot-alert bot-featured" id="bot-alert">
+          <div class="bot-badge">Most Popular</div>
+          <div class="bot-icon">📡</div>
+          <div class="bot-tag">Alert Bot</div>
+          <h3 class="bot-name">The Watcher</h3>
+          <p class="bot-desc">Monitors on-chain activity for your token 24/7. Alerts your community the moment a whale buys, a liquidity event happens, or price moves beyond your threshold.</p>
+          <ul class="bot-features">
+            <li>Whale buy/sell detection ($20+ triggers)</li>
+            <li>Price movement alerts</li>
+            <li>Telegram + X delivery</li>
+            <li>Customizable thresholds</li>
+            <li>DexScreener + on-chain data</li>
+          </ul>
+          <div class="bot-price">
+            <span class="price-from">from</span>
+            <span class="price-num">$24.95</span>
+            <span class="price-unit">/ month</span>
+          </div>
+          <a href="#deploy" class="btn btn-bot btn-bot-featured" data-bot="alert">Deploy Watcher →</a>
+        </div>
+
+        <!-- MEME BOT -->
+        <div class="bot-card bot-meme" id="bot-meme">
+          <div class="bot-icon">🔥</div>
+          <div class="bot-tag">Meme Bot</div>
+          <h3 class="bot-name">The Preacher</h3>
+          <p class="bot-desc">Floods feeds with AI-generated content tailored to your token's narrative. Posts threads, memes, rallying cries, and viral hooks across X and Telegram on your schedule.</p>
+          <ul class="bot-features">
+            <li>AI-written threads + meme copy</li>
+            <li>X auto-posting</li>
+            <li>Telegram broadcast</li>
+            <li>Brand voice customization</li>
+            <li>Viral hook generation</li>
+          </ul>
+          <div class="bot-price">
+            <span class="price-from">from</span>
+            <span class="price-num">$4.95</span>
+            <span class="price-unit">/ post</span>
+          </div>
+          <a href="#deploy" class="btn btn-bot" data-bot="meme">Deploy Preacher →</a>
+        </div>
+
+      </div>
+    </div>
+  </section>
+
+  <!-- HOW IT WORKS -->
+  <section class="section section-dark" id="how">
+    <div class="container">
+      <div class="section-label">How it works</div>
+      <h2 class="section-title">Deploy in 3 steps.</h2>
+      <div class="steps">
+        <div class="step">
+          <div class="step-num">01</div>
+          <h3 class="step-title">Choose your weapon</h3>
+          <p class="step-desc">Select which bot you need — Raider, Watcher, or Preacher — and configure your target token, channels, and thresholds.</p>
+        </div>
+        <div class="step-arrow">→</div>
+        <div class="step">
+          <div class="step-num">02</div>
+          <h3 class="step-title">Pay in USDC</h3>
+          <p class="step-desc">Pay-per-campaign or monthly. Payments go directly to the GSB agent wallet on Base. No subscriptions, no surprise bills.</p>
+        </div>
+        <div class="step-arrow">→</div>
+        <div class="step">
+          <div class="step-num">03</div>
+          <h3 class="step-title">Let it run</h3>
+          <p class="step-desc">Your agents fire autonomously. You get a campaign report via Telegram when it completes. No babysitting required.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- PRICING -->
+  <section class="section" id="pricing">
+    <div class="container">
+      <div class="section-label">Pricing</div>
+      <h2 class="section-title">Simple. Pay per fire.</h2>
+      <p class="section-sub">No monthly lock-in. Pay for campaigns when you need them. Bundle for bigger savings.</p>
+
+      <div class="pricing-grid">
+        <div class="pricing-card">
+          <div class="pricing-tier">Single Shot</div>
+          <div class="pricing-hero">
+            <span class="pricing-amount">$9.95</span>
+            <span class="pricing-period">per campaign</span>
+          </div>
+          <ul class="pricing-features">
+            <li>✓ 1 bot, 1 campaign</li>
+            <li>✓ Choose Raider, Watcher, or Preacher</li>
+            <li>✓ Campaign report via Telegram</li>
+            <li>✓ Pay in USDC on Base</li>
+          </ul>
+          <a href="#deploy" class="btn btn-primary btn-full">Start Campaign →</a>
+        </div>
+
+        <div class="pricing-card pricing-card-featured">
+          <div class="pricing-badge">Best Value</div>
+          <div class="pricing-tier">Full Arsenal</div>
+          <div class="pricing-hero">
+            <span class="pricing-amount">$49</span>
+            <span class="pricing-period">/ month</span>
+          </div>
+          <ul class="pricing-features">
+            <li>✓ All 3 bots, unlimited campaigns</li>
+            <li>✓ 24/7 Watcher monitoring</li>
+            <li>✓ Daily Preacher posts</li>
+            <li>✓ 5 coordinated Raids/month</li>
+            <li>✓ Priority queue</li>
+            <li>✓ Telegram dashboard access</li>
+          </ul>
+          <a href="#deploy" class="btn btn-primary btn-full">Deploy Full Arsenal →</a>
+        </div>
+
+        <div class="pricing-card">
+          <div class="pricing-tier">Enterprise</div>
+          <div class="pricing-hero">
+            <span class="pricing-amount">Custom</span>
+          </div>
+          <ul class="pricing-features">
+            <li>✓ White-label campaigns</li>
+            <li>✓ Custom bot configuration</li>
+            <li>✓ Dedicated agent instance</li>
+            <li>✓ Multi-token support</li>
+            <li>✓ API access</li>
+          </ul>
+          <a href="https://t.me/cheferikosol" target="_blank" rel="noopener" class="btn btn-ghost btn-full">Talk to us →</a>
+        </div>
+      </div>
+
+      <div class="payment-note">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M12 8v4M12 16h.01"/></svg>
+        All payments go to GSB Agent wallet on Base:
+        <code>0x592b6eEbd4C99b49Cf23f722E4F62FAEf4cD044d</code>
+      </div>
+    </div>
+  </section>
+
+  <!-- DEPLOY FORM -->
+  <section class="section section-dark" id="deploy">
+    <div class="container container-narrow">
+      <div class="section-label">Deploy</div>
+      <h2 class="section-title">Launch your campaign.</h2>
+      <p class="section-sub">Fill out your brief. An agent will confirm within minutes via Telegram.</p>
+
+      <form class="deploy-form" id="deployForm">
+        <!-- Bot selector -->
+        <div class="form-group">
+          <label class="form-label">Which bot do you need?</label>
+          <div class="bot-selector">
+            <label class="bot-select-option">
+              <input type="radio" name="bot" value="raid" required>
+              <span class="bot-select-card">
+                <span class="bot-select-icon">⚔️</span>
+                <span class="bot-select-name">Raider</span>
+                <span class="bot-select-price">$9.95/campaign</span>
+              </span>
+            </label>
+            <label class="bot-select-option">
+              <input type="radio" name="bot" value="alert">
+              <span class="bot-select-card">
+                <span class="bot-select-icon">📡</span>
+                <span class="bot-select-name">Watcher</span>
+                <span class="bot-select-price">$24.95/mo</span>
+              </span>
+            </label>
+            <label class="bot-select-option">
+              <input type="radio" name="bot" value="meme">
+              <span class="bot-select-card">
+                <span class="bot-select-icon">🔥</span>
+                <span class="bot-select-name">Preacher</span>
+                <span class="bot-select-price">$4.95/post</span>
+              </span>
+            </label>
+            <label class="bot-select-option">
+              <input type="radio" name="bot" value="all">
+              <span class="bot-select-card">
+                <span class="bot-select-icon">⚡</span>
+                <span class="bot-select-name">Full Arsenal</span>
+                <span class="bot-select-price">$49/mo</span>
+              </span>
+            </label>
+          </div>
+        </div>
+
+        <div class="form-row">
+          <div class="form-group">
+            <label class="form-label" for="tokenName">Token / Project Name <span class="req">*</span></label>
+            <input type="text" id="tokenName" name="tokenName" class="form-input" placeholder="e.g. $GSB, $PEPE, My Brand" required>
+          </div>
+          <div class="form-group">
+            <label class="form-label" for="tokenAddress">Token Contract Address</label>
+            <input type="text" id="tokenAddress" name="tokenAddress" class="form-input" placeholder="0x... (optional)">
+          </div>
+        </div>
+
+        <div class="form-group">
+          <label class="form-label" for="targets">Telegram groups / X accounts to target</label>
+          <input type="text" id="targets" name="targets" class="form-input" placeholder="@group1, @group2, https://t.me/mycommunity">
+          <p class="form-hint">Comma-separated. Leave blank and we'll find relevant communities.</p>
+        </div>
+
+        <div class="form-group">
+          <label class="form-label" for="brief">Campaign brief <span class="req">*</span></label>
+          <textarea id="brief" name="brief" class="form-input form-textarea" placeholder="What's the message? What action do you want people to take? Any specific talking points or links?" required rows="4"></textarea>
+        </div>
+
+        <div class="form-row">
+          <div class="form-group">
+            <label class="form-label" for="telegram">Your Telegram handle <span class="req">*</span></label>
+            <input type="text" id="telegram" name="telegram" class="form-input" placeholder="@yourhandle" required>
+            <p class="form-hint">We'll confirm your campaign here.</p>
+          </div>
+          <div class="form-group">
+            <label class="form-label" for="email">Email (for receipt)</label>
+            <input type="email" id="email" name="email" class="form-input" placeholder="you@email.com">
+          </div>
+        </div>
+
+        <div class="form-group">
+          <label class="form-check">
+            <input type="checkbox" name="tos" required>
+            <span>I agree to the <a href="#tos">Terms of Service</a>. I confirm I have authorization to run campaigns for this token/project. Not for scams, rugs, or illegal activity.</span>
+          </label>
+        </div>
+
+        <button type="submit" class="btn btn-primary btn-full btn-large" id="deployBtn">
+          Deploy My Campaign →
+        </button>
+        <p class="form-hint center">You'll receive a payment link via Telegram within minutes. Campaign launches after payment confirms on Base.</p>
+      </form>
+
+      <div id="deploySuccess" class="deploy-success hidden">
+        <div class="success-icon">⚔️</div>
+        <h3>Brief received. Raider incoming.</h3>
+        <p>Check your Telegram — <strong id="successHandle"></strong> — for your campaign confirmation and payment link.</p>
+        <p class="hint">Questions? <a href="https://t.me/cheferikosol" target="_blank">@cheferikosol</a></p>
+      </div>
+    </div>
+  </section>
+
+  <!-- FOOTER -->
+  <footer class="footer">
+    <div class="container footer-inner">
+      <div class="footer-brand">
+        <a href="/" class="logo">
+          <svg viewBox="0 0 40 40" fill="none" width="28" height="28" aria-hidden="true">
+            <rect width="40" height="40" rx="6" fill="#FF4D00"/>
+            <path d="M8 20 L16 12 L20 16 L24 12 L32 20 L24 28 L20 24 L16 28 Z" fill="#000"/>
+            <circle cx="20" cy="20" r="3" fill="#FF4D00"/>
+          </svg>
+          <span class="logo-text">Raiders of the Chain</span>
+        </a>
+        <p>AI-powered Web3 marketing intelligence.<br>Powered by GSB Agent Gas Bible on Base.</p>
+      </div>
+      <div class="footer-links">
+        <div class="footer-col">
+          <div class="footer-col-title">Products</div>
+          <a href="#bot-raid">Raid Bot</a>
+          <a href="#bot-alert">Alert Bot</a>
+          <a href="#bot-meme">Meme Bot</a>
+        </div>
+        <div class="footer-col">
+          <div class="footer-col-title">Connect</div>
+          <a href="https://t.me/cheferikosol" target="_blank">Telegram</a>
+          <a href="https://x.com/cheferikosol" target="_blank">X / Twitter</a>
+          <a href="https://app.virtuals.io/virtuals/68291" target="_blank">GSB on Virtuals</a>
+        </div>
+      </div>
+    </div>
+    <div class="footer-bottom">
+      <p>© 2026 MCFL Restaurant Holdings LLC · Raiders of the Chain · Payments to <code>0x592b6eEbd4C99b49Cf23f722E4F62FAEf4cD044d</code> on Base</p>
+      <p>Not financial advice. Campaigns are marketing services only.</p>
+    </div>
+  </footer>
+
+  <script src="app.js"></script>
+</body>
+</html>
