@@ -1,0 +1,1944 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Raider Dashboard — Raiders of the Chain</title>
+  <meta name="description" content="The war room for token raiders. Research tokens, coordinate raids, track campaigns, and dominate markets.">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;600;700;900&family=Cinzel+Decorative:wght@400;700&family=IM+Fell+English:ital@0;1&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="style.css">
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'><rect width='32' height='32' rx='4' fill='%23FF4D00'/><text x='16' y='22' text-anchor='middle' font-family='monospace' font-weight='900' font-size='16' fill='%23000'>⚔</text></svg>">
+
+  <style>
+    /* ── DASHBOARD LAYOUT ───────────────────────────────────────────────────── */
+    .dash-wrap {
+      display: flex;
+      min-height: calc(100vh - 62px);
+      background: var(--temple);
+    }
+
+    /* ── SIDEBAR ────────────────────────────────────────────────────────────── */
+    .sidebar {
+      width: 240px;
+      flex-shrink: 0;
+      background: var(--leather-dark);
+      border-right: 1px solid var(--gold-dim);
+      display: flex;
+      flex-direction: column;
+      position: sticky;
+      top: 62px;
+      height: calc(100vh - 62px);
+      overflow-y: auto;
+    }
+    .sidebar-header {
+      padding: 1.5rem 1.25rem 1rem;
+      border-bottom: 1px solid rgba(200,150,12,.2);
+    }
+    .sidebar-label {
+      font-family: var(--font-heading);
+      font-size: .55rem;
+      color: var(--gold-dim);
+      text-transform: uppercase;
+      letter-spacing: .25em;
+      margin-bottom: .5rem;
+    }
+    .sidebar-title {
+      font-family: var(--font-heading);
+      font-size: var(--text-sm);
+      font-weight: 700;
+      color: var(--gold-bright);
+      letter-spacing: .04em;
+    }
+    .sidebar-status {
+      display: flex;
+      align-items: center;
+      gap: .4rem;
+      margin-top: .4rem;
+      font-family: var(--font-heading);
+      font-size: .55rem;
+      color: var(--dust);
+      text-transform: uppercase;
+      letter-spacing: .1em;
+    }
+    .status-dot {
+      width: 6px;
+      height: 6px;
+      border-radius: 50%;
+      background: #4ade80;
+      animation: pulse 2s infinite;
+    }
+    .status-dot.idle { background: var(--gold-dim); }
+
+    .sidebar-nav {
+      flex: 1;
+      padding: 1rem 0;
+    }
+    .sidebar-section-label {
+      font-family: var(--font-heading);
+      font-size: .5rem;
+      color: var(--stone);
+      text-transform: uppercase;
+      letter-spacing: .2em;
+      padding: .75rem 1.25rem .3rem;
+    }
+    .sidebar-link {
+      display: flex;
+      align-items: center;
+      gap: .75rem;
+      padding: .65rem 1.25rem;
+      font-family: var(--font-heading);
+      font-size: .65rem;
+      color: var(--dust-light);
+      text-decoration: none;
+      text-transform: uppercase;
+      letter-spacing: .1em;
+      cursor: pointer;
+      border: none;
+      background: none;
+      width: 100%;
+      text-align: left;
+      transition: all 150ms;
+      border-left: 2px solid transparent;
+    }
+    .sidebar-link:hover {
+      color: var(--gold-bright);
+      background: rgba(200,150,12,.06);
+      border-left-color: var(--gold-dim);
+    }
+    .sidebar-link.active {
+      color: var(--gold-bright);
+      background: rgba(200,150,12,.1);
+      border-left-color: var(--gold);
+    }
+    .sidebar-link .link-icon { font-size: 1rem; width: 20px; text-align: center; flex-shrink: 0; }
+    .sidebar-link .link-badge {
+      margin-left: auto;
+      background: var(--gold);
+      color: var(--leather-dark);
+      font-family: var(--font-heading);
+      font-size: .5rem;
+      font-weight: 700;
+      padding: .1rem .4rem;
+      border-radius: 2px;
+      letter-spacing: .05em;
+    }
+
+    .sidebar-footer {
+      padding: 1rem 1.25rem;
+      border-top: 1px solid rgba(200,150,12,.2);
+    }
+    .sidebar-wallet {
+      background: rgba(0,0,0,.3);
+      border: 1px solid var(--stone);
+      padding: .75rem;
+      cursor: pointer;
+      transition: border-color 150ms;
+      clip-path: polygon(6px 0%, 100% 0%, calc(100% - 6px) 100%, 0% 100%);
+    }
+    .sidebar-wallet:hover { border-color: var(--gold-dim); }
+    .sidebar-wallet-label {
+      font-family: var(--font-heading);
+      font-size: .5rem;
+      color: var(--dust);
+      text-transform: uppercase;
+      letter-spacing: .15em;
+      margin-bottom: .25rem;
+    }
+    .sidebar-wallet-addr {
+      font-family: var(--font-mono);
+      font-size: .65rem;
+      color: var(--gold-dim);
+    }
+
+    /* ── MAIN CONTENT ───────────────────────────────────────────────────────── */
+    .dash-main {
+      flex: 1;
+      overflow-x: hidden;
+    }
+    .dash-topbar {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 1rem 2rem;
+      background: rgba(0,0,0,.25);
+      border-bottom: 1px solid rgba(200,150,12,.15);
+      gap: 1rem;
+    }
+    .dash-topbar-title {
+      font-family: var(--font-heading);
+      font-size: var(--text-lg);
+      font-weight: 700;
+      color: var(--gold-bright);
+      letter-spacing: .04em;
+    }
+    .dash-topbar-sub {
+      font-family: var(--font-body);
+      font-size: var(--text-sm);
+      color: var(--dust);
+      font-style: italic;
+    }
+    .dash-topbar-actions {
+      display: flex;
+      align-items: center;
+      gap: .75rem;
+      flex-shrink: 0;
+    }
+
+    /* ── TAB PANELS ─────────────────────────────────────────────────────────── */
+    .tab-panel {
+      display: none;
+      padding: 2rem;
+      animation: fadeIn 200ms ease;
+    }
+    .tab-panel.active { display: block; }
+    @keyframes fadeIn { from { opacity: 0; transform: translateY(4px); } to { opacity: 1; transform: none; } }
+
+    /* ── DASH CARD ──────────────────────────────────────────────────────────── */
+    .dash-card {
+      background: linear-gradient(160deg, var(--temple-light) 0%, var(--temple-mid) 100%);
+      border: 1px solid var(--gold-dim);
+      position: relative;
+      clip-path: polygon(0 0, calc(100% - 14px) 0, 100% 14px, 100% 100%, 14px 100%, 0 calc(100% - 14px));
+    }
+    .dash-card::before {
+      content: '';
+      position: absolute; inset: 0;
+      background: linear-gradient(135deg, rgba(200,150,12,.04) 0%, transparent 50%);
+      pointer-events: none;
+    }
+    .dash-card-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 1.25rem 1.5rem;
+      border-bottom: 1px solid rgba(200,150,12,.15);
+      gap: 1rem;
+    }
+    .dash-card-title {
+      font-family: var(--font-heading);
+      font-size: var(--text-sm);
+      font-weight: 700;
+      color: var(--gold-bright);
+      letter-spacing: .06em;
+      text-transform: uppercase;
+    }
+    .dash-card-sub {
+      font-family: var(--font-body);
+      font-size: var(--text-xs);
+      color: var(--dust);
+      font-style: italic;
+    }
+    .dash-card-body { padding: 1.5rem; }
+
+    /* ── STAT ROW ───────────────────────────────────────────────────────────── */
+    .stat-row {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 1rem;
+      margin-bottom: 2rem;
+    }
+    .stat-mini {
+      background: linear-gradient(160deg, var(--temple-light), var(--temple-mid));
+      border: 1px solid rgba(200,150,12,.25);
+      padding: 1.1rem 1.25rem;
+      clip-path: polygon(0 0, calc(100% - 10px) 0, 100% 10px, 100% 100%, 10px 100%, 0 calc(100% - 10px));
+    }
+    .stat-mini-label {
+      font-family: var(--font-heading);
+      font-size: .55rem;
+      color: var(--dust);
+      text-transform: uppercase;
+      letter-spacing: .15em;
+      margin-bottom: .3rem;
+    }
+    .stat-mini-val {
+      font-family: var(--font-heading);
+      font-size: var(--text-xl);
+      font-weight: 700;
+      color: var(--gold-bright);
+      line-height: 1;
+    }
+    .stat-mini-change {
+      font-family: var(--font-mono);
+      font-size: .6rem;
+      margin-top: .25rem;
+    }
+    .change-up { color: #4ade80; }
+    .change-down { color: #f87171; }
+
+    /* ── TABLE ──────────────────────────────────────────────────────────────── */
+    .dash-table {
+      width: 100%;
+      border-collapse: collapse;
+      font-family: var(--font-heading);
+      font-size: var(--text-xs);
+    }
+    .dash-table th {
+      font-size: .55rem;
+      text-transform: uppercase;
+      letter-spacing: .15em;
+      color: var(--gold-dim);
+      padding: .65rem 1rem;
+      text-align: left;
+      border-bottom: 1px solid rgba(200,150,12,.2);
+      font-weight: 600;
+      white-space: nowrap;
+    }
+    .dash-table td {
+      padding: .8rem 1rem;
+      color: var(--parchment);
+      border-bottom: 1px solid rgba(255,255,255,.04);
+      font-size: .7rem;
+      vertical-align: middle;
+    }
+    .dash-table tr:last-child td { border-bottom: none; }
+    .dash-table tr:hover td { background: rgba(200,150,12,.04); }
+    .dash-table .mono { font-family: var(--font-mono); font-size: .6rem; color: var(--dust-light); }
+
+    /* Status pills */
+    .pill {
+      display: inline-flex;
+      align-items: center;
+      gap: .3rem;
+      padding: .2rem .65rem;
+      font-size: .55rem;
+      font-family: var(--font-heading);
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: .08em;
+      clip-path: polygon(4px 0%, 100% 0%, calc(100% - 4px) 100%, 0% 100%);
+    }
+    .pill-active { background: rgba(74,222,128,.15); color: #4ade80; border: 1px solid rgba(74,222,128,.3); }
+    .pill-pending { background: rgba(200,150,12,.15); color: var(--gold-bright); border: 1px solid rgba(200,150,12,.3); }
+    .pill-complete { background: rgba(148,163,184,.1); color: var(--dust-light); border: 1px solid rgba(148,163,184,.2); }
+    .pill-dot { width: 4px; height: 4px; border-radius: 50%; background: currentColor; }
+
+    /* Action buttons in table */
+    .tbl-btn {
+      font-family: var(--font-heading);
+      font-size: .55rem;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: .08em;
+      padding: .25rem .7rem;
+      border: 1px solid var(--gold-dim);
+      background: rgba(200,150,12,.08);
+      color: var(--gold-bright);
+      cursor: pointer;
+      transition: all 120ms;
+      clip-path: polygon(4px 0%, 100% 0%, calc(100% - 4px) 100%, 0% 100%);
+    }
+    .tbl-btn:hover { background: rgba(200,150,12,.18); border-color: var(--gold); }
+    .tbl-btn-ghost {
+      border-color: var(--stone);
+      background: transparent;
+      color: var(--dust);
+    }
+    .tbl-btn-ghost:hover { color: var(--dust-light); border-color: var(--dust); }
+
+    /* Bot type chips */
+    .bot-chip {
+      display: inline-flex;
+      align-items: center;
+      gap: .3rem;
+      font-family: var(--font-heading);
+      font-size: .55rem;
+      text-transform: uppercase;
+      letter-spacing: .08em;
+      padding: .15rem .5rem;
+      border-radius: 2px;
+    }
+    .bot-chip-raid { background: rgba(248,113,113,.1); color: #fca5a5; border: 1px solid rgba(248,113,113,.2); }
+    .bot-chip-watch { background: rgba(96,165,250,.1); color: #93c5fd; border: 1px solid rgba(96,165,250,.2); }
+    .bot-chip-preach { background: rgba(251,191,36,.1); color: #fde68a; border: 1px solid rgba(251,191,36,.2); }
+
+    /* ── TOKEN INTEL ────────────────────────────────────────────────────────── */
+    .intel-search-bar {
+      display: flex;
+      gap: .75rem;
+      margin-bottom: 2rem;
+    }
+    .intel-search-bar input {
+      flex: 1;
+      background: rgba(0,0,0,.5);
+      border: 1px solid var(--stone);
+      padding: .8rem 1.1rem;
+      font-family: var(--font-mono);
+      font-size: var(--text-sm);
+      color: var(--parchment);
+      outline: none;
+      transition: border-color 150ms;
+      clip-path: polygon(6px 0%, 100% 0%, calc(100% - 6px) 100%, 0% 100%);
+    }
+    .intel-search-bar input::placeholder { color: var(--dust); }
+    .intel-search-bar input:focus { border-color: var(--gold-dim); }
+
+    .intel-results { display: none; }
+    .intel-results.visible { display: grid; grid-template-columns: 2fr 1fr; gap: 1.5rem; }
+
+    .token-meta {
+      display: flex;
+      align-items: center;
+      gap: 1rem;
+      margin-bottom: 1.5rem;
+    }
+    .token-icon {
+      width: 52px;
+      height: 52px;
+      border-radius: 50%;
+      background: linear-gradient(135deg, var(--gold-dim), var(--amber));
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-family: var(--font-heading);
+      font-size: 1.1rem;
+      font-weight: 700;
+      color: var(--leather-dark);
+      flex-shrink: 0;
+    }
+    .token-name-block .token-symbol {
+      font-family: var(--font-heading);
+      font-size: var(--text-xl);
+      font-weight: 700;
+      color: var(--gold-bright);
+    }
+    .token-name-block .token-fullname {
+      font-family: var(--font-body);
+      font-size: var(--text-sm);
+      color: var(--dust-light);
+      font-style: italic;
+    }
+    .token-address {
+      font-family: var(--font-mono);
+      font-size: .6rem;
+      color: var(--dust);
+      word-break: break-all;
+    }
+
+    .intel-grid {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: .75rem;
+      margin-bottom: 1.5rem;
+    }
+    .intel-stat {
+      background: rgba(0,0,0,.3);
+      border: 1px solid rgba(200,150,12,.15);
+      padding: .875rem 1rem;
+      clip-path: polygon(4px 0%, 100% 0%, calc(100% - 4px) 100%, 0% 100%);
+    }
+    .intel-stat-label {
+      font-family: var(--font-heading);
+      font-size: .5rem;
+      color: var(--dust);
+      text-transform: uppercase;
+      letter-spacing: .15em;
+      margin-bottom: .2rem;
+    }
+    .intel-stat-val {
+      font-family: var(--font-heading);
+      font-size: var(--text-lg);
+      font-weight: 700;
+      color: var(--parchment);
+    }
+    .intel-stat-val.gold { color: var(--gold-bright); }
+    .intel-stat-val.up { color: #4ade80; }
+    .intel-stat-val.down { color: #f87171; }
+
+    /* Raid Score meter */
+    .raid-score-card {
+      background: linear-gradient(160deg, rgba(200,150,12,.08), rgba(0,0,0,.4));
+      border: 1px solid var(--gold-dim);
+      padding: 1.5rem;
+      text-align: center;
+      clip-path: polygon(0 0, calc(100% - 10px) 0, 100% 10px, 100% 100%, 10px 100%, 0 calc(100% - 10px));
+    }
+    .raid-score-label {
+      font-family: var(--font-heading);
+      font-size: .55rem;
+      color: var(--gold-dim);
+      text-transform: uppercase;
+      letter-spacing: .2em;
+      margin-bottom: .5rem;
+    }
+    .raid-score-num {
+      font-family: var(--font-title);
+      font-size: clamp(3rem, 8vw, 5rem);
+      font-weight: 700;
+      line-height: 1;
+      color: var(--gold-bright);
+      text-shadow: 0 0 30px rgba(200,150,12,.4);
+    }
+    .raid-score-bar-wrap {
+      margin: .75rem 0;
+      height: 6px;
+      background: rgba(0,0,0,.4);
+      border: 1px solid rgba(200,150,12,.2);
+      overflow: hidden;
+    }
+    .raid-score-bar {
+      height: 100%;
+      background: linear-gradient(90deg, var(--gold-dim), var(--gold-bright));
+      transition: width 600ms ease;
+    }
+    .raid-score-tier {
+      font-family: var(--font-heading);
+      font-size: .6rem;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: .15em;
+      margin-bottom: .75rem;
+    }
+    .tier-hot { color: #f87171; }
+    .tier-warm { color: var(--gold-bright); }
+    .tier-cool { color: var(--dust-light); }
+    .raid-score-factors {
+      text-align: left;
+      display: flex;
+      flex-direction: column;
+      gap: .4rem;
+      margin-top: .75rem;
+      font-family: var(--font-heading);
+      font-size: .55rem;
+      color: var(--dust);
+    }
+    .factor-row {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: .5rem;
+    }
+    .factor-bar-wrap {
+      flex: 1;
+      height: 3px;
+      background: rgba(0,0,0,.4);
+    }
+    .factor-bar { height: 100%; background: var(--gold-dim); }
+
+    .intel-placeholder {
+      text-align: center;
+      padding: 4rem 2rem;
+      color: var(--dust);
+    }
+    .intel-placeholder .big-icon { font-size: 3rem; margin-bottom: 1rem; filter: grayscale(1); opacity: .4; }
+    .intel-placeholder p { font-family: var(--font-heading); font-size: var(--text-sm); letter-spacing: .05em; font-style: italic; }
+
+    /* ── STRATEGIES ─────────────────────────────────────────────────────────── */
+    .strategy-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 1.5rem;
+    }
+    .strategy-card {
+      background: linear-gradient(160deg, var(--temple-light) 0%, var(--temple-mid) 100%);
+      border: 1px solid var(--gold-dim);
+      display: flex;
+      flex-direction: column;
+      position: relative;
+      overflow: hidden;
+      transition: transform 200ms, box-shadow 200ms;
+      clip-path: polygon(0 0, calc(100% - 16px) 0, 100% 16px, 100% 100%, 16px 100%, 0 calc(100% - 16px));
+    }
+    .strategy-card:hover {
+      transform: translateY(-3px);
+      box-shadow: 0 8px 32px rgba(0,0,0,.5), 0 0 20px rgba(200,150,12,.12);
+    }
+    .strategy-card::before {
+      content: '';
+      position: absolute; inset: 0;
+      background: linear-gradient(135deg, rgba(200,150,12,.05) 0%, transparent 60%);
+      pointer-events: none;
+    }
+    .strategy-header {
+      padding: 1.5rem 1.5rem 1rem;
+      border-bottom: 1px solid rgba(200,150,12,.15);
+    }
+    .strategy-codename {
+      font-family: var(--font-heading);
+      font-size: .55rem;
+      color: var(--gold-dim);
+      text-transform: uppercase;
+      letter-spacing: .25em;
+      margin-bottom: .3rem;
+    }
+    .strategy-name {
+      font-family: var(--font-heading);
+      font-size: var(--text-xl);
+      font-weight: 700;
+      color: var(--gold-bright);
+      display: flex;
+      align-items: center;
+      gap: .5rem;
+    }
+    .strategy-body {
+      padding: 1.25rem 1.5rem;
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      gap: 1rem;
+    }
+    .strategy-desc {
+      font-family: var(--font-body);
+      font-size: var(--text-sm);
+      color: var(--dust-light);
+      font-style: italic;
+      line-height: 1.7;
+    }
+    .strategy-outcomes {
+      list-style: none;
+      display: flex;
+      flex-direction: column;
+      gap: .35rem;
+    }
+    .strategy-outcomes li {
+      font-family: var(--font-heading);
+      font-size: .6rem;
+      color: var(--dust-light);
+      padding-left: 1rem;
+      position: relative;
+      letter-spacing: .04em;
+    }
+    .strategy-outcomes li::before { content: "›"; color: var(--gold); position: absolute; left: 0; }
+    .strategy-footer {
+      padding: 1rem 1.5rem 1.5rem;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 1rem;
+      border-top: 1px solid rgba(200,150,12,.15);
+      flex-wrap: wrap;
+    }
+    .strategy-fee {
+      display: flex;
+      flex-direction: column;
+      gap: .1rem;
+    }
+    .strategy-fee-label {
+      font-family: var(--font-heading);
+      font-size: .5rem;
+      color: var(--dust);
+      text-transform: uppercase;
+      letter-spacing: .12em;
+    }
+    .strategy-fee-val {
+      font-family: var(--font-heading);
+      font-size: var(--text-lg);
+      font-weight: 700;
+      color: var(--parchment);
+    }
+
+    /* ── LEADERBOARD ────────────────────────────────────────────────────────── */
+    .lb-rank {
+      font-family: var(--font-title);
+      font-size: var(--text-lg);
+      font-weight: 700;
+      line-height: 1;
+    }
+    .lb-rank-1 { color: #fde68a; }
+    .lb-rank-2 { color: #e2e8f0; }
+    .lb-rank-3 { color: #c8a46e; }
+    .lb-rank-other { color: var(--dust); }
+
+    .lb-wallet {
+      display: flex;
+      flex-direction: column;
+      gap: .1rem;
+    }
+    .lb-wallet-addr {
+      font-family: var(--font-mono);
+      font-size: .65rem;
+      color: var(--parchment);
+    }
+    .lb-wallet-tag {
+      font-family: var(--font-heading);
+      font-size: .5rem;
+      color: var(--dust);
+      text-transform: uppercase;
+      letter-spacing: .12em;
+    }
+    .lb-earnings {
+      font-family: var(--font-heading);
+      font-size: .7rem;
+      font-weight: 700;
+      color: #4ade80;
+    }
+
+    /* ── WALLET PANEL ───────────────────────────────────────────────────────── */
+    .wallet-connect-panel {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 1.5rem;
+    }
+    .wallet-connect-box {
+      background: linear-gradient(160deg, var(--temple-light), var(--temple-mid));
+      border: 1px solid var(--gold-dim);
+      padding: 2rem;
+      clip-path: polygon(0 0, calc(100% - 14px) 0, 100% 14px, 100% 100%, 14px 100%, 0 calc(100% - 14px));
+    }
+    .wallet-connect-box .wc-label {
+      font-family: var(--font-heading);
+      font-size: .55rem;
+      color: var(--gold-dim);
+      text-transform: uppercase;
+      letter-spacing: .2em;
+      margin-bottom: .5rem;
+    }
+    .wallet-connect-box .wc-val {
+      font-family: var(--font-mono);
+      font-size: var(--text-base);
+      color: var(--parchment);
+      margin-bottom: 1rem;
+    }
+    .wallet-connect-box .wc-val.big {
+      font-family: var(--font-heading);
+      font-size: var(--text-2xl);
+      font-weight: 700;
+      color: var(--gold-bright);
+    }
+
+    .wallet-connect-hero {
+      text-align: center;
+      padding: 3rem 2rem;
+      background: linear-gradient(160deg, var(--temple-light), var(--temple-mid));
+      border: 1px solid var(--gold-dim);
+      clip-path: polygon(0 0, calc(100% - 16px) 0, 100% 16px, 100% 100%, 16px 100%, 0 calc(100% - 16px));
+      grid-column: 1 / -1;
+    }
+    .wallet-connect-hero.hidden { display: none; }
+    .wallet-connected-view { display: none; }
+    .wallet-connected-view.visible { display: grid; grid-template-columns: 1fr 1fr; gap: 1.5rem; }
+
+    .wallet-icon-big { font-size: 3rem; margin-bottom: 1rem; }
+    .wallet-connect-hero h3 {
+      font-family: var(--font-heading);
+      font-size: var(--text-xl);
+      font-weight: 700;
+      color: var(--gold-bright);
+      margin-bottom: .5rem;
+      letter-spacing: .04em;
+    }
+    .wallet-connect-hero p {
+      font-family: var(--font-body);
+      font-size: var(--text-sm);
+      color: var(--dust-light);
+      font-style: italic;
+      margin-bottom: 1.5rem;
+    }
+
+    .balance-card {
+      background: rgba(0,0,0,.3);
+      border: 1px solid rgba(200,150,12,.2);
+      padding: 1.25rem;
+      clip-path: polygon(4px 0%, 100% 0%, calc(100% - 4px) 100%, 0% 100%);
+    }
+    .balance-label {
+      font-family: var(--font-heading);
+      font-size: .55rem;
+      color: var(--dust);
+      text-transform: uppercase;
+      letter-spacing: .15em;
+      margin-bottom: .3rem;
+    }
+    .balance-val {
+      font-family: var(--font-heading);
+      font-size: var(--text-xl);
+      font-weight: 700;
+      color: var(--parchment);
+    }
+    .balance-usd {
+      font-family: var(--font-mono);
+      font-size: .6rem;
+      color: var(--dust);
+      margin-top: .1rem;
+    }
+
+    /* Earnings row */
+    .earnings-row {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: .75rem 0;
+      border-bottom: 1px solid rgba(200,150,12,.1);
+    }
+    .earnings-row:last-child { border-bottom: none; }
+    .earnings-label {
+      font-family: var(--font-heading);
+      font-size: .6rem;
+      color: var(--dust);
+      text-transform: uppercase;
+      letter-spacing: .1em;
+    }
+    .earnings-val {
+      font-family: var(--font-heading);
+      font-size: .75rem;
+      font-weight: 700;
+      color: var(--parchment);
+    }
+    .earnings-val.green { color: #4ade80; }
+
+    /* ── EMPTY STATE ─────────────────────────────────────────────────────────── */
+    .empty-state {
+      text-align: center;
+      padding: 3rem 2rem;
+      color: var(--dust);
+    }
+    .empty-icon { font-size: 2.5rem; opacity: .3; margin-bottom: .75rem; }
+    .empty-text {
+      font-family: var(--font-heading);
+      font-size: var(--text-sm);
+      letter-spacing: .05em;
+      font-style: italic;
+    }
+
+    /* ── LOADING SPINNER ────────────────────────────────────────────────────── */
+    .loader {
+      display: none;
+      align-items: center;
+      justify-content: center;
+      padding: 3rem;
+      gap: 1rem;
+      font-family: var(--font-heading);
+      font-size: var(--text-xs);
+      color: var(--gold-dim);
+      text-transform: uppercase;
+      letter-spacing: .15em;
+    }
+    .loader.active { display: flex; }
+    .loader-ring {
+      width: 24px;
+      height: 24px;
+      border: 2px solid rgba(200,150,12,.2);
+      border-top-color: var(--gold);
+      border-radius: 50%;
+      animation: spin 800ms linear infinite;
+    }
+    @keyframes spin { to { transform: rotate(360deg); } }
+
+    /* ── MAP BG TEXTURE ─────────────────────────────────────────────────────── */
+    .dash-bg-lines {
+      position: fixed;
+      inset: 0;
+      pointer-events: none;
+      z-index: 0;
+      opacity: .025;
+      background-image:
+        repeating-linear-gradient(0deg, var(--gold) 0px, transparent 1px, transparent 70px, var(--gold) 71px),
+        repeating-linear-gradient(90deg, var(--gold) 0px, transparent 1px, transparent 90px, var(--gold) 91px);
+    }
+
+    /* ── RESPONSIVE ─────────────────────────────────────────────────────────── */
+    @media (max-width: 1024px) {
+      .strategy-grid { grid-template-columns: 1fr; }
+      .wallet-connect-panel { grid-template-columns: 1fr; }
+    }
+    @media (max-width: 900px) {
+      .sidebar { display: none; }
+      .stat-row { grid-template-columns: repeat(2, 1fr); }
+      .intel-results.visible { grid-template-columns: 1fr; }
+    }
+    @media (max-width: 600px) {
+      .tab-panel { padding: 1rem; }
+      .dash-topbar { flex-direction: column; align-items: flex-start; }
+      .stat-row { grid-template-columns: 1fr 1fr; }
+      .strategy-grid { grid-template-columns: 1fr; }
+    }
+
+    /* ── NOTIFICATION TOAST ─────────────────────────────────────────────────── */
+    .toast {
+      position: fixed;
+      bottom: 2rem;
+      right: 2rem;
+      background: var(--temple-light);
+      border: 1px solid var(--gold-dim);
+      padding: .875rem 1.25rem;
+      display: flex;
+      align-items: center;
+      gap: .75rem;
+      font-family: var(--font-heading);
+      font-size: .65rem;
+      color: var(--parchment);
+      letter-spacing: .06em;
+      z-index: 999;
+      transform: translateY(100px);
+      opacity: 0;
+      transition: all 300ms ease;
+      clip-path: polygon(6px 0%, 100% 0%, calc(100% - 6px) 100%, 0% 100%);
+      max-width: 320px;
+    }
+    .toast.show { transform: translateY(0); opacity: 1; }
+    .toast-icon { font-size: 1.2rem; flex-shrink: 0; }
+
+    /* Scrollbar */
+    ::-webkit-scrollbar { width: 4px; }
+    ::-webkit-scrollbar-track { background: var(--temple); }
+    ::-webkit-scrollbar-thumb { background: var(--gold-dim); border-radius: 2px; }
+  </style>
+</head>
+<body>
+
+  <!-- NAV — copied exactly from index.html, with DASHBOARD link added -->
+  <nav class="nav">
+    <a href="/" class="logo" aria-label="Raiders of the Chain">
+      <svg viewBox="0 0 40 40" fill="none" width="36" height="36" aria-hidden="true">
+        <rect width="40" height="40" rx="6" fill="#FF4D00"/>
+        <path d="M8 20 L16 12 L20 16 L24 12 L32 20 L24 28 L20 24 L16 28 Z" fill="#000" stroke="none"/>
+        <circle cx="20" cy="20" r="3" fill="#FF4D00"/>
+      </svg>
+      <span class="logo-text">Raiders<span class="logo-sub"> of the Chain</span></span>
+    </a>
+    <div class="nav-links">
+      <a href="/#bots">Bots</a>
+      <a href="/#pricing">Pricing</a>
+      <a href="/#how">How it works</a>
+      <a href="/dashboard.html" class="nav-cta" style="background:var(--temple-light)!important;color:var(--gold-bright)!important;border-color:var(--gold-dim)!important;">Dashboard ⚔</a>
+      <a href="/#deploy" class="nav-cta">Deploy Your Raid →</a>
+    </div>
+    <button class="nav-mobile-btn" id="mobileMenuBtn" aria-label="Menu">
+      <span></span><span></span><span></span>
+    </button>
+  </nav>
+
+  <!-- BG TEXTURE -->
+  <div class="dash-bg-lines" aria-hidden="true"></div>
+
+  <!-- DASHBOARD WRAP -->
+  <div class="dash-wrap" style="position:relative;z-index:1;">
+
+    <!-- SIDEBAR -->
+    <aside class="sidebar">
+      <div class="sidebar-header">
+        <div class="sidebar-label">War Room</div>
+        <div class="sidebar-title">Raider Console</div>
+        <div class="sidebar-status">
+          <span class="status-dot"></span>
+          All systems operational
+        </div>
+      </div>
+
+      <nav class="sidebar-nav">
+        <div class="sidebar-section-label">Operations</div>
+        <button class="sidebar-link active" data-panel="active-raids" onclick="switchPanel('active-raids')">
+          <span class="link-icon">⚔️</span> Active Raids
+          <span class="link-badge">3</span>
+        </button>
+        <button class="sidebar-link" data-panel="token-intel" onclick="switchPanel('token-intel')">
+          <span class="link-icon">🔍</span> Token Intel
+        </button>
+        <button class="sidebar-link" data-panel="strategies" onclick="switchPanel('strategies')">
+          <span class="link-icon">🗺️</span> Raid Strategies
+        </button>
+
+        <div class="sidebar-section-label">Community</div>
+        <button class="sidebar-link" data-panel="leaderboard" onclick="switchPanel('leaderboard')">
+          <span class="link-icon">🏆</span> Leaderboard
+        </button>
+
+        <div class="sidebar-section-label">Account</div>
+        <button class="sidebar-link" data-panel="wallet" onclick="switchPanel('wallet')">
+          <span class="link-icon">👜</span> My Wallet
+        </button>
+        <a class="sidebar-link" href="/#deploy">
+          <span class="link-icon">🚀</span> Deploy Raid
+        </a>
+      </nav>
+
+      <div class="sidebar-footer">
+        <div class="sidebar-wallet" id="sidebarWallet" onclick="switchPanel('wallet')">
+          <div class="sidebar-wallet-label">Connected Wallet</div>
+          <div class="sidebar-wallet-addr" id="sidebarWalletAddr">Not connected</div>
+        </div>
+      </div>
+    </aside>
+
+    <!-- MAIN -->
+    <main class="dash-main">
+
+      <!-- TOP BAR -->
+      <div class="dash-topbar">
+        <div>
+          <div class="dash-topbar-title" id="panelTitle">Active Raids</div>
+          <div class="dash-topbar-sub" id="panelSub">Your running campaigns and raid operations</div>
+        </div>
+        <div class="dash-topbar-actions">
+          <span style="font-family:var(--font-heading);font-size:.6rem;color:var(--dust);text-transform:uppercase;letter-spacing:.1em;" id="currentTime"></span>
+          <a href="/#deploy" class="btn btn-primary" style="padding:.55rem 1.25rem;font-size:.65rem;">+ New Raid</a>
+        </div>
+      </div>
+
+      <!-- ── PANEL: ACTIVE RAIDS ─────────────────────────────────────────────── -->
+      <div class="tab-panel active" id="panel-active-raids">
+
+        <!-- Summary stats -->
+        <div class="stat-row">
+          <div class="stat-mini">
+            <div class="stat-mini-label">Active Raids</div>
+            <div class="stat-mini-val">3</div>
+            <div class="stat-mini-change change-up">↑ 1 this week</div>
+          </div>
+          <div class="stat-mini">
+            <div class="stat-mini-label">Tokens Pushed</div>
+            <div class="stat-mini-val">12</div>
+            <div class="stat-mini-change change-up">↑ 4 this month</div>
+          </div>
+          <div class="stat-mini">
+            <div class="stat-mini-label">Vol Generated</div>
+            <div class="stat-mini-val">$84K</div>
+            <div class="stat-mini-change change-up">↑ 18% vs last week</div>
+          </div>
+          <div class="stat-mini">
+            <div class="stat-mini-label">Raid Earnings</div>
+            <div class="stat-mini-val">$0.00</div>
+            <div class="stat-mini-change" style="color:var(--dust);">Connect wallet to claim</div>
+          </div>
+        </div>
+
+        <!-- Raids table -->
+        <div class="dash-card">
+          <div class="dash-card-header">
+            <div>
+              <div class="dash-card-title">Your Raids</div>
+              <div class="dash-card-sub">All campaigns you've launched or joined</div>
+            </div>
+            <a href="/#deploy" class="btn btn-primary" style="padding:.5rem 1rem;font-size:.6rem;white-space:nowrap;">+ Launch New Raid</a>
+          </div>
+          <div style="overflow-x:auto;">
+            <table class="dash-table">
+              <thead>
+                <tr>
+                  <th>Token</th>
+                  <th>Chain</th>
+                  <th>Status</th>
+                  <th>Bot Type</th>
+                  <th>Started</th>
+                  <th>Progress</th>
+                  <th>Actions</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr>
+                  <td>
+                    <div style="display:flex;flex-direction:column;gap:.1rem;">
+                      <span style="font-weight:700;color:var(--gold-bright);">$PEPE</span>
+                      <span class="mono">0x6982...d9F5</span>
+                    </div>
+                  </td>
+                  <td><span class="mono">Base</span></td>
+                  <td><span class="pill pill-active"><span class="pill-dot"></span>Active</span></td>
+                  <td><span class="bot-chip bot-chip-raid">⚔️ Raider</span></td>
+                  <td><span class="mono">Jun 12, '26</span></td>
+                  <td>
+                    <div style="display:flex;flex-direction:column;gap:.25rem;min-width:80px;">
+                      <div style="height:3px;background:rgba(0,0,0,.4);border:1px solid rgba(200,150,12,.15);">
+                        <div style="width:72%;height:100%;background:linear-gradient(90deg,var(--gold-dim),var(--gold-bright));"></div>
+                      </div>
+                      <span style="font-family:var(--font-mono);font-size:.5rem;color:var(--dust);">72% complete</span>
+                    </div>
+                  </td>
+                  <td style="white-space:nowrap;">
+                    <button class="tbl-btn" onclick="showToast('⏸️','Raid paused. Resume anytime.')">Pause</button>
+                    <button class="tbl-btn" style="margin-left:.4rem;" onclick="showToast('🔍','Loading raid details...')">View</button>
+                  </td>
+                </tr>
+                <tr>
+                  <td>
+                    <div style="display:flex;flex-direction:column;gap:.1rem;">
+                      <span style="font-weight:700;color:var(--gold-bright);">$GSB</span>
+                      <span class="mono">0x1a2b...f3E9</span>
+                    </div>
+                  </td>
+                  <td><span class="mono">Base</span></td>
+                  <td><span class="pill pill-active"><span class="pill-dot"></span>Active</span></td>
+                  <td><span class="bot-chip bot-chip-watch">📡 Watcher</span></td>
+                  <td><span class="mono">Jun 10, '26</span></td>
+                  <td>
+                    <div style="display:flex;flex-direction:column;gap:.25rem;min-width:80px;">
+                      <div style="height:3px;background:rgba(0,0,0,.4);border:1px solid rgba(200,150,12,.15);">
+                        <div style="width:100%;height:100%;background:linear-gradient(90deg,var(--gold-dim),var(--gold-bright));"></div>
+                      </div>
+                      <span style="font-family:var(--font-mono);font-size:.5rem;color:var(--dust);">Monitoring live</span>
+                    </div>
+                  </td>
+                  <td style="white-space:nowrap;">
+                    <button class="tbl-btn" onclick="showToast('⏸️','Watcher paused.')">Pause</button>
+                    <button class="tbl-btn" style="margin-left:.4rem;" onclick="showToast('🔍','Loading raid details...')">View</button>
+                  </td>
+                </tr>
+                <tr>
+                  <td>
+                    <div style="display:flex;flex-direction:column;gap:.1rem;">
+                      <span style="font-weight:700;color:var(--gold-bright);">$DEGEN</span>
+                      <span class="mono">0x4ed4...a1C2</span>
+                    </div>
+                  </td>
+                  <td><span class="mono">Base</span></td>
+                  <td><span class="pill pill-pending"><span class="pill-dot"></span>Pending</span></td>
+                  <td><span class="bot-chip bot-chip-preach">🔥 Preacher</span></td>
+                  <td><span class="mono">Jun 14, '26</span></td>
+                  <td>
+                    <div style="display:flex;flex-direction:column;gap:.25rem;min-width:80px;">
+                      <div style="height:3px;background:rgba(0,0,0,.4);border:1px solid rgba(200,150,12,.15);">
+                        <div style="width:8%;height:100%;background:linear-gradient(90deg,var(--gold-dim),var(--gold-bright));"></div>
+                      </div>
+                      <span style="font-family:var(--font-mono);font-size:.5rem;color:var(--dust);">Awaiting payment</span>
+                    </div>
+                  </td>
+                  <td style="white-space:nowrap;">
+                    <button class="tbl-btn" onclick="showToast('💳','Opening payment portal...')">Pay Now</button>
+                    <button class="tbl-btn tbl-btn-ghost" style="margin-left:.4rem;" onclick="showToast('🗑️','Raid cancelled.')">Cancel</button>
+                  </td>
+                </tr>
+                <tr>
+                  <td>
+                    <div style="display:flex;flex-direction:column;gap:.1rem;">
+                      <span style="font-weight:700;color:var(--dust-light);">$MOCHI</span>
+                      <span class="mono">0xbb90...c4A7</span>
+                    </div>
+                  </td>
+                  <td><span class="mono">ETH</span></td>
+                  <td><span class="pill pill-complete"><span class="pill-dot"></span>Complete</span></td>
+                  <td><span class="bot-chip bot-chip-raid">⚔️ Raider</span></td>
+                  <td><span class="mono">Jun 5, '26</span></td>
+                  <td>
+                    <div style="display:flex;flex-direction:column;gap:.25rem;min-width:80px;">
+                      <div style="height:3px;background:rgba(0,0,0,.4);border:1px solid rgba(200,150,12,.15);">
+                        <div style="width:100%;height:100%;background:linear-gradient(90deg,var(--stone),var(--dust));"></div>
+                      </div>
+                      <span style="font-family:var(--font-mono);font-size:.5rem;color:var(--dust);">Finished Jun 8</span>
+                    </div>
+                  </td>
+                  <td style="white-space:nowrap;">
+                    <button class="tbl-btn tbl-btn-ghost" onclick="showToast('📋','Campaign report loaded.')">Report</button>
+                    <button class="tbl-btn" style="margin-left:.4rem;" onclick="location.href='/#deploy'">Rerun</button>
+                  </td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div><!-- /active-raids -->
+
+      <!-- ── PANEL: TOKEN INTEL ──────────────────────────────────────────────── -->
+      <div class="tab-panel" id="panel-token-intel">
+
+        <div class="dash-card" style="margin-bottom:1.5rem;">
+          <div class="dash-card-header">
+            <div>
+              <div class="dash-card-title">Token Intel</div>
+              <div class="dash-card-sub">Search any token — get price, volume, whale data, and your Raid Score</div>
+            </div>
+          </div>
+          <div class="dash-card-body">
+            <div class="intel-search-bar">
+              <input type="text" id="tokenSearchInput" placeholder="Search token name or address — e.g. PEPE, GSB, 0x6982..." autocomplete="off">
+              <button class="btn btn-primary" style="padding:.8rem 1.5rem;" onclick="searchToken()">Search Intel →</button>
+            </div>
+            <div class="loader" id="tokenLoader">
+              <div class="loader-ring"></div>
+              Scanning chain data...
+            </div>
+            <div class="intel-placeholder" id="intelPlaceholder">
+              <div class="big-icon">🔭</div>
+              <p>Enter a token name or contract address above to pull live DexScreener data and calculate your Raid Score.</p>
+            </div>
+            <div class="intel-results" id="intelResults">
+              <!-- Dynamic content injected by JS -->
+            </div>
+          </div>
+        </div>
+
+        <!-- Recent searches -->
+        <div class="dash-card">
+          <div class="dash-card-header">
+            <div class="dash-card-title">Recent Searches</div>
+          </div>
+          <div class="dash-card-body" style="display:flex;gap:.5rem;flex-wrap:wrap;" id="recentSearches">
+            <button class="tbl-btn" onclick="document.getElementById('tokenSearchInput').value='PEPE';searchToken()">$PEPE</button>
+            <button class="tbl-btn" onclick="document.getElementById('tokenSearchInput').value='GSB';searchToken()">$GSB</button>
+            <button class="tbl-btn" onclick="document.getElementById('tokenSearchInput').value='DEGEN';searchToken()">$DEGEN</button>
+            <button class="tbl-btn" onclick="document.getElementById('tokenSearchInput').value='WIF';searchToken()">$WIF</button>
+            <button class="tbl-btn" onclick="document.getElementById('tokenSearchInput').value='BONK';searchToken()">$BONK</button>
+          </div>
+        </div>
+      </div><!-- /token-intel -->
+
+      <!-- ── PANEL: STRATEGIES ───────────────────────────────────────────────── -->
+      <div class="tab-panel" id="panel-strategies">
+
+        <div style="margin-bottom:1.5rem;">
+          <div style="font-family:var(--font-heading);font-size:.6rem;color:var(--gold-dim);text-transform:uppercase;letter-spacing:.2em;margin-bottom:.5rem;display:flex;align-items:center;gap:.5rem;">
+            <span style="flex:0 0 20px;height:1px;background:var(--gold-dim);display:inline-block;"></span>
+            Battle Plans
+            <span style="flex:0 0 20px;height:1px;background:var(--gold-dim);display:inline-block;"></span>
+          </div>
+          <p style="font-family:var(--font-body);font-size:var(--text-sm);color:var(--dust-light);font-style:italic;max-width:520px;">
+            Proven raid playbooks refined in the field. Each strategy is pre-configured for maximum impact. Pick your plan, deploy, and let the bots execute.
+          </p>
+        </div>
+
+        <div class="strategy-grid">
+
+          <!-- THE FLOOD -->
+          <div class="strategy-card">
+            <div class="strategy-header">
+              <div class="strategy-codename">Strategy Alpha</div>
+              <div class="strategy-name">🌊 The Flood</div>
+            </div>
+            <div class="strategy-body">
+              <p class="strategy-desc">Mass content saturation across Telegram and X simultaneously. Preacher bot fires high-frequency meme content while Raider bots coordinate synchronized group pushes. Designed for maximum reach in minimum time.</p>
+              <div style="font-family:var(--font-heading);font-size:.55rem;color:var(--gold-dim);text-transform:uppercase;letter-spacing:.15em;margin-bottom:.3rem;">Expected Outcomes</div>
+              <ul class="strategy-outcomes">
+                <li>5–15x volume spike within 6 hours</li>
+                <li>50–200 new community members</li>
+                <li>300+ targeted group impressions</li>
+                <li>X trending push (Top 100 if timed right)</li>
+              </ul>
+              <div style="background:rgba(0,0,0,.3);border:1px solid rgba(200,150,12,.15);padding:.75rem;font-family:var(--font-heading);font-size:.6rem;color:var(--dust-light);letter-spacing:.04em;">
+                ⚡ Best for: New token launch, relisting pump, low-cap gem discovery
+              </div>
+            </div>
+            <div class="strategy-footer">
+              <div class="strategy-fee">
+                <div class="strategy-fee-label">Est. Platform Fee</div>
+                <div class="strategy-fee-val">~$24.95</div>
+              </div>
+              <button class="btn btn-primary" style="padding:.6rem 1.1rem;font-size:.6rem;" onclick="deployStrategy('The Flood','raid+meme','24.95')">Deploy This Strategy →</button>
+            </div>
+          </div>
+
+          <!-- THE SNIPER -->
+          <div class="strategy-card" style="border-color:var(--gold);background:linear-gradient(160deg,rgba(200,150,12,.08) 0%,var(--temple-mid) 60%);box-shadow:0 0 30px rgba(200,150,12,.12);">
+            <div style="position:absolute;top:1rem;right:1rem;background:var(--gold);color:var(--leather-dark);font-family:var(--font-heading);font-size:.55rem;font-weight:700;padding:.2rem .6rem;letter-spacing:.1em;text-transform:uppercase;clip-path:polygon(6px 0%,100% 0%,calc(100% - 6px) 100%,0% 100%);">Most Effective</div>
+            <div class="strategy-header">
+              <div class="strategy-codename">Strategy Beta</div>
+              <div class="strategy-name">🎯 The Sniper</div>
+            </div>
+            <div class="strategy-body">
+              <p class="strategy-desc">Precision targeting of high-value whale communities and alpha group channels. Watcher bot identifies key opinion leaders and whale wallets, Raider bot infiltrates their circles with perfectly timed, high-conviction messaging.</p>
+              <div style="font-family:var(--font-heading);font-size:.55rem;color:var(--gold-dim);text-transform:uppercase;letter-spacing:.15em;margin-bottom:.3rem;">Expected Outcomes</div>
+              <ul class="strategy-outcomes">
+                <li>1–3 whale buys within 48 hours</li>
+                <li>Alpha group feature (potential 10–50x)</li>
+                <li>Sustained holder growth (low churn)</li>
+                <li>Telegram TG call inclusion</li>
+              </ul>
+              <div style="background:rgba(0,0,0,.3);border:1px solid rgba(200,150,12,.2);padding:.75rem;font-family:var(--font-heading);font-size:.6rem;color:var(--dust-light);letter-spacing:.04em;">
+                ⚡ Best for: Mid-cap with good fundamentals, tokens seeking quality holders
+              </div>
+            </div>
+            <div class="strategy-footer">
+              <div class="strategy-fee">
+                <div class="strategy-fee-label">Est. Platform Fee</div>
+                <div class="strategy-fee-val">~$49.00</div>
+              </div>
+              <button class="btn btn-primary" style="padding:.6rem 1.1rem;font-size:.6rem;" onclick="deployStrategy('The Sniper','raid+alert','49.00')">Deploy This Strategy →</button>
+            </div>
+          </div>
+
+          <!-- THE SIEGE -->
+          <div class="strategy-card">
+            <div class="strategy-header">
+              <div class="strategy-codename">Strategy Gamma</div>
+              <div class="strategy-name">🏰 The Siege</div>
+            </div>
+            <div class="strategy-body">
+              <p class="strategy-desc">A sustained 7-day full-spectrum campaign with all three bots running in coordinated waves. Day 1–2: awareness flood. Day 3–5: alpha targeting. Day 6–7: FOMO crescendo with Preacher bots in overdrive. Built for tokens that want to hold gains.</p>
+              <div style="font-family:var(--font-heading);font-size:.55rem;color:var(--gold-dim);text-transform:uppercase;letter-spacing:.15em;margin-bottom:.3rem;">Expected Outcomes</div>
+              <ul class="strategy-outcomes">
+                <li>Sustained 7-day volume elevation</li>
+                <li>Community growth: 500–2000+ members</li>
+                <li>Held gains post-campaign (70% retention)</li>
+                <li>Multiple wave pumps across the week</li>
+              </ul>
+              <div style="background:rgba(0,0,0,.3);border:1px solid rgba(200,150,12,.15);padding:.75rem;font-family:var(--font-heading);font-size:.6rem;color:var(--dust-light);letter-spacing:.04em;">
+                ⚡ Best for: Token relaunch, new exchange listing, sustained narrative build
+              </div>
+            </div>
+            <div class="strategy-footer">
+              <div class="strategy-fee">
+                <div class="strategy-fee-label">Est. Platform Fee</div>
+                <div class="strategy-fee-val">~$149.00</div>
+              </div>
+              <button class="btn btn-primary" style="padding:.6rem 1.1rem;font-size:.6rem;" onclick="deployStrategy('The Siege','all-bots','149.00')">Deploy This Strategy →</button>
+            </div>
+          </div>
+
+        </div>
+
+        <div style="margin-top:2rem;padding:1.25rem;background:rgba(0,0,0,.3);border:1px solid rgba(200,150,12,.15);font-family:var(--font-heading);font-size:.6rem;color:var(--dust);letter-spacing:.06em;text-align:center;">
+          Platform is free to use. GSB takes a fee from campaign transactions only. No hidden costs.
+          <a href="/#pricing" style="color:var(--gold-dim);text-decoration:underline;margin-left:.5rem;">See full pricing →</a>
+        </div>
+
+      </div><!-- /strategies -->
+
+      <!-- ── PANEL: LEADERBOARD ──────────────────────────────────────────────── -->
+      <div class="tab-panel" id="panel-leaderboard">
+
+        <div class="stat-row" style="margin-bottom:2rem;">
+          <div class="stat-mini">
+            <div class="stat-mini-label">Total Raiders</div>
+            <div class="stat-mini-val">847</div>
+            <div class="stat-mini-change change-up">↑ 23 this week</div>
+          </div>
+          <div class="stat-mini">
+            <div class="stat-mini-label">Raids This Week</div>
+            <div class="stat-mini-val">214</div>
+            <div class="stat-mini-change change-up">↑ 31% vs last</div>
+          </div>
+          <div class="stat-mini">
+            <div class="stat-mini-label">Total Vol Moved</div>
+            <div class="stat-mini-val">$2.4M</div>
+            <div class="stat-mini-change change-up">↑ all-time record</div>
+          </div>
+          <div class="stat-mini">
+            <div class="stat-mini-label">USDC Distributed</div>
+            <div class="stat-mini-val">$18.2K</div>
+            <div class="stat-mini-change change-up">↑ to top raiders</div>
+          </div>
+        </div>
+
+        <div class="dash-card">
+          <div class="dash-card-header">
+            <div>
+              <div class="dash-card-title">Top Raiders — This Week</div>
+              <div class="dash-card-sub">Rankings reset every Monday 00:00 UTC</div>
+            </div>
+            <span style="font-family:var(--font-heading);font-size:.55rem;color:var(--gold-dim);text-transform:uppercase;letter-spacing:.12em;background:rgba(200,150,12,.1);border:1px solid rgba(200,150,12,.2);padding:.3rem .75rem;">
+              ⏰ Resets in 3d 14h
+            </span>
+          </div>
+          <div style="overflow-x:auto;">
+            <table class="dash-table">
+              <thead>
+                <tr>
+                  <th>Rank</th>
+                  <th>Raider</th>
+                  <th>Raids Launched</th>
+                  <th>Tokens Pumped</th>
+                  <th>Volume Generated</th>
+                  <th>Earnings (USDC)</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr>
+                  <td><span class="lb-rank lb-rank-1">01</span></td>
+                  <td>
+                    <div class="lb-wallet">
+                      <span class="lb-wallet-addr">0x7f2A...d4E1</span>
+                      <span class="lb-wallet-tag">The Conquistador</span>
+                    </div>
+                  </td>
+                  <td><span style="font-family:var(--font-heading);font-weight:700;color:var(--parchment);">18</span></td>
+                  <td><span style="font-family:var(--font-heading);font-weight:700;color:var(--parchment);">7</span></td>
+                  <td><span class="mono">$341,000</span></td>
+                  <td><span class="lb-earnings">$892.40</span></td>
+                </tr>
+                <tr>
+                  <td><span class="lb-rank lb-rank-2">02</span></td>
+                  <td>
+                    <div class="lb-wallet">
+                      <span class="lb-wallet-addr">0x3c9B...a2F7</span>
+                      <span class="lb-wallet-tag">Señor Boom</span>
+                    </div>
+                  </td>
+                  <td><span style="font-family:var(--font-heading);font-weight:700;color:var(--parchment);">15</span></td>
+                  <td><span style="font-family:var(--font-heading);font-weight:700;color:var(--parchment);">5</span></td>
+                  <td><span class="mono">$218,500</span></td>
+                  <td><span class="lb-earnings">$640.20</span></td>
+                </tr>
+                <tr>
+                  <td><span class="lb-rank lb-rank-3">03</span></td>
+                  <td>
+                    <div class="lb-wallet">
+                      <span class="lb-wallet-addr">0xab4D...c8B3</span>
+                      <span class="lb-wallet-tag">Chain Witch</span>
+                    </div>
+                  </td>
+                  <td><span style="font-family:var(--font-heading);font-weight:700;color:var(--parchment);">12</span></td>
+                  <td><span style="font-family:var(--font-heading);font-weight:700;color:var(--parchment);">6</span></td>
+                  <td><span class="mono">$197,200</span></td>
+                  <td><span class="lb-earnings">$511.80</span></td>
+                </tr>
+                <tr>
+                  <td><span class="lb-rank lb-rank-other">04</span></td>
+                  <td>
+                    <div class="lb-wallet">
+                      <span class="lb-wallet-addr">0x55eC...f1A0</span>
+                      <span class="lb-wallet-tag">El Fantasma</span>
+                    </div>
+                  </td>
+                  <td>9</td>
+                  <td>4</td>
+                  <td><span class="mono">$142,700</span></td>
+                  <td><span class="lb-earnings">$388.10</span></td>
+                </tr>
+                <tr>
+                  <td><span class="lb-rank lb-rank-other">05</span></td>
+                  <td>
+                    <div class="lb-wallet">
+                      <span class="lb-wallet-addr">0x81fA...e7C4</span>
+                      <span class="lb-wallet-tag">Vault Raider</span>
+                    </div>
+                  </td>
+                  <td>8</td>
+                  <td>3</td>
+                  <td><span class="mono">$98,100</span></td>
+                  <td><span class="lb-earnings">$214.50</span></td>
+                </tr>
+                <tr>
+                  <td><span class="lb-rank lb-rank-other">06</span></td>
+                  <td>
+                    <div class="lb-wallet">
+                      <span class="lb-wallet-addr">0xd29E...b5F2</span>
+                      <span class="lb-wallet-tag">The Serpent</span>
+                    </div>
+                  </td>
+                  <td>7</td>
+                  <td>3</td>
+                  <td><span class="mono">$76,400</span></td>
+                  <td><span class="lb-earnings">$184.20</span></td>
+                </tr>
+                <tr>
+                  <td><span class="lb-rank lb-rank-other">07</span></td>
+                  <td>
+                    <div class="lb-wallet">
+                      <span class="lb-wallet-addr">0x43bC...9d1E</span>
+                      <span class="lb-wallet-tag">Dune Rider</span>
+                    </div>
+                  </td>
+                  <td>6</td>
+                  <td>2</td>
+                  <td><span class="mono">$54,800</span></td>
+                  <td><span class="lb-earnings">$142.60</span></td>
+                </tr>
+                <tr>
+                  <td><span class="lb-rank lb-rank-other">08</span></td>
+                  <td>
+                    <div class="lb-wallet">
+                      <span class="lb-wallet-addr">0xf70A...c2D8</span>
+                      <span class="lb-wallet-tag">Token Shaman</span>
+                    </div>
+                  </td>
+                  <td>5</td>
+                  <td>2</td>
+                  <td><span class="mono">$41,200</span></td>
+                  <td><span class="lb-earnings">$98.40</span></td>
+                </tr>
+                <tr>
+                  <td><span class="lb-rank lb-rank-other">09</span></td>
+                  <td>
+                    <div class="lb-wallet">
+                      <span class="lb-wallet-addr">0x92cF...7a4B</span>
+                      <span class="lb-wallet-tag">Shadow Flux</span>
+                    </div>
+                  </td>
+                  <td>4</td>
+                  <td>2</td>
+                  <td><span class="mono">$28,900</span></td>
+                  <td><span class="lb-earnings">$62.10</span></td>
+                </tr>
+                <tr>
+                  <td><span class="lb-rank lb-rank-other">10</span></td>
+                  <td>
+                    <div class="lb-wallet">
+                      <span class="lb-wallet-addr">0x0e8B...5f3C</span>
+                      <span class="lb-wallet-tag">Meme Conquistador</span>
+                    </div>
+                  </td>
+                  <td>4</td>
+                  <td>1</td>
+                  <td><span class="mono">$19,400</span></td>
+                  <td><span class="lb-earnings">$44.80</span></td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+          <div style="padding:1.25rem 1.5rem;border-top:1px solid rgba(200,150,12,.1);font-family:var(--font-heading);font-size:.55rem;color:var(--dust);text-align:center;letter-spacing:.08em;">
+            Your rank this week: <span style="color:var(--gold-bright);font-weight:700;">Not ranked</span> — Launch your first raid to enter the leaderboard.
+            <a href="/#deploy" style="color:var(--gold-dim);text-decoration:underline;margin-left:.5rem;">Deploy now →</a>
+          </div>
+        </div>
+
+      </div><!-- /leaderboard -->
+
+      <!-- ── PANEL: WALLET ───────────────────────────────────────────────────── -->
+      <div class="tab-panel" id="panel-wallet">
+
+        <!-- Not connected state -->
+        <div id="walletNotConnected">
+          <div style="max-width:520px;margin:0 auto;">
+            <div class="wallet-connect-hero" style="clip-path:none;grid-column:auto;">
+              <div class="wallet-icon-big">👜</div>
+              <h3>Connect Your Wallet</h3>
+              <p>Link your Web3 wallet to track earnings, claim fee shares, and unlock your raider rank. The platform is free — we take a cut from campaigns only.</p>
+              <div style="display:flex;gap:.75rem;justify-content:center;flex-wrap:wrap;">
+                <button class="btn btn-primary" onclick="connectWallet('metamask')">Connect MetaMask</button>
+                <button class="btn btn-ghost" onclick="connectWallet('walletconnect')">WalletConnect</button>
+              </div>
+              <div style="margin-top:1.5rem;font-family:var(--font-heading);font-size:.55rem;color:var(--dust);text-transform:uppercase;letter-spacing:.1em;">
+                🔒 Read-only access. We never request signing rights.
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Connected state -->
+        <div id="walletConnected" style="display:none;">
+          <div class="stat-row" style="margin-bottom:2rem;">
+            <div class="stat-mini">
+              <div class="stat-mini-label">Connected Wallet</div>
+              <div id="walletAddrDisplay" class="stat-mini-val" style="font-family:var(--font-mono);font-size:var(--text-sm);">—</div>
+            </div>
+            <div class="stat-mini">
+              <div class="stat-mini-label">ETH Balance</div>
+              <div class="stat-mini-val">2.41 ETH</div>
+              <div class="stat-mini-change" style="color:var(--dust);">≈ $8,434 USD</div>
+            </div>
+            <div class="stat-mini">
+              <div class="stat-mini-label">SOL Balance</div>
+              <div class="stat-mini-val">14.8 SOL</div>
+              <div class="stat-mini-change" style="color:var(--dust);">≈ $2,072 USD</div>
+            </div>
+            <div class="stat-mini">
+              <div class="stat-mini-label">USDC Balance</div>
+              <div class="stat-mini-val">450.00</div>
+              <div class="stat-mini-change change-up">Ready to deploy</div>
+            </div>
+          </div>
+
+          <div style="display:grid;grid-template-columns:1fr 1fr;gap:1.5rem;margin-bottom:1.5rem;">
+
+            <!-- Earnings Card -->
+            <div class="dash-card">
+              <div class="dash-card-header">
+                <div class="dash-card-title">Raid Earnings</div>
+              </div>
+              <div class="dash-card-body">
+                <div class="earnings-row">
+                  <span class="earnings-label">Earnings from raids</span>
+                  <span class="earnings-val green">$0.00 USDC</span>
+                </div>
+                <div class="earnings-row">
+                  <span class="earnings-label">Fee share rate</span>
+                  <span class="earnings-val">10%</span>
+                </div>
+                <div class="earnings-row">
+                  <span class="earnings-label">Pending payout</span>
+                  <span class="earnings-val">$0.00 USDC</span>
+                </div>
+                <div class="earnings-row">
+                  <span class="earnings-label">Total raids launched</span>
+                  <span class="earnings-val">0</span>
+                </div>
+                <div class="earnings-row">
+                  <span class="earnings-label">Leaderboard rank</span>
+                  <span class="earnings-val" style="color:var(--dust);">Unranked</span>
+                </div>
+                <div style="margin-top:1.25rem;">
+                  <button class="btn btn-ghost" style="width:100%;padding:.6rem;" onclick="showToast('💸','Payouts process every Monday.')">Claim Earnings</button>
+                </div>
+              </div>
+            </div>
+
+            <!-- Fee Info Card -->
+            <div class="dash-card">
+              <div class="dash-card-header">
+                <div class="dash-card-title">Fee Structure</div>
+              </div>
+              <div class="dash-card-body">
+                <div class="earnings-row">
+                  <span class="earnings-label">Platform fee (GSB)</span>
+                  <span class="earnings-val">90%</span>
+                </div>
+                <div class="earnings-row">
+                  <span class="earnings-label">Raider share</span>
+                  <span class="earnings-val green">10%</span>
+                </div>
+                <div class="earnings-row">
+                  <span class="earnings-label">Payout token</span>
+                  <span class="earnings-val">USDC on Base</span>
+                </div>
+                <div class="earnings-row">
+                  <span class="earnings-label">Payout schedule</span>
+                  <span class="earnings-val">Weekly</span>
+                </div>
+                <div style="margin-top:1rem;padding:1rem;background:rgba(200,150,12,.06);border:1px solid rgba(200,150,12,.15);font-family:var(--font-heading);font-size:.55rem;color:var(--dust-light);letter-spacing:.06em;line-height:1.6;">
+                  As a raider, you earn 10% of every campaign fee generated by raids you participate in. No lock-ups. Paid weekly to your connected wallet on Base.
+                </div>
+                <div style="margin-top:1rem;">
+                  <button class="btn btn-primary" style="width:100%;padding:.6rem;" onclick="location.href='/#deploy'">Start Earning →</button>
+                </div>
+              </div>
+            </div>
+
+          </div>
+
+          <!-- GSB payment address -->
+          <div style="padding:1.1rem 1.5rem;background:rgba(0,0,0,.3);border:1px solid rgba(200,150,12,.15);font-family:var(--font-heading);font-size:.6rem;color:var(--dust);letter-spacing:.06em;display:flex;align-items:center;gap:.75rem;flex-wrap:wrap;">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M12 8v4M12 16h.01"/></svg>
+            Campaign payments go to GSB Agent wallet on Base:
+            <code style="font-family:var(--font-mono);color:var(--gold-dim);font-size:.6rem;">0x592b6eEbd4C99b49Cf23f722E4F62FAEf4cD044d</code>
+            <button class="tbl-btn" onclick="navigator.clipboard.writeText('0x592b6eEbd4C99b49Cf23f722E4F62FAEf4cD044d');showToast('📋','Address copied!')">Copy</button>
+          </div>
+
+          <div style="margin-top:1rem;text-align:right;">
+            <button class="tbl-btn tbl-btn-ghost" onclick="disconnectWallet()">Disconnect Wallet</button>
+          </div>
+        </div>
+
+      </div><!-- /wallet -->
+
+    </main>
+  </div><!-- /dash-wrap -->
+
+  <!-- TOAST -->
+  <div class="toast" id="toast">
+    <span class="toast-icon" id="toastIcon">⚔️</span>
+    <span id="toastMsg">Action complete.</span>
+  </div>
+
+  <!-- FOOTER -->
+  <footer class="footer">
+    <div class="container footer-inner">
+      <div class="footer-brand">
+        <a href="/" class="logo">
+          <svg viewBox="0 0 40 40" fill="none" width="28" height="28" aria-hidden="true">
+            <rect width="40" height="40" rx="6" fill="#FF4D00"/>
+            <path d="M8 20 L16 12 L20 16 L24 12 L32 20 L24 28 L20 24 L16 28 Z" fill="#000"/>
+            <circle cx="20" cy="20" r="3" fill="#FF4D00"/>
+          </svg>
+          <span class="logo-text">Raiders of the Chain</span>
+        </a>
+        <p>AI-powered Web3 marketing intelligence.<br>Powered by GSB Agent Gas Bible on Base.</p>
+      </div>
+      <div class="footer-links">
+        <div class="footer-col">
+          <div class="footer-col-title">Dashboard</div>
+          <a href="#" onclick="switchPanel('active-raids');return false;">Active Raids</a>
+          <a href="#" onclick="switchPanel('token-intel');return false;">Token Intel</a>
+          <a href="#" onclick="switchPanel('leaderboard');return false;">Leaderboard</a>
+        </div>
+        <div class="footer-col">
+          <div class="footer-col-title">Connect</div>
+          <a href="https://t.me/cheferikosol" target="_blank">Telegram</a>
+          <a href="https://x.com/cheferikosol" target="_blank">X / Twitter</a>
+          <a href="https://app.virtuals.io/virtuals/68291" target="_blank">GSB on Virtuals</a>
+        </div>
+      </div>
+    </div>
+    <div class="footer-bottom">
+      <p>© 2026 MCFL Restaurant Holdings LLC · Raiders of the Chain · Payments to <code>0x592b6eEbd4C99b49Cf23f722E4F62FAEf4cD044d</code> on Base</p>
+      <p>Not financial advice. Campaigns are marketing services only.</p>
+    </div>
+  </footer>
+
+  <script>
+    // ── PANEL SWITCHING ──────────────────────────────────────────────────────
+    const panelMeta = {
+      'active-raids':  { title: 'Active Raids',     sub: 'Your running campaigns and raid operations' },
+      'token-intel':   { title: 'Token Intel',       sub: 'Search any token — live DexScreener data + Raid Score' },
+      'strategies':    { title: 'Raid Strategies',   sub: 'Battle-tested playbooks for maximum impact' },
+      'leaderboard':   { title: 'Leaderboard',       sub: 'Top raiders this week — rankings reset every Monday' },
+      'wallet':        { title: 'My Wallet',         sub: 'Connect your wallet to track earnings and fee share' },
+    };
+
+    function switchPanel(id) {
+      document.querySelectorAll('.tab-panel').forEach(p => p.classList.remove('active'));
+      document.querySelectorAll('.sidebar-link').forEach(l => l.classList.remove('active'));
+      document.getElementById('panel-' + id).classList.add('active');
+      document.querySelector('[data-panel="' + id + '"]')?.classList.add('active');
+      const meta = panelMeta[id];
+      if (meta) {
+        document.getElementById('panelTitle').textContent = meta.title;
+        document.getElementById('panelSub').textContent = meta.sub;
+      }
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+    }
+
+    // ── CLOCK ────────────────────────────────────────────────────────────────
+    function updateClock() {
+      const now = new Date();
+      const utc = now.toUTCString().replace('GMT', 'UTC').split(' ').slice(1, 5).join(' ');
+      document.getElementById('currentTime').textContent = utc;
+    }
+    updateClock();
+    setInterval(updateClock, 1000);
+
+    // ── TOAST ────────────────────────────────────────────────────────────────
+    let toastTimer;
+    function showToast(icon, msg) {
+      const toast = document.getElementById('toast');
+      document.getElementById('toastIcon').textContent = icon;
+      document.getElementById('toastMsg').textContent = msg;
+      toast.classList.add('show');
+      clearTimeout(toastTimer);
+      toastTimer = setTimeout(() => toast.classList.remove('show'), 3000);
+    }
+
+    // ── TOKEN INTEL ──────────────────────────────────────────────────────────
+    document.getElementById('tokenSearchInput').addEventListener('keydown', e => {
+      if (e.key === 'Enter') searchToken();
+    });
+
+    function calcRaidScore(pair) {
+      // Score based on volume, liquidity, price change, and activity
+      let score = 0;
+      const vol24h = parseFloat(pair.volume?.h24 || 0);
+      const liq = parseFloat(pair.liquidity?.usd || 0);
+      const priceChange = parseFloat(pair.priceChange?.h24 || 0);
+      const txns = (pair.txns?.h24?.buys || 0) + (pair.txns?.h24?.sells || 0);
+
+      // Volume factor (0-30)
+      if (vol24h > 1000000) score += 30;
+      else if (vol24h > 100000) score += 20;
+      else if (vol24h > 10000) score += 12;
+      else if (vol24h > 1000) score += 5;
+
+      // Liquidity factor (0-20)
+      if (liq > 500000) score += 20;
+      else if (liq > 100000) score += 14;
+      else if (liq > 10000) score += 8;
+      else if (liq > 1000) score += 3;
+
+      // Price momentum (0-25)
+      const absChange = Math.abs(priceChange);
+      if (absChange > 50) score += 25;
+      else if (absChange > 20) score += 18;
+      else if (absChange > 10) score += 12;
+      else if (absChange > 5) score += 6;
+
+      // Transaction activity (0-25)
+      if (txns > 5000) score += 25;
+      else if (txns > 1000) score += 18;
+      else if (txns > 200) score += 12;
+      else if (txns > 50) score += 6;
+
+      return Math.min(99, Math.max(1, score));
+    }
+
+    function fmtNum(n) {
+      if (!n) return '—';
+      n = parseFloat(n);
+      if (n >= 1e9) return '$' + (n/1e9).toFixed(2) + 'B';
+      if (n >= 1e6) return '$' + (n/1e6).toFixed(2) + 'M';
+      if (n >= 1e3) return '$' + (n/1e3).toFixed(1) + 'K';
+      return '$' + n.toFixed(2);
+    }
+
+    function fmtPrice(p) {
+      if (!p) return '—';
+      p = parseFloat(p);
+      if (p < 0.000001) return '$' + p.toExponential(3);
+      if (p < 0.001) return '$' + p.toFixed(7);
+      if (p < 1) return '$' + p.toFixed(5);
+      return '$' + p.toFixed(4);
+    }
+
+    async function searchToken() {
+      const q = document.getElementById('tokenSearchInput').value.trim();
+      if (!q) return;
+
+      document.getElementById('intelPlaceholder').style.display = 'none';
+      document.getElementById('intelResults').classList.remove('visible');
+      document.getElementById('tokenLoader').classList.add('active');
+
+      try {
+        const res = await fetch(`https://api.dexscreener.com/latest/dex/search?q=${encodeURIComponent(q)}`);
+        const data = await res.json();
+        const pairs = data.pairs || [];
+        document.getElementById('tokenLoader').classList.remove('active');
+
+        if (!pairs.length) {
+          document.getElementById('intelPlaceholder').style.display = 'block';
+          document.getElementById('intelPlaceholder').innerHTML = `
+            <div class="big-icon">🔭</div>
+            <p>No pairs found for "<strong>${q}</strong>". Try a different token name or address.</p>`;
+          return;
+        }
+
+        const pair = pairs[0];
+        const score = calcRaidScore(pair);
+        const change = parseFloat(pair.priceChange?.h24 || 0);
+        const changeClass = change >= 0 ? 'up' : 'down';
+        const changeStr = (change >= 0 ? '+' : '') + change.toFixed(2) + '%';
+
+        const tierLabel = score >= 75 ? 'HOT TARGET' : score >= 50 ? 'WARM TARGET' : 'COOL TARGET';
+        const tierClass = score >= 75 ? 'tier-hot' : score >= 50 ? 'tier-warm' : 'tier-cool';
+
+        const sym = pair.baseToken?.symbol || q.toUpperCase();
+        const name = pair.baseToken?.name || sym;
+        const addr = pair.baseToken?.address || '—';
+        const addrShort = addr.length > 10 ? addr.slice(0,6) + '...' + addr.slice(-4) : addr;
+
+        // Factor bars
+        const volScore = Math.min(100, ((parseFloat(pair.volume?.h24||0)/1000000)*30).toFixed(0));
+        const liqScore = Math.min(100, ((parseFloat(pair.liquidity?.usd||0)/500000)*20).toFixed(0));
+        const momScore = Math.min(100, (Math.abs(change)/50*25).toFixed(0));
+        const txnScore = Math.min(100, (((pair.txns?.h24?.buys||0)+(pair.txns?.h24?.sells||0))/5000*25).toFixed(0));
+
+        document.getElementById('intelResults').innerHTML = `
+          <div>
+            <div class="token-meta">
+              <div class="token-icon">${sym.slice(0,2).toUpperCase()}</div>
+              <div class="token-name-block">
+                <div class="token-symbol">$${sym}</div>
+                <div class="token-fullname">${name}</div>
+              </div>
+            </div>
+            <div class="intel-grid">
+              <div class="intel-stat">
+                <div class="intel-stat-label">Price</div>
+                <div class="intel-stat-val gold">${fmtPrice(pair.priceUsd)}</div>
+              </div>
+              <div class="intel-stat">
+                <div class="intel-stat-label">24h Change</div>
+                <div class="intel-stat-val ${changeClass}">${changeStr}</div>
+              </div>
+              <div class="intel-stat">
+                <div class="intel-stat-label">24h Volume</div>
+                <div class="intel-stat-val">${fmtNum(pair.volume?.h24)}</div>
+              </div>
+              <div class="intel-stat">
+                <div class="intel-stat-label">Liquidity</div>
+                <div class="intel-stat-val">${fmtNum(pair.liquidity?.usd)}</div>
+              </div>
+              <div class="intel-stat">
+                <div class="intel-stat-label">Market Cap</div>
+                <div class="intel-stat-val">${fmtNum(pair.marketCap || pair.fdv)}</div>
+              </div>
+              <div class="intel-stat">
+                <div class="intel-stat-label">DEX / Chain</div>
+                <div class="intel-stat-val" style="font-size:var(--text-sm);">${pair.dexId || '—'} / ${pair.chainId || '—'}</div>
+              </div>
+            </div>
+            <div class="intel-stat" style="margin-bottom:1rem;">
+              <div class="intel-stat-label">Contract Address</div>
+              <div class="token-address" style="font-size:.65rem;margin-top:.25rem;">${addr}</div>
+            </div>
+            <div class="intel-stat" style="margin-bottom:1.25rem;">
+              <div class="intel-stat-label">24h Transactions</div>
+              <div style="display:flex;gap:1rem;margin-top:.25rem;">
+                <span style="font-family:var(--font-heading);font-size:.65rem;color:#4ade80;">↑ ${(pair.txns?.h24?.buys||0).toLocaleString()} buys</span>
+                <span style="font-family:var(--font-heading);font-size:.65rem;color:#f87171;">↓ ${(pair.txns?.h24?.sells||0).toLocaleString()} sells</span>
+              </div>
+            </div>
+            <a href="/#deploy?token=${encodeURIComponent(sym)}&address=${encodeURIComponent(addr)}" class="btn btn-primary" style="width:100%;justify-content:center;">
+              Quick Deploy Raid on $${sym} →
+            </a>
+          </div>
+          <div>
+            <div class="raid-score-card">
+              <div class="raid-score-label">Raid Score</div>
+              <div class="raid-score-num" id="scoreNum">0</div>
+              <div class="raid-score-bar-wrap">
+                <div class="raid-score-bar" id="scoreBar" style="width:0%"></div>
+              </div>
+              <div class="raid-score-tier ${tierClass}">${tierLabel}</div>
+              <div class="raid-score-factors">
+                <div class="factor-row">
+                  <span>Volume</span>
+                  <div class="factor-bar-wrap"><div class="factor-bar" style="width:${volScore}%"></div></div>
+                  <span>${volScore}/30</span>
+                </div>
+                <div class="factor-row">
+                  <span>Liquidity</span>
+                  <div class="factor-bar-wrap"><div class="factor-bar" style="width:${liqScore}%"></div></div>
+                  <span>${liqScore}/20</span>
+                </div>
+                <div class="factor-row">
+                  <span>Momentum</span>
+                  <div class="factor-bar-wrap"><div class="factor-bar" style="width:${momScore}%"></div></div>
+                  <span>${momScore}/25</span>
+                </div>
+                <div class="factor-row">
+                  <span>Activity</span>
+                  <div class="factor-bar-wrap"><div class="factor-bar" style="width:${txnScore}%"></div></div>
+                  <span>${txnScore}/25</span>
+                </div>
+              </div>
+            </div>
+            <div style="margin-top:1rem;padding:1rem;background:rgba(0,0,0,.3);border:1px solid rgba(200,150,12,.15);font-family:var(--font-heading);font-size:.6rem;color:var(--dust-light);letter-spacing:.06em;line-height:1.7;">
+              <strong style="color:var(--gold-dim);display:block;margin-bottom:.4rem;">RAID INTEL</strong>
+              Score of <strong style="color:var(--gold-bright);">${score}/100</strong>. ${score >= 75 ? 'High activity and momentum — ideal conditions for a coordinated flood raid.' : score >= 50 ? 'Moderate momentum detected. Sniper strategy recommended for quality entry.' : 'Low activity. Siege strategy may build sustained momentum over time.'}
+            </div>
+          </div>
+        `;
+
+        document.getElementById('intelResults').classList.add('visible');
+
+        // Animate score
+        let cur = 0;
+        const target = score;
+        const step = () => {
+          cur = Math.min(cur + 2, target);
+          document.getElementById('scoreNum').textContent = cur;
+          document.getElementById('scoreBar').style.width = cur + '%';
+          if (cur < target) requestAnimationFrame(step);
+        };
+        requestAnimationFrame(step);
+
+      } catch (err) {
+        document.getElementById('tokenLoader').classList.remove('active');
+        document.getElementById('intelPlaceholder').style.display = 'block';
+        document.getElementById('intelPlaceholder').innerHTML = `
+          <div class="big-icon">⚠️</div>
+          <p>Failed to fetch data. Check your connection and try again.</p>`;
+      }
+    }
+
+    // ── STRATEGY DEPLOY ──────────────────────────────────────────────────────
+    function deployStrategy(name, bots, fee) {
+      const params = new URLSearchParams({ strategy: name, bot: bots, fee });
+      window.location.href = `/#deploy?${params}`;
+    }
+
+    // ── WALLET CONNECT ───────────────────────────────────────────────────────
+    let connectedAddress = null;
+
+    function connectWallet(provider) {
+      // Mock wallet connection
+      showToast('🔗', `Connecting ${provider === 'metamask' ? 'MetaMask' : 'WalletConnect'}...`);
+      setTimeout(() => {
+        connectedAddress = '0x' + Math.random().toString(16).slice(2, 8).toUpperCase() + '...' + Math.random().toString(16).slice(2, 6).toUpperCase();
+        document.getElementById('walletNotConnected').style.display = 'none';
+        document.getElementById('walletConnected').style.display = 'block';
+        document.getElementById('walletAddrDisplay').textContent = connectedAddress;
+        document.getElementById('sidebarWalletAddr').textContent = connectedAddress;
+        showToast('✅', 'Wallet connected successfully!');
+      }, 1200);
+    }
+
+    function disconnectWallet() {
+      connectedAddress = null;
+      document.getElementById('walletConnected').style.display = 'none';
+      document.getElementById('walletNotConnected').style.display = 'block';
+      document.getElementById('sidebarWalletAddr').textContent = 'Not connected';
+      showToast('👋', 'Wallet disconnected.');
+    }
+
+    // ── MOBILE NAV ───────────────────────────────────────────────────────────
+    document.getElementById('mobileMenuBtn')?.addEventListener('click', function() {
+      const nav = document.querySelector('.nav-links');
+      if (nav) {
+        nav.style.display = nav.style.display === 'flex' ? 'none' : 'flex';
+        nav.style.flexDirection = 'column';
+        nav.style.position = 'absolute';
+        nav.style.top = '62px';
+        nav.style.left = '0';
+        nav.style.right = '0';
+        nav.style.background = 'var(--leather-dark)';
+        nav.style.padding = '1rem 2rem';
+        nav.style.borderBottom = '1px solid var(--gold-dim)';
+        nav.style.zIndex = '99';
+      }
+    });
+
+    // ── URL HASH ROUTING ─────────────────────────────────────────────────────
+    const hash = window.location.hash.replace('#', '');
+    if (panelMeta[hash]) switchPanel(hash);
+  </script>
+
+</body>
+</html>
