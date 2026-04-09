@@ -10,325 +10,442 @@
   <link rel="stylesheet" href="style.css">
   <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'><rect width='32' height='32' rx='4' fill='%23FF4D00'/><text x='16' y='22' text-anchor='middle' font-family='monospace' font-weight='900' font-size='16' fill='%23000'>⚔</text></svg>">
   <style>
-    /* ── LAYOUT ── */
-    .wr-shell { display:flex; min-height:calc(100vh - 62px); background:var(--temple); }
+    /* ══════════════════════════════════════════════════
+       WAR ROOM — 3 COLUMN LAYOUT
+    ══════════════════════════════════════════════════ */
 
-    /* ── SIDEBAR ── */
-    .wr-sidebar {
-      width:220px; flex-shrink:0;
-      background:var(--leather-dark);
-      border-right:1px solid var(--gold-dim);
-      display:flex; flex-direction:column;
-      position:sticky; top:62px;
-      height:calc(100vh - 62px); overflow-y:auto;
-    }
-    .wr-sb-head {
-      padding:1.25rem 1rem .75rem;
-      border-bottom:1px solid rgba(200,150,12,.2);
-    }
-    .wr-sb-label { font-family:var(--font-heading); font-size:.5rem; color:var(--gold-dim); text-transform:uppercase; letter-spacing:.25em; margin-bottom:.35rem; }
-    .wr-sb-title { font-family:var(--font-heading); font-size:.75rem; font-weight:700; color:var(--gold-bright); }
-    .wr-sb-live {
-      display:flex; align-items:center; gap:.4rem; margin-top:.4rem;
-      font-family:var(--font-mono); font-size:.55rem; color:#4ade80;
-    }
-    .live-dot { width:6px; height:6px; border-radius:50%; background:#4ade80; animation:pulse 1.5s infinite; }
-    .wr-sb-nav { flex:1; padding:.75rem 0; }
-    .wr-sb-section { font-family:var(--font-heading); font-size:.48rem; color:var(--stone); text-transform:uppercase; letter-spacing:.2em; padding:.65rem 1rem .25rem; }
-    .wr-sb-btn {
-      display:flex; align-items:center; gap:.6rem;
-      padding:.6rem 1rem; width:100%;
-      font-family:var(--font-heading); font-size:.6rem; color:var(--dust-light);
-      text-transform:uppercase; letter-spacing:.08em;
-      background:none; border:none; cursor:pointer;
-      border-left:2px solid transparent;
-      transition:all .15s;
-    }
-    .wr-sb-btn:hover { color:var(--gold-bright); background:rgba(200,150,12,.07); }
-    .wr-sb-btn.active { color:var(--gold-bright); border-left-color:var(--gold); background:rgba(200,150,12,.12); }
-    .wr-sb-btn .sb-icon { font-size:.85rem; width:16px; text-align:center; }
-    .sb-badge {
-      margin-left:auto; background:var(--gold); color:var(--leather-dark);
-      font-family:var(--font-mono); font-size:.45rem; font-weight:700;
-      padding:.1rem .35rem; border-radius:10px;
-    }
-    .sb-badge.red { background:#ef4444; color:#fff; }
-    .sb-badge.green { background:#22c55e; color:#fff; }
+    *, *::before, *::after { box-sizing: border-box; }
 
-    /* ── MAIN ── */
-    .wr-main { flex:1; overflow:hidden; display:flex; flex-direction:column; min-width:0; }
-    .wr-topbar {
-      display:flex; align-items:center; justify-content:space-between;
-      padding:.75rem 1.5rem;
-      background:var(--leather-dark);
-      border-bottom:1px solid var(--gold-dim);
-      position:sticky; top:62px; z-index:10;
+    .wr-shell {
+      display: grid;
+      grid-template-columns: 320px 1fr 260px;
+      grid-template-rows: auto 1fr;
+      min-height: calc(100vh - 62px);
+      background: var(--temple);
     }
-    .wr-topbar-left h2 { font-family:var(--font-heading); font-size:.85rem; font-weight:700; color:var(--gold-bright); }
-    .wr-topbar-left p { font-family:var(--font-mono); font-size:.55rem; color:var(--dust); margin-top:.15rem; }
-    .wr-topbar-right { display:flex; align-items:center; gap:.75rem; }
-    .wr-clock { font-family:var(--font-mono); font-size:.6rem; color:var(--dust); }
 
-    /* ── STATS BAR ── */
-    .wr-stats-bar {
-      display:grid; grid-template-columns:repeat(5,1fr);
-      gap:1px; background:var(--gold-dim);
-      border-bottom:1px solid var(--gold-dim);
+    /* ── STATS BAR (full width top) ── */
+    .wr-statsbar {
+      grid-column: 1 / -1;
+      display: grid;
+      grid-template-columns: repeat(5, 1fr);
+      gap: 1px;
+      background: var(--gold-dim);
+      border-bottom: 2px solid var(--gold-dim);
     }
     .wr-stat {
-      background:var(--temple-mid);
-      padding:.75rem 1rem;
-      display:flex; flex-direction:column; gap:.2rem;
+      background: var(--leather-dark);
+      padding: .7rem 1rem;
+      display: flex; flex-direction: column; gap: .15rem;
     }
-    .wr-stat-label { font-family:var(--font-heading); font-size:.48rem; color:var(--dust); text-transform:uppercase; letter-spacing:.12em; }
-    .wr-stat-val { font-family:var(--font-mono); font-size:.9rem; font-weight:700; color:var(--gold-bright); }
-    .wr-stat-val.green { color:#4ade80; }
-    .wr-stat-val.red { color:#f87171; }
-    .wr-stat-sub { font-family:var(--font-mono); font-size:.5rem; color:var(--stone); }
-
-    /* ── PANELS ── */
-    .wr-panel { display:none; padding:1.25rem 1.5rem; overflow-y:auto; height:calc(100vh - 62px - 48px - 64px); }
-    .wr-panel.active { display:block; }
-
-    /* ── CARDS ── */
-    .wr-card {
-      background:var(--temple-mid);
-      border:1px solid var(--gold-dim);
-      border-radius:var(--r);
-      margin-bottom:1.25rem;
-      overflow:hidden;
+    .wr-stat-label {
+      font-family: var(--font-heading); font-size: .46rem;
+      color: var(--stone); text-transform: uppercase; letter-spacing: .14em;
     }
-    .wr-card-head {
-      display:flex; align-items:center; justify-content:space-between;
-      padding:.85rem 1.1rem;
-      border-bottom:1px solid rgba(200,150,12,.2);
-      background:rgba(200,150,12,.04);
+    .wr-stat-val {
+      font-family: var(--font-mono); font-size: 1rem; font-weight: 700;
+      color: var(--gold-bright);
     }
-    .wr-card-title { font-family:var(--font-heading); font-size:.7rem; font-weight:700; color:var(--gold-bright); text-transform:uppercase; letter-spacing:.08em; }
-    .wr-card-sub { font-family:var(--font-mono); font-size:.52rem; color:var(--dust); margin-top:.1rem; }
-    .wr-card-body { padding:1rem 1.1rem; }
+    .wr-stat-val.green { color: #4ade80; }
+    .wr-stat-val.red   { color: #f87171; }
+    .wr-stat-sub { font-family: var(--font-mono); font-size: .48rem; color: var(--stone); }
 
-    /* ── GRID ── */
-    .wr-grid-2 { display:grid; grid-template-columns:1fr 1fr; gap:1.25rem; }
-    .wr-grid-3 { display:grid; grid-template-columns:1fr 1fr 1fr; gap:1.25rem; }
+    /* ── LEFT: COMMAND PANEL ── */
+    .cmd-panel {
+      background: var(--leather-dark);
+      border-right: 1px solid var(--gold-dim);
+      overflow-y: auto;
+      height: calc(100vh - 62px - 56px);
+      display: flex; flex-direction: column;
+    }
+    .cmd-panel::-webkit-scrollbar { width: 3px; }
+    .cmd-panel::-webkit-scrollbar-thumb { background: var(--gold-dim); border-radius: 2px; }
 
-    /* ── BUTTONS ── */
+    /* token target bar */
+    .cmd-target {
+      padding: 1rem 1rem .75rem;
+      border-bottom: 1px solid rgba(200,150,12,.2);
+      background: rgba(0,0,0,.25);
+    }
+    .cmd-target-label {
+      font-family: var(--font-heading); font-size: .5rem;
+      color: var(--gold-dim); text-transform: uppercase; letter-spacing: .2em;
+      margin-bottom: .4rem;
+    }
+    .cmd-target-input {
+      width: 100%;
+      background: rgba(0,0,0,.5);
+      border: 1px solid var(--gold);
+      border-radius: 4px;
+      padding: .55rem .75rem;
+      font-family: var(--font-mono); font-size: .7rem;
+      color: var(--gold-bright);
+      outline: none;
+      transition: border-color .15s, box-shadow .15s;
+    }
+    .cmd-target-input:focus {
+      border-color: var(--gold-bright);
+      box-shadow: 0 0 0 2px rgba(200,150,12,.2);
+    }
+    .cmd-target-input::placeholder { color: var(--stone); }
+    .cmd-chain-row {
+      display: flex; gap: .4rem; margin-top: .5rem;
+    }
+    .cmd-chain-btn {
+      flex: 1; padding: .3rem .2rem;
+      font-family: var(--font-heading); font-size: .48rem;
+      text-transform: uppercase; letter-spacing: .06em;
+      background: rgba(0,0,0,.3); border: 1px solid rgba(200,150,12,.25);
+      color: var(--stone); border-radius: 3px; cursor: pointer;
+      transition: all .15s;
+    }
+    .cmd-chain-btn:hover { color: var(--gold-bright); border-color: var(--gold-dim); }
+    .cmd-chain-btn.active { background: var(--gold); color: var(--leather-dark); border-color: var(--gold); font-weight: 700; }
+
+    /* action cards */
+    .cmd-actions { padding: .75rem .75rem 1.5rem; display: flex; flex-direction: column; gap: .6rem; }
+
+    .action-card {
+      background: rgba(0,0,0,.2);
+      border: 1px solid rgba(200,150,12,.2);
+      border-radius: 6px;
+      overflow: hidden;
+      transition: border-color .15s;
+    }
+    .action-card:hover { border-color: rgba(200,150,12,.45); }
+
+    .action-card-head {
+      display: flex; align-items: center; justify-content: space-between;
+      padding: .65rem .85rem;
+      cursor: pointer;
+      user-select: none;
+    }
+    .action-card-left { display: flex; align-items: center; gap: .65rem; }
+    .action-icon {
+      width: 34px; height: 34px; border-radius: 6px;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 1rem; flex-shrink: 0;
+    }
+    .action-icon.raid    { background: rgba(251,191,36,.15); border: 1px solid rgba(251,191,36,.3); }
+    .action-icon.buy     { background: rgba(34,197,94,.15);  border: 1px solid rgba(34,197,94,.3); }
+    .action-icon.thread  { background: rgba(59,130,246,.15); border: 1px solid rgba(59,130,246,.3); }
+    .action-icon.dca     { background: rgba(139,92,246,.15); border: 1px solid rgba(139,92,246,.3); }
+    .action-icon.acp     { background: rgba(236,72,153,.15); border: 1px solid rgba(236,72,153,.3); }
+
+    .action-name {
+      font-family: var(--font-heading); font-size: .68rem; font-weight: 700;
+      color: var(--gold-bright); text-transform: uppercase; letter-spacing: .06em;
+    }
+    .action-tagline {
+      font-family: var(--font-mono); font-size: .52rem; color: var(--stone);
+      margin-top: .1rem;
+    }
+
+    .action-info-btn {
+      width: 22px; height: 22px; border-radius: 50%;
+      background: rgba(200,150,12,.1); border: 1px solid rgba(200,150,12,.25);
+      color: var(--gold-dim); font-family: var(--font-mono); font-size: .6rem;
+      font-weight: 700; cursor: pointer; flex-shrink: 0;
+      display: flex; align-items: center; justify-content: center;
+      transition: all .15s;
+    }
+    .action-info-btn:hover { background: rgba(200,150,12,.25); color: var(--gold-bright); }
+
+    .action-info-box {
+      display: none;
+      padding: .5rem .85rem .65rem;
+      font-family: var(--font-mono); font-size: .54rem;
+      color: var(--dust); line-height: 1.7;
+      border-top: 1px solid rgba(200,150,12,.1);
+      background: rgba(0,0,0,.2);
+    }
+    .action-info-box.open { display: block; }
+
+    .action-body {
+      display: none;
+      padding: 0 .85rem .85rem;
+      border-top: 1px solid rgba(200,150,12,.15);
+    }
+    .action-body.open { display: block; }
+
+    /* ── DEPLOY BUTTON — the big one ── */
+    .deploy-btn {
+      width: 100%; padding: .7rem;
+      font-family: var(--font-heading); font-size: .68rem; font-weight: 700;
+      text-transform: uppercase; letter-spacing: .1em;
+      border: none; border-radius: 5px; cursor: pointer;
+      display: flex; align-items: center; justify-content: center; gap: .5rem;
+      transition: all .2s; position: relative; overflow: hidden;
+    }
+    .deploy-btn::after {
+      content: ''; position: absolute; inset: 0;
+      background: linear-gradient(180deg, rgba(255,255,255,.07) 0%, transparent 100%);
+    }
+    .deploy-btn:active { transform: scale(.98); }
+
+    .deploy-btn.raid   { background: linear-gradient(135deg,#b45309,#d97706); color: #fff; box-shadow: 0 3px 12px rgba(180,83,9,.4); }
+    .deploy-btn.raid:hover { background: linear-gradient(135deg,#d97706,#fbbf24); }
+    .deploy-btn.buy    { background: linear-gradient(135deg,#166534,#16a34a); color: #fff; box-shadow: 0 3px 12px rgba(22,163,74,.4); }
+    .deploy-btn.buy:hover { background: linear-gradient(135deg,#16a34a,#4ade80); color: #052e16; }
+    .deploy-btn.thread { background: linear-gradient(135deg,#1e3a8a,#2563eb); color: #fff; box-shadow: 0 3px 12px rgba(37,99,235,.4); }
+    .deploy-btn.thread:hover { background: linear-gradient(135deg,#2563eb,#60a5fa); }
+    .deploy-btn.dca    { background: linear-gradient(135deg,#581c87,#7c3aed); color: #fff; box-shadow: 0 3px 12px rgba(124,58,237,.4); }
+    .deploy-btn.dca:hover { background: linear-gradient(135deg,#7c3aed,#a78bfa); }
+    .deploy-btn.acp    { background: linear-gradient(135deg,#831843,#be185d); color: #fff; box-shadow: 0 3px 12px rgba(190,24,93,.4); }
+    .deploy-btn.acp:hover { background: linear-gradient(135deg,#be185d,#f472b6); }
+
+    /* form inside action card */
+    .ac-form { display: grid; gap: .55rem; margin-top: .65rem; }
+    .ac-row   { display: grid; grid-template-columns: 1fr 1fr; gap: .55rem; }
+    .ac-field label {
+      display: block; font-family: var(--font-heading); font-size: .5rem;
+      color: var(--dust); text-transform: uppercase; letter-spacing: .1em;
+      margin-bottom: .25rem;
+    }
+    .ac-field input, .ac-field select, .ac-field textarea {
+      width: 100%; background: rgba(0,0,0,.5); border: 1px solid var(--gold-dim);
+      border-radius: 3px; padding: .45rem .6rem;
+      font-family: var(--font-mono); font-size: .6rem; color: var(--parchment);
+      outline: none; transition: border-color .15s;
+    }
+    .ac-field input:focus, .ac-field select:focus { border-color: var(--gold-bright); }
+    .ac-field select option { background: var(--leather-dark); }
+    .ac-field textarea { resize: vertical; min-height: 56px; line-height: 1.5; }
+
+    /* ── CENTER: JOB FEED ── */
+    .job-feed {
+      display: flex; flex-direction: column;
+      overflow: hidden;
+      height: calc(100vh - 62px - 56px);
+    }
+    .job-feed-head {
+      display: flex; align-items: center; justify-content: space-between;
+      padding: .7rem 1rem;
+      background: rgba(0,0,0,.25);
+      border-bottom: 1px solid var(--gold-dim);
+      flex-shrink: 0;
+    }
+    .job-feed-title {
+      font-family: var(--font-heading); font-size: .7rem; font-weight: 700;
+      color: var(--gold-bright); text-transform: uppercase; letter-spacing: .08em;
+      display: flex; align-items: center; gap: .5rem;
+    }
+    .live-dot { width: 7px; height: 7px; border-radius: 50%; background: #4ade80; animation: pulse 1.5s infinite; }
+    .job-filter-tabs { display: flex; gap: .3rem; }
+    .jf-tab {
+      padding: .28rem .65rem;
+      font-family: var(--font-heading); font-size: .5rem; text-transform: uppercase; letter-spacing: .06em;
+      background: transparent; border: 1px solid rgba(200,150,12,.25);
+      color: var(--stone); border-radius: 3px; cursor: pointer; transition: all .15s;
+    }
+    .jf-tab:hover { color: var(--gold-bright); border-color: var(--gold-dim); }
+    .jf-tab.active { background: rgba(200,150,12,.18); color: var(--gold-bright); border-color: var(--gold); }
+
+    .job-scroll {
+      flex: 1; overflow-y: auto; padding: .35rem 0;
+    }
+    .job-scroll::-webkit-scrollbar { width: 3px; }
+    .job-scroll::-webkit-scrollbar-thumb { background: var(--gold-dim); border-radius: 2px; }
+
+    .job-row {
+      display: grid;
+      grid-template-columns: 62px 80px 1fr auto;
+      gap: .5rem; align-items: center;
+      padding: .55rem 1rem;
+      border-bottom: 1px solid rgba(200,150,12,.07);
+      transition: background .1s;
+    }
+    .job-row:hover { background: rgba(200,150,12,.04); }
+    .job-row.new { animation: rowSlide .3s ease both; }
+    .job-time { font-family: var(--font-mono); font-size: .52rem; color: var(--stone); }
+    .job-agent { font-family: var(--font-mono); font-size: .54rem; color: var(--gold-dim); font-weight: 700; }
+    .job-msg { font-family: var(--font-mono); font-size: .56rem; color: var(--dust-light); line-height: 1.4; }
+    .job-badge {
+      padding: .15rem .45rem; border-radius: 3px;
+      font-family: var(--font-mono); font-size: .46rem; font-weight: 700;
+      white-space: nowrap;
+    }
+    .jb-buy    { background: rgba(34,197,94,.12);  color: #4ade80; border: 1px solid rgba(34,197,94,.2); }
+    .jb-raid   { background: rgba(251,191,36,.12); color: #fbbf24; border: 1px solid rgba(251,191,36,.2); }
+    .jb-post   { background: rgba(59,130,246,.12); color: #60a5fa; border: 1px solid rgba(59,130,246,.2); }
+    .jb-swap   { background: rgba(139,92,246,.12); color: #a78bfa; border: 1px solid rgba(139,92,246,.2); }
+    .jb-arb    { background: rgba(236,72,153,.12); color: #f472b6; border: 1px solid rgba(236,72,153,.2); }
+    .jb-dca    { background: rgba(99,102,241,.12); color: #818cf8; border: 1px solid rgba(99,102,241,.2); }
+    .jb-acp    { background: rgba(236,72,153,.12); color: #f472b6; border: 1px solid rgba(236,72,153,.2); }
+
+    .feed-empty {
+      display: flex; flex-direction: column; align-items: center; justify-content: center;
+      height: 100%; gap: .5rem;
+      font-family: var(--font-mono); font-size: .6rem; color: var(--stone);
+    }
+    .feed-empty-icon { font-size: 2rem; opacity: .3; }
+
+    /* ── RIGHT: AGENT ROSTER ── */
+    .agent-roster {
+      background: var(--leather-dark);
+      border-left: 1px solid var(--gold-dim);
+      overflow-y: auto;
+      height: calc(100vh - 62px - 56px);
+    }
+    .agent-roster::-webkit-scrollbar { width: 3px; }
+    .agent-roster::-webkit-scrollbar-thumb { background: var(--gold-dim); border-radius: 2px; }
+
+    .roster-head {
+      padding: .7rem .85rem .5rem;
+      border-bottom: 1px solid rgba(200,150,12,.2);
+      background: rgba(0,0,0,.2);
+      position: sticky; top: 0; z-index: 2;
+    }
+    .roster-title {
+      font-family: var(--font-heading); font-size: .62rem; font-weight: 700;
+      color: var(--gold-bright); text-transform: uppercase; letter-spacing: .1em;
+    }
+    .roster-subtitle {
+      font-family: var(--font-mono); font-size: .5rem; color: var(--stone); margin-top: .15rem;
+    }
+
+    .roster-body { padding: .5rem; }
+
+    .agent-chip {
+      display: flex; align-items: center; gap: .6rem;
+      padding: .6rem .65rem;
+      background: rgba(0,0,0,.2);
+      border: 1px solid rgba(200,150,12,.15);
+      border-radius: 5px;
+      margin-bottom: .4rem;
+      position: relative; overflow: hidden;
+      transition: border-color .15s;
+    }
+    .agent-chip:hover { border-color: rgba(200,150,12,.4); }
+    .agent-chip::before {
+      content: ''; position: absolute; left: 0; top: 0; bottom: 0; width: 2px;
+    }
+    .agent-chip.buying::before  { background: #4ade80; }
+    .agent-chip.raiding::before { background: #fbbf24; }
+    .agent-chip.posting::before { background: #60a5fa; }
+    .agent-chip.idle::before    { background: var(--stone); }
+
+    .agent-chip-avatar {
+      width: 30px; height: 30px; border-radius: 50%; flex-shrink: 0;
+      background: rgba(200,150,12,.12); border: 1px solid rgba(200,150,12,.25);
+      display: flex; align-items: center; justify-content: center;
+      font-family: var(--font-mono); font-size: .65rem; font-weight: 700; color: var(--gold-bright);
+    }
+    .agent-chip-info { flex: 1; min-width: 0; }
+    .agent-chip-name {
+      font-family: var(--font-heading); font-size: .6rem; font-weight: 700;
+      color: var(--gold-bright); white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+    }
+    .agent-chip-action {
+      font-family: var(--font-mono); font-size: .5rem; color: var(--dust);
+      white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+      margin-top: .1rem;
+    }
+    .agent-chip-status { flex-shrink: 0; }
+
+    .status-dot {
+      width: 8px; height: 8px; border-radius: 50%;
+    }
+    .status-dot.buying  { background: #4ade80; animation: pulse 1.5s infinite; }
+    .status-dot.raiding { background: #fbbf24; animation: pulse 1.5s infinite; }
+    .status-dot.posting { background: #60a5fa; animation: pulse 1.5s infinite; }
+    .status-dot.idle    { background: var(--stone); }
+
+    .roster-standby {
+      padding: 1.5rem .85rem; text-align: center;
+      font-family: var(--font-mono); font-size: .58rem; color: var(--stone);
+      line-height: 1.7;
+    }
+    .roster-standby-icon { font-size: 1.5rem; margin-bottom: .4rem; opacity: .4; }
+
+    /* stats in roster */
+    .agent-chip-stats {
+      display: flex; gap: .5rem; margin-top: .3rem;
+    }
+    .ac-stat-val {
+      font-family: var(--font-mono); font-size: .52rem; color: var(--gold-dim); font-weight: 700;
+    }
+    .ac-stat-lbl {
+      font-family: var(--font-heading); font-size: .42rem; color: var(--stone);
+      text-transform: uppercase; letter-spacing: .08em;
+    }
+
+    /* settings drawer at bottom of sidebar (left) */
+    .cmd-settings {
+      margin-top: auto;
+      border-top: 1px solid rgba(200,150,12,.15);
+      padding: .65rem .85rem;
+    }
+    .cmd-settings-title {
+      font-family: var(--font-heading); font-size: .5rem; color: var(--stone);
+      text-transform: uppercase; letter-spacing: .15em; margin-bottom: .45rem;
+    }
+
+    /* ── BUTTONS (shared) ── */
     .wr-btn {
-      display:inline-flex; align-items:center; gap:.4rem;
-      padding:.5rem 1rem;
-      font-family:var(--font-heading); font-size:.6rem; font-weight:700;
-      text-transform:uppercase; letter-spacing:.08em;
-      border-radius:var(--r); cursor:pointer; border:none;
-      transition:all .15s;
+      display: inline-flex; align-items: center; gap: .4rem;
+      padding: .45rem .9rem;
+      font-family: var(--font-heading); font-size: .58rem; font-weight: 700;
+      text-transform: uppercase; letter-spacing: .08em;
+      border-radius: var(--r); cursor: pointer; border: none; transition: all .15s;
     }
-    .wr-btn-gold { background:var(--gold); color:var(--leather-dark); }
-    .wr-btn-gold:hover { background:var(--gold-bright); }
-    .wr-btn-outline { background:transparent; border:1px solid var(--gold-dim); color:var(--gold-bright); }
-    .wr-btn-outline:hover { border-color:var(--gold-bright); background:rgba(200,150,12,.1); }
-    .wr-btn-green { background:#16a34a; color:#fff; }
-    .wr-btn-green:hover { background:#15803d; }
-    .wr-btn-red { background:#b91c1c; color:#fff; }
-    .wr-btn-red:hover { background:#991b1b; }
-    .wr-btn-dim { background:rgba(200,150,12,.12); color:var(--dust-light); border:1px solid rgba(200,150,12,.2); }
-    .wr-btn-dim:hover { background:rgba(200,150,12,.2); color:var(--gold-bright); }
-    .wr-btn-sm { padding:.35rem .7rem; font-size:.55rem; }
-
-    /* ── AGENT CARDS ── */
-    .agent-grid { display:grid; grid-template-columns:repeat(auto-fill,minmax(300px,1fr)); gap:1rem; }
-    .agent-card {
-      background:var(--leather-dark);
-      border:1px solid var(--gold-dim);
-      border-radius:var(--r);
-      padding:1rem;
-      position:relative;
-      overflow:hidden;
-    }
-    .agent-card::before {
-      content:''; position:absolute; top:0; left:0; right:0; height:2px;
-      background:linear-gradient(90deg, var(--gold-dim), var(--gold-bright), var(--gold-dim));
-    }
-    .agent-card.buying::before { background:linear-gradient(90deg,transparent,#22c55e,transparent); }
-    .agent-card.posting::before { background:linear-gradient(90deg,transparent,#3b82f6,transparent); }
-    .agent-card.raiding::before { background:linear-gradient(90deg,transparent,#f59e0b,transparent); }
-    .agent-card.idle::before { background:none; border-top:2px solid var(--stone); }
-    .agent-head { display:flex; align-items:flex-start; justify-content:space-between; margin-bottom:.75rem; }
-    .agent-name { font-family:var(--font-heading); font-size:.7rem; font-weight:700; color:var(--gold-bright); }
-    .agent-geo { font-family:var(--font-mono); font-size:.5rem; color:var(--dust); margin-top:.1rem; }
-    .agent-status-pill {
-      font-family:var(--font-mono); font-size:.5rem; font-weight:700;
-      padding:.2rem .55rem; border-radius:20px; text-transform:uppercase;
-    }
-    .pill-buying { background:rgba(34,197,94,.15); color:#4ade80; border:1px solid rgba(34,197,94,.3); }
-    .pill-posting { background:rgba(59,130,246,.15); color:#60a5fa; border:1px solid rgba(59,130,246,.3); }
-    .pill-raiding { background:rgba(245,158,11,.15); color:#fbbf24; border:1px solid rgba(245,158,11,.3); }
-    .pill-idle { background:rgba(107,90,58,.15); color:var(--stone); border:1px solid rgba(107,90,58,.3); }
-    .agent-action {
-      font-family:var(--font-mono); font-size:.58rem; color:var(--parchment-aged);
-      background:rgba(0,0,0,.3); border-radius:3px;
-      padding:.4rem .6rem; margin-bottom:.75rem;
-      border-left:2px solid var(--gold-dim);
-      line-height:1.5;
-    }
-    .agent-stats { display:grid; grid-template-columns:1fr 1fr 1fr; gap:.4rem; margin-bottom:.75rem; }
-    .agent-stat { text-align:center; }
-    .agent-stat-val { font-family:var(--font-mono); font-size:.65rem; font-weight:700; color:var(--gold-bright); }
-    .agent-stat-val.green { color:#4ade80; }
-    .agent-stat-lbl { font-family:var(--font-heading); font-size:.45rem; color:var(--stone); text-transform:uppercase; letter-spacing:.1em; }
-    .agent-btns { display:flex; gap:.4rem; }
-
-    /* ── ACTIVITY LOG ── */
-    .log-wrap { height:260px; overflow-y:auto; }
-    .log-wrap::-webkit-scrollbar { width:4px; }
-    .log-wrap::-webkit-scrollbar-track { background:transparent; }
-    .log-wrap::-webkit-scrollbar-thumb { background:var(--gold-dim); border-radius:2px; }
-    .log-row {
-      display:grid; grid-template-columns:70px 90px 1fr auto;
-      gap:.6rem; align-items:center;
-      padding:.45rem .1rem;
-      border-bottom:1px solid rgba(200,150,12,.08);
-      font-family:var(--font-mono); font-size:.55rem;
-    }
-    .log-row:last-child { border-bottom:none; }
-    .log-time { color:var(--stone); }
-    .log-agent { color:var(--gold-dim); }
-    .log-msg { color:var(--dust-light); }
-    .log-badge { padding:.1rem .35rem; border-radius:3px; font-size:.48rem; font-weight:700; white-space:nowrap; }
-    .lb-buy { background:rgba(34,197,94,.15); color:#4ade80; }
-    .lb-post { background:rgba(59,130,246,.15); color:#60a5fa; }
-    .lb-raid { background:rgba(245,158,11,.15); color:#fbbf24; }
-    .lb-swap { background:rgba(139,92,246,.15); color:#a78bfa; }
-    .lb-arb { background:rgba(236,72,153,.15); color:#f472b6; }
-
-    /* ── TOKEN REGISTRY ── */
-    .token-row {
-      display:grid; grid-template-columns:40px 1fr 90px 90px 90px 80px 100px;
-      gap:.75rem; align-items:center;
-      padding:.65rem .75rem;
-      border-bottom:1px solid rgba(200,150,12,.1);
-      font-family:var(--font-mono); font-size:.58rem;
-    }
-    .token-row:last-child { border-bottom:none; }
-    .token-row-head { color:var(--stone); font-size:.5rem; text-transform:uppercase; letter-spacing:.1em; background:rgba(0,0,0,.2); }
-    .token-rank { color:var(--gold-dim); font-weight:700; }
-    .token-info .t-sym { color:var(--gold-bright); font-weight:700; }
-    .token-info .t-chain { color:var(--stone); font-size:.5rem; }
-    .token-price { color:var(--parchment-aged); }
-    .token-chg.pos { color:#4ade80; }
-    .token-chg.neg { color:#f87171; }
-    .token-vol { color:var(--dust-light); }
-    .token-agents { color:var(--gold-dim); font-weight:700; }
-    .token-actions { display:flex; gap:.35rem; }
-
-    /* ── OPERATION FORM ── */
-    .op-form { display:grid; gap:.75rem; }
-    .op-row { display:grid; grid-template-columns:1fr 1fr; gap:.75rem; }
-    .op-row-3 { display:grid; grid-template-columns:1fr 1fr 1fr; gap:.75rem; }
-    .op-field label {
-      display:block; font-family:var(--font-heading); font-size:.52rem;
-      color:var(--dust); text-transform:uppercase; letter-spacing:.1em;
-      margin-bottom:.35rem;
-    }
-    .op-field input, .op-field select, .op-field textarea {
-      width:100%; background:rgba(0,0,0,.4); border:1px solid var(--gold-dim);
-      border-radius:3px; padding:.5rem .65rem;
-      font-family:var(--font-mono); font-size:.6rem; color:var(--parchment);
-      outline:none; transition:border-color .15s;
-    }
-    .op-field input:focus, .op-field select:focus { border-color:var(--gold-bright); }
-    .op-field select option { background:var(--leather-dark); }
-    .op-field textarea { resize:vertical; min-height:70px; line-height:1.5; }
-    .op-note { font-family:var(--font-mono); font-size:.52rem; color:var(--stone); line-height:1.6; }
-    .op-note.warn { color:#fbbf24; }
-    .op-note.good { color:#4ade80; }
-
-    /* ── MODE TABS ── */
-    .mode-tabs { display:flex; gap:.4rem; margin-bottom:1rem; flex-wrap:wrap; }
-    .mode-tab {
-      padding:.45rem 1rem; font-family:var(--font-heading); font-size:.58rem;
-      text-transform:uppercase; letter-spacing:.08em;
-      background:transparent; border:1px solid var(--gold-dim);
-      color:var(--dust); border-radius:3px; cursor:pointer;
-      transition:all .15s;
-    }
-    .mode-tab:hover { color:var(--gold-bright); border-color:var(--gold-bright); }
-    .mode-tab.active { background:var(--gold); color:var(--leather-dark); border-color:var(--gold); font-weight:700; }
-    .mode-panel { display:none; }
-    .mode-panel.active { display:block; }
-
-    /* ── X / RAID ── */
-    .raid-target {
-      background:rgba(0,0,0,.3); border:1px solid rgba(59,130,246,.3);
-      border-radius:var(--r); padding:.85rem 1rem; margin-bottom:.75rem;
-    }
-    .raid-target-url { font-family:var(--font-mono); font-size:.6rem; color:#60a5fa; margin-bottom:.4rem; word-break:break-all; }
-    .raid-target-meta { font-family:var(--font-mono); font-size:.52rem; color:var(--stone); }
-    .raid-agents { display:flex; flex-wrap:wrap; gap:.35rem; margin-top:.6rem; }
-    .raid-agent-chip {
-      background:rgba(245,158,11,.12); border:1px solid rgba(245,158,11,.3);
-      border-radius:20px; padding:.15rem .5rem;
-      font-family:var(--font-mono); font-size:.5rem; color:#fbbf24;
-    }
-
-    /* ── ARB SCANNER ── */
-    .arb-row {
-      display:grid; grid-template-columns:1fr 90px 90px 90px 90px 100px;
-      gap:.75rem; align-items:center;
-      padding:.65rem .75rem;
-      border-bottom:1px solid rgba(200,150,12,.1);
-      font-family:var(--font-mono); font-size:.58rem;
-    }
-    .arb-row-head { color:var(--stone); font-size:.5rem; text-transform:uppercase; letter-spacing:.1em; background:rgba(0,0,0,.2); }
-    .arb-pair { color:var(--gold-bright); font-weight:700; }
-    .arb-spread.hot { color:#4ade80; font-weight:700; }
-    .arb-spread.warm { color:#fbbf24; }
-    .arb-spread.cold { color:var(--stone); }
-    .arb-vol { color:var(--dust-light); }
-    .arb-profit { color:#4ade80; font-weight:700; }
-
-    /* ── PROGRESS ── */
-    .progress-wrap { background:rgba(0,0,0,.3); border-radius:20px; height:6px; margin:.35rem 0; overflow:hidden; }
-    .progress-bar { height:100%; border-radius:20px; background:linear-gradient(90deg,var(--gold-dim),var(--gold-bright)); transition:width .5s; }
-    .progress-bar.green { background:linear-gradient(90deg,#16a34a,#4ade80); }
-    .progress-bar.blue { background:linear-gradient(90deg,#1d4ed8,#60a5fa); }
+    .wr-btn-dim { background: rgba(200,150,12,.12); color: var(--dust-light); border: 1px solid rgba(200,150,12,.2); }
+    .wr-btn-dim:hover { background: rgba(200,150,12,.22); color: var(--gold-bright); }
+    .wr-btn-sm { padding: .28rem .6rem; font-size: .52rem; }
+    .wr-btn-gold { background: var(--gold); color: var(--leather-dark); }
+    .wr-btn-gold:hover { background: var(--gold-bright); }
+    .wr-btn-red { background: #b91c1c; color: #fff; }
+    .wr-btn-red:hover { background: #991b1b; }
 
     /* ── TOAST ── */
     .wr-toast {
-      position:fixed; bottom:1.5rem; right:1.5rem; z-index:999;
-      background:var(--leather-dark); border:1px solid var(--gold);
-      border-radius:var(--r); padding:.75rem 1.1rem;
-      font-family:var(--font-heading); font-size:.65rem; color:var(--gold-bright);
-      display:flex; align-items:center; gap:.5rem;
-      transform:translateY(100px); opacity:0;
-      transition:all .3s; pointer-events:none;
+      position: fixed; bottom: 1.5rem; right: 1.5rem; z-index: 999;
+      background: var(--leather-dark); border: 1px solid var(--gold);
+      border-radius: var(--r); padding: .7rem 1.1rem;
+      font-family: var(--font-heading); font-size: .62rem; color: var(--gold-bright);
+      display: flex; align-items: center; gap: .5rem;
+      transform: translateY(100px); opacity: 0;
+      transition: all .3s; pointer-events: none;
+      max-width: 320px;
     }
-    .wr-toast.show { transform:translateY(0); opacity:1; }
+    .wr-toast.show { transform: translateY(0); opacity: 1; }
 
-    /* ── DIVIDER ── */
-    .wr-divider { height:1px; background:linear-gradient(90deg,transparent,var(--gold-dim),transparent); margin:1rem 0; }
+    /* pill styles (reused in roster) */
+    .agent-status-pill {
+      font-family: var(--font-mono); font-size: .48rem; font-weight: 700;
+      padding: .15rem .5rem; border-radius: 20px; text-transform: uppercase;
+    }
+    .pill-buying  { background: rgba(34,197,94,.15);   color: #4ade80; border: 1px solid rgba(34,197,94,.3); }
+    .pill-posting { background: rgba(59,130,246,.15);  color: #60a5fa; border: 1px solid rgba(59,130,246,.3); }
+    .pill-raiding { background: rgba(245,158,11,.15);  color: #fbbf24; border: 1px solid rgba(245,158,11,.3); }
+    .pill-idle    { background: rgba(107,90,58,.15);   color: var(--stone); border: 1px solid rgba(107,90,58,.3); }
 
-    /* ── SCROLLBAR ── */
-    .wr-panel::-webkit-scrollbar { width:4px; }
-    .wr-panel::-webkit-scrollbar-track { background:transparent; }
-    .wr-panel::-webkit-scrollbar-thumb { background:var(--gold-dim); border-radius:2px; }
+    /* progress */
+    .progress-wrap { background: rgba(0,0,0,.3); border-radius: 20px; height: 4px; margin: .3rem 0; overflow: hidden; }
+    .progress-bar { height: 100%; border-radius: 20px; background: linear-gradient(90deg,var(--gold-dim),var(--gold-bright)); transition: width .5s; }
+    .progress-bar.green { background: linear-gradient(90deg,#166534,#4ade80); }
 
     /* ── RESPONSIVE ── */
-    @media(max-width:900px) {
-      .wr-sidebar { display:none; }
-      .wr-stats-bar { grid-template-columns:repeat(3,1fr); }
-      .agent-grid { grid-template-columns:1fr; }
-      .wr-grid-2, .wr-grid-3 { grid-template-columns:1fr; }
-      .token-row { grid-template-columns:30px 1fr 80px 70px; }
-      .token-row > *:nth-child(n+5) { display:none; }
+    @media (max-width: 1100px) {
+      .wr-shell { grid-template-columns: 280px 1fr 0px; }
+      .agent-roster { display: none; }
+    }
+    @media (max-width: 760px) {
+      .wr-shell { grid-template-columns: 1fr; grid-template-rows: auto auto auto auto; }
+      .wr-statsbar { grid-template-columns: repeat(3,1fr); }
+      .cmd-panel, .agent-roster { height: auto; }
+      .job-feed { height: 60vh; }
     }
 
     @keyframes pulse { 0%,100%{opacity:1} 50%{opacity:.4} }
-    @keyframes fadeIn { from{opacity:0;transform:translateY(8px)} to{opacity:1;transform:translateY(0)} }
-    .fade-in { animation:fadeIn .25s ease both; }
+    @keyframes fadeIn { from{opacity:0;transform:translateY(6px)} to{opacity:1;transform:translateY(0)} }
+    @keyframes rowSlide { from{opacity:0;transform:translateX(-8px)} to{opacity:1;transform:translateX(0)} }
+    .fade-in { animation: fadeIn .2s ease both; }
   </style>
 </head>
 <body>
 
-<!-- NAV (from main site) -->
+<!-- NAV -->
 <nav class="nav-bar">
   <a href="index.html" class="logo">
     <span class="logo-icon">⚔</span>
@@ -344,761 +461,364 @@
 <!-- SHELL -->
 <div class="wr-shell">
 
-  <!-- SIDEBAR -->
-  <aside class="wr-sidebar">
-    <div class="wr-sb-head">
-      <div class="wr-sb-label">Raiders of the Chain</div>
-      <div class="wr-sb-title">⚔ War Room</div>
-      <div class="wr-sb-live"><span class="live-dot"></span>Live</div>
+  <!-- ══ STATS BAR (top, full width) ══ -->
+  <div class="wr-statsbar">
+    <div class="wr-stat">
+      <span class="wr-stat-label">Active Agents</span>
+      <span class="wr-stat-val green" id="stat-agents">5</span>
+      <span class="wr-stat-sub">of 6 deployed</span>
     </div>
+    <div class="wr-stat">
+      <span class="wr-stat-label">Jobs Today</span>
+      <span class="wr-stat-val" id="stat-buys">0</span>
+      <span class="wr-stat-sub">buys + raids + posts</span>
+    </div>
+    <div class="wr-stat">
+      <span class="wr-stat-label">Volume</span>
+      <span class="wr-stat-val green">$2.50</span>
+      <span class="wr-stat-sub">session total</span>
+    </div>
+    <div class="wr-stat">
+      <span class="wr-stat-label">Active Raids</span>
+      <span class="wr-stat-val" id="stat-raids">1</span>
+      <span class="wr-stat-sub">X campaigns live</span>
+    </div>
+    <div class="wr-stat">
+      <span class="wr-stat-label">Clock</span>
+      <span class="wr-stat-val" id="wrClock" style="font-size:.65rem;">—</span>
+      <span class="wr-stat-sub">UTC</span>
+    </div>
+  </div>
 
-    <nav class="wr-sb-nav">
-      <div class="wr-sb-section">Operations</div>
-      <button class="wr-sb-btn active" data-panel="agents" onclick="switchPanel('agents',this)">
-        <span class="sb-icon">🤖</span> Agent Fleet
-        <span class="sb-badge green" id="sb-agents-count">6</span>
-      </button>
-      <button class="wr-sb-btn" data-panel="log" onclick="switchPanel('log',this)">
-        <span class="sb-icon">📋</span> Activity Log
-        <span class="sb-badge" id="sb-log-count">—</span>
-      </button>
-      <button class="wr-sb-btn" data-panel="tokens" onclick="switchPanel('tokens',this)">
-        <span class="sb-icon">🪙</span> Token Registry
-      </button>
+  <!-- ══ LEFT: COMMAND PANEL ══ -->
+  <aside class="cmd-panel">
 
-      <div class="wr-sb-section">Deploy</div>
-      <button class="wr-sb-btn" data-panel="dca" onclick="switchPanel('dca',this)">
-        <span class="sb-icon">📈</span> DCA Buy
-      </button>
-      <button class="wr-sb-btn" data-panel="pump" onclick="switchPanel('pump',this)">
-        <span class="sb-icon">⚡</span> Pump Bot
-      </button>
-      <button class="wr-sb-btn" data-panel="swap" onclick="switchPanel('swap',this)">
-        <span class="sb-icon">🔄</span> Swap
-      </button>
-      <button class="wr-sb-btn" data-panel="raid" onclick="switchPanel('raid',this)">
-        <span class="sb-icon">🐦</span> X Raid
-      </button>
-      <button class="wr-sb-btn" data-panel="arb" onclick="switchPanel('arb',this)">
-        <span class="sb-icon">🔍</span> Arbitrage
-      </button>
-
-      <div class="wr-sb-section">Account</div>
-      <button class="wr-sb-btn" data-panel="settings" onclick="switchPanel('settings',this)">
-        <span class="sb-icon">⚙️</span> Settings
-      </button>
-    </nav>
-  </aside>
-
-  <!-- MAIN -->
-  <main class="wr-main">
-
-    <!-- TOPBAR -->
-    <div class="wr-topbar">
-      <div class="wr-topbar-left">
-        <h2 id="panelTitle">Agent Fleet</h2>
-        <p id="panelSub">All active agents and their current operations</p>
-      </div>
-      <div class="wr-topbar-right">
-        <span class="wr-clock" id="wrClock"></span>
-        <button class="wr-btn wr-btn-outline wr-btn-sm" onclick="pauseAll()">⏸ Pause All</button>
-        <button class="wr-btn wr-btn-gold wr-btn-sm" onclick="switchPanel('dca',null)">+ Deploy Agent</button>
+    <!-- Token target -->
+    <div class="cmd-target">
+      <div class="cmd-target-label">Target Token</div>
+      <input
+        class="cmd-target-input"
+        id="cmd-token"
+        type="text"
+        placeholder="PEPE, VIRTUAL, or 0x… / mint address"
+        oninput="syncToken(this.value)"
+      >
+      <div class="cmd-chain-row">
+        <button class="cmd-chain-btn active" onclick="setChain('base',this)">Base</button>
+        <button class="cmd-chain-btn" onclick="setChain('ethereum',this)">ETH</button>
+        <button class="cmd-chain-btn" onclick="setChain('solana',this)">SOL</button>
+        <button class="cmd-chain-btn" onclick="setChain('bsc',this)">BSC</button>
+        <button class="cmd-chain-btn" onclick="setChain('arbitrum',this)">ARB</button>
       </div>
     </div>
 
-    <!-- STATS BAR -->
-    <div class="wr-stats-bar">
-      <div class="wr-stat">
-        <span class="wr-stat-label">Active Agents</span>
-        <span class="wr-stat-val green" id="stat-agents">6</span>
-        <span class="wr-stat-sub">of 12 licensed</span>
-      </div>
-      <div class="wr-stat">
-        <span class="wr-stat-label">Total Buys Today</span>
-        <span class="wr-stat-val" id="stat-buys">248</span>
-        <span class="wr-stat-sub" id="stat-buys-usd">~$186.40</span>
-      </div>
-      <div class="wr-stat">
-        <span class="wr-stat-label">Tokens Raided</span>
-        <span class="wr-stat-val" id="stat-tokens">4</span>
-        <span class="wr-stat-sub">3 active campaigns</span>
-      </div>
-      <div class="wr-stat">
-        <span class="wr-stat-label">X Posts Raided</span>
-        <span class="wr-stat-val" id="stat-raids">12</span>
-        <span class="wr-stat-sub">last 6h</span>
-      </div>
-      <div class="wr-stat">
-        <span class="wr-stat-label">Geo Spread</span>
-        <span class="wr-stat-val" id="stat-geo">6</span>
-        <span class="wr-stat-sub">unique regions</span>
-      </div>
-    </div>
+    <!-- Action cards -->
+    <div class="cmd-actions">
 
-    <!-- ══════════════════════════════════════════════════════ -->
-    <!-- PANEL: AGENT FLEET -->
-    <!-- ══════════════════════════════════════════════════════ -->
-    <div class="wr-panel active" id="panel-agents">
-      <div class="agent-grid" id="agentGrid"></div>
-    </div>
-
-    <!-- ══════════════════════════════════════════════════════ -->
-    <!-- PANEL: ACTIVITY LOG -->
-    <!-- ══════════════════════════════════════════════════════ -->
-    <div class="wr-panel" id="panel-log">
-      <div class="wr-card">
-        <div class="wr-card-head">
-          <div>
-            <div class="wr-card-title">Live Activity Log</div>
-            <div class="wr-card-sub">All agent actions in real time — buying, posting, raiding, swapping</div>
+      <!-- ░░ RAID TOKEN ░░ -->
+      <div class="action-card" id="card-raid">
+        <div class="action-card-head" onclick="toggleCard('raid')">
+          <div class="action-card-left">
+            <div class="action-icon raid">🐦</div>
+            <div>
+              <div class="action-name">Raid Token</div>
+              <div class="action-tagline">Mobilize agents on X</div>
+            </div>
           </div>
-          <div style="display:flex;gap:.5rem;">
-            <button class="wr-btn wr-btn-dim wr-btn-sm" onclick="filterLog('all')">All</button>
-            <button class="wr-btn wr-btn-dim wr-btn-sm" onclick="filterLog('buy')">Buys</button>
-            <button class="wr-btn wr-btn-dim wr-btn-sm" onclick="filterLog('post')">Posts</button>
-            <button class="wr-btn wr-btn-dim wr-btn-sm" onclick="filterLog('raid')">Raids</button>
-            <button class="wr-btn wr-btn-dim wr-btn-sm" onclick="clearLog()">Clear</button>
-          </div>
+          <button class="action-info-btn" onclick="event.stopPropagation();toggleInfo('raid')" title="What does this do?">?</button>
         </div>
-        <div class="wr-card-body" style="padding:.5rem .75rem;">
-          <div class="log-wrap" id="activityLog">
-            <div class="log-row token-row-head">
-              <span>Time</span><span>Agent</span><span>Action</span><span>Type</span>
-            </div>
-          </div>
+        <div class="action-info-box" id="info-raid">
+          Sends multiple agents to a target X post to like, reply, and amplify. You supply a post URL and talking points — agents handle the rest. Can also raid the token's own hashtag feed. Great for coordinated community campaigns.
         </div>
-      </div>
-    </div>
-
-    <!-- ══════════════════════════════════════════════════════ -->
-    <!-- PANEL: TOKEN REGISTRY -->
-    <!-- ══════════════════════════════════════════════════════ -->
-    <div class="wr-panel" id="panel-tokens">
-      <div class="wr-card">
-        <div class="wr-card-head">
-          <div>
-            <div class="wr-card-title">Token Registry</div>
-            <div class="wr-card-sub">All tokens your agents are currently working with</div>
-          </div>
-          <button class="wr-btn wr-btn-gold wr-btn-sm" onclick="addTokenPrompt()">+ Add Token</button>
-        </div>
-        <div style="padding:0;">
-          <div class="token-row token-row-head">
-            <span>#</span><span>Token</span><span>Price</span><span>24h</span>
-            <span>Volume</span><span>Agents</span><span>Actions</span>
-          </div>
-          <div id="tokenRegistry"></div>
-        </div>
-      </div>
-    </div>
-
-    <!-- ══════════════════════════════════════════════════════ -->
-    <!-- PANEL: DCA BUY -->
-    <!-- ══════════════════════════════════════════════════════ -->
-    <div class="wr-panel" id="panel-dca">
-      <div class="wr-grid-2">
-        <div>
-          <div class="wr-card">
-            <div class="wr-card-head">
-              <div>
-                <div class="wr-card-title">📈 DCA Buy Engine</div>
-                <div class="wr-card-sub">Schedule recurring buys across one or many agents</div>
-              </div>
+        <div class="action-body" id="body-raid">
+          <div class="ac-form">
+            <div class="ac-field">
+              <label>Target Post URL</label>
+              <input type="text" id="raid-url" placeholder="https://x.com/user/status/...">
             </div>
-            <div class="wr-card-body">
-              <div class="mode-tabs">
-                <button class="mode-tab active" onclick="setDcaMode('single',this)">Single Agent</button>
-                <button class="mode-tab" onclick="setDcaMode('multi',this)">Multi-Agent Swarm</button>
-                <button class="mode-tab" onclick="setDcaMode('stealth',this)">Stealth Mode</button>
-              </div>
-              <div class="mode-panel active" id="dca-single">
-                <div class="op-form">
-                  <div class="op-row">
-                    <div class="op-field">
-                      <label>Token / Contract</label>
-                      <input type="text" id="dca-token" placeholder="PEPE, DOGE, or 0x...">
-                    </div>
-                    <div class="op-field">
-                      <label>Chain</label>
-                      <select id="dca-chain">
-                        <option>Base</option><option>Ethereum</option><option>Solana</option>
-                        <option>BSC</option><option>Arbitrum</option><option>Polygon</option>
-                      </select>
-                    </div>
-                  </div>
-                  <div class="op-row">
-                    <div class="op-field">
-                      <label>Buy Amount (USD)</label>
-                      <input type="number" id="dca-amount" placeholder="0.01" min="0.01" step="0.01">
-                    </div>
-                    <div class="op-field">
-                      <label>Interval</label>
-                      <select id="dca-interval">
-                        <option value="5m">Every 5 min</option>
-                        <option value="10m" selected>Every 10 min</option>
-                        <option value="15m">Every 15 min</option>
-                        <option value="30m">Every 30 min</option>
-                        <option value="1h">Every 1 hour</option>
-                        <option value="6h">Every 6 hours</option>
-                      </select>
-                    </div>
-                  </div>
-                  <div class="op-row">
-                    <div class="op-field">
-                      <label>Agent</label>
-                      <select id="dca-agent">
-                        <option>Agent Alpha — US-East</option>
-                        <option>Agent Bravo — EU-West</option>
-                        <option>Agent Charlie — Asia-Pac</option>
-                        <option>Agent Delta — US-West</option>
-                        <option>Agent Echo — SA</option>
-                        <option>Agent Foxtrot — UK</option>
-                      </select>
-                    </div>
-                    <div class="op-field">
-                      <label>Total Budget (USD)</label>
-                      <input type="number" id="dca-budget" placeholder="50" min="1">
-                    </div>
-                  </div>
-                  <div class="op-note" id="dca-preview">Enter amount and interval to see preview.</div>
-                  <button class="wr-btn wr-btn-green" onclick="launchDca()" style="width:100%;justify-content:center;padding:.65rem;">
-                    ⚡ Launch DCA Campaign
-                  </button>
-                </div>
-              </div>
-              <div class="mode-panel" id="dca-multi">
-                <div class="op-form">
-                  <div class="op-row">
-                    <div class="op-field">
-                      <label>Token / Contract</label>
-                      <input type="text" id="dca-m-token" placeholder="PEPE, DOGE, or 0x...">
-                    </div>
-                    <div class="op-field">
-                      <label>Chain</label>
-                      <select id="dca-m-chain">
-                        <option>Base</option><option>Ethereum</option><option>Solana</option>
-                        <option>BSC</option><option>Arbitrum</option>
-                      </select>
-                    </div>
-                  </div>
-                  <div class="op-row">
-                    <div class="op-field">
-                      <label>Per-Agent Buy (USD)</label>
-                      <input type="number" id="dca-m-amount" placeholder="0.05" min="0.01">
-                    </div>
-                    <div class="op-field">
-                      <label>Interval (per agent)</label>
-                      <select id="dca-m-interval">
-                        <option value="5m">Every 5 min</option>
-                        <option value="10m" selected>Every 10 min</option>
-                        <option value="15m">Every 15 min</option>
-                        <option value="30m">Every 30 min</option>
-                        <option value="1h">Every 1 hour</option>
-                      </select>
-                    </div>
-                  </div>
-                  <div class="op-field">
-                    <label>Agents to Deploy</label>
-                    <div style="display:flex;flex-wrap:wrap;gap:.4rem;margin-top:.25rem;" id="agentCheckboxes"></div>
-                  </div>
-                  <div class="op-note good" id="dca-m-preview">Select agents above to see combined buying power.</div>
-                  <button class="wr-btn wr-btn-green" onclick="launchMultiDca()" style="width:100%;justify-content:center;padding:.65rem;">
-                    ⚡ Deploy Swarm DCA
-                  </button>
-                </div>
-              </div>
-              <div class="mode-panel" id="dca-stealth">
-                <div class="op-form">
-                  <p class="op-note" style="margin-bottom:.75rem;">Stealth mode randomizes buy sizes, timing, and routes each buy through a different agent to avoid pattern detection.</p>
-                  <div class="op-row">
-                    <div class="op-field">
-                      <label>Token / Contract</label>
-                      <input type="text" id="dca-s-token" placeholder="PEPE, DOGE, or 0x...">
-                    </div>
-                    <div class="op-field">
-                      <label>Chain</label>
-                      <select id="dca-s-chain">
-                        <option>Base</option><option>Ethereum</option><option>Solana</option>
-                        <option>BSC</option><option>Arbitrum</option>
-                      </select>
-                    </div>
-                  </div>
-                  <div class="op-row">
-                    <div class="op-field">
-                      <label>Min Buy (USD)</label>
-                      <input type="number" id="dca-s-min" placeholder="0.01" min="0.01">
-                    </div>
-                    <div class="op-field">
-                      <label>Max Buy (USD)</label>
-                      <input type="number" id="dca-s-max" placeholder="0.10" min="0.01">
-                    </div>
-                  </div>
-                  <div class="op-row">
-                    <div class="op-field">
-                      <label>Min Interval (min)</label>
-                      <input type="number" id="dca-s-min-int" placeholder="5" min="5">
-                    </div>
-                    <div class="op-field">
-                      <label>Max Interval (min)</label>
-                      <input type="number" id="dca-s-max-int" placeholder="30" min="5">
-                    </div>
-                  </div>
-                  <div class="op-field">
-                    <label>Total Budget (USD)</label>
-                    <input type="number" id="dca-s-budget" placeholder="100">
-                  </div>
-                  <div class="op-note warn">⚠ Stealth mode rotates geo-locations automatically. All agents participate.</div>
-                  <button class="wr-btn wr-btn-green" onclick="launchStealthDca()" style="width:100%;justify-content:center;padding:.65rem;margin-top:.5rem;">
-                    🥷 Launch Stealth DCA
-                  </button>
-                </div>
-              </div>
-            </div>
-          </div>
-        </div>
-        <div>
-          <div class="wr-card">
-            <div class="wr-card-head">
-              <div class="wr-card-title">Active DCA Campaigns</div>
-            </div>
-            <div class="wr-card-body" style="padding:.5rem 0;">
-              <div id="dcaCampaigns"></div>
-            </div>
-          </div>
-        </div>
-      </div>
-    </div>
-
-    <!-- ══════════════════════════════════════════════════════ -->
-    <!-- PANEL: PUMP BOT -->
-    <!-- ══════════════════════════════════════════════════════ -->
-    <div class="wr-panel" id="panel-pump">
-      <div class="wr-grid-2">
-        <div>
-          <div class="wr-card">
-            <div class="wr-card-head">
-              <div>
-                <div class="wr-card-title">⚡ Pump Bot</div>
-                <div class="wr-card-sub">Rapid coordinated buys to generate volume and momentum</div>
-              </div>
-            </div>
-            <div class="wr-card-body">
-              <div class="op-form">
-                <div class="op-row">
-                  <div class="op-field">
-                    <label>Token / Contract</label>
-                    <input type="text" id="pump-token" placeholder="Mint address or 0x...">
-                  </div>
-                  <div class="op-field">
-                    <label>Chain</label>
-                    <select id="pump-chain">
-                      <option value="base">Base</option>
-                      <option value="solana">Solana</option>
-                      <option value="ethereum">Ethereum</option>
-                      <option value="bsc">BSC</option>
-                      <option value="arbitrum">Arbitrum</option>
-                    </select>
-                  </div>
-                </div>
-                <div class="op-row">
-                  <div class="op-field">
-                    <label>Per-Buy (USD / SOL)</label>
-                    <input type="number" id="pump-per-buy" placeholder="0.05" min="0.005" step="0.005">
-                  </div>
-                  <div class="op-field">
-                    <label>Buy Interval</label>
-                    <select id="pump-rate">
-                      <option value="5m">Every 5 min</option>
-                      <option value="10m">Every 10 min</option>
-                      <option value="15m">Every 15 min</option>
-                      <option value="30m">Every 30 min</option>
-                    </select>
-                  </div>
-                </div>
-                <div class="op-row">
-                  <div class="op-field">
-                    <label>Total Budget</label>
-                    <input type="number" id="pump-budget" placeholder="50">
-                  </div>
-                  <div class="op-field">
-                    <label>Agents (simultaneous)</label>
-                    <select id="pump-agents">
-                      <option value="1">1 Agent</option>
-                      <option value="2">2 Agents</option>
-                      <option value="3">3 Agents</option>
-                      <option value="all">All Agents</option>
-                    </select>
-                  </div>
-                </div>
-                <div class="op-field">
-                  <label>Receiving Wallet</label>
-                  <input type="text" id="pump-wallet" placeholder="Wallet to receive purchased tokens">
-                </div>
-                <div class="op-note warn" id="pump-note" style="display:none;"></div>
-                <div class="op-note" id="pump-preview">Enter details to see pump preview.</div>
-                <button class="wr-btn wr-btn-green" onclick="launchPump()" style="width:100%;justify-content:center;padding:.65rem;margin-top:.25rem;">
-                  ⚡ Start Pump Campaign
-                </button>
-              </div>
-            </div>
-          </div>
-        </div>
-        <div>
-          <div class="wr-card">
-            <div class="wr-card-head"><div class="wr-card-title">Active Pump Sessions</div></div>
-            <div class="wr-card-body" style="padding:.5rem 0;"><div id="pumpSessions"></div></div>
-          </div>
-        </div>
-      </div>
-    </div>
-
-    <!-- ══════════════════════════════════════════════════════ -->
-    <!-- PANEL: SWAP -->
-    <!-- ══════════════════════════════════════════════════════ -->
-    <div class="wr-panel" id="panel-swap">
-      <div class="wr-grid-2">
-        <div>
-          <div class="wr-card">
-            <div class="wr-card-head">
-              <div class="wr-card-title">🔄 Swap</div>
-              <div class="wr-card-sub">Execute token swaps via best-price routing</div>
-            </div>
-            <div class="wr-card-body">
-              <div class="op-form">
-                <div class="op-row">
-                  <div class="op-field">
-                    <label>You Pay</label>
-                    <input type="number" id="swap-amount-in" placeholder="0.00" oninput="previewSwap()">
-                  </div>
-                  <div class="op-field">
-                    <label>Token In</label>
-                    <select id="swap-token-in" onchange="previewSwap()">
-                      <option>USDC</option><option>ETH</option><option>SOL</option><option>WBTC</option>
-                    </select>
-                  </div>
-                </div>
-                <div style="text-align:center;margin:-.25rem 0;">
-                  <button class="wr-btn wr-btn-dim wr-btn-sm" onclick="flipSwap()">⇅ Flip</button>
-                </div>
-                <div class="op-row">
-                  <div class="op-field">
-                    <label>You Receive (est.)</label>
-                    <input type="text" id="swap-amount-out" placeholder="—" readonly style="color:var(--gold-bright);font-weight:700;">
-                  </div>
-                  <div class="op-field">
-                    <label>Token Out</label>
-                    <input type="text" id="swap-token-out" placeholder="PEPE, GSB, 0x..." oninput="previewSwap()">
-                  </div>
-                </div>
-                <div class="op-row">
-                  <div class="op-field">
-                    <label>Chain</label>
-                    <select id="swap-chain" onchange="previewSwap()">
-                      <option>Base</option><option>Ethereum</option><option>Solana</option>
-                      <option>BSC</option><option>Arbitrum</option><option>Polygon</option>
-                    </select>
-                  </div>
-                  <div class="op-field">
-                    <label>Slippage</label>
-                    <select id="swap-slippage">
-                      <option>0.5%</option><option selected>1%</option><option>2%</option><option>5%</option>
-                    </select>
-                  </div>
-                </div>
-                <div id="swap-quote-card" style="display:none;" class="wr-card" style="margin:0;">
-                  <div class="wr-card-body" style="padding:.6rem .75rem;">
-                    <div style="display:grid;gap:.3rem;">
-                      <div style="display:flex;justify-content:space-between;font-family:var(--font-mono);font-size:.58rem;">
-                        <span style="color:var(--stone)">Price</span><span id="sq-price" style="color:var(--gold-bright)">—</span>
-                      </div>
-                      <div style="display:flex;justify-content:space-between;font-family:var(--font-mono);font-size:.58rem;">
-                        <span style="color:var(--stone)">24h Change</span><span id="sq-chg">—</span>
-                      </div>
-                      <div style="display:flex;justify-content:space-between;font-family:var(--font-mono);font-size:.58rem;">
-                        <span style="color:var(--stone)">Fee (0.5%)</span><span id="sq-fee" style="color:var(--dust-light)">—</span>
-                      </div>
-                      <div style="display:flex;justify-content:space-between;font-family:var(--font-mono);font-size:.58rem;">
-                        <span style="color:var(--stone)">Min Received</span><span id="sq-min" style="color:var(--dust-light)">—</span>
-                      </div>
-                    </div>
-                  </div>
-                </div>
-                <div class="op-field">
-                  <label>Route via Agent</label>
-                  <select id="swap-agent">
-                    <option>Best available (auto)</option>
-                    <option>Agent Alpha — US-East</option>
-                    <option>Agent Bravo — EU-West</option>
-                    <option>Agent Charlie — Asia-Pac</option>
-                  </select>
-                </div>
-                <button class="wr-btn wr-btn-gold" id="swap-submit-btn" onclick="executeSwapOp()" style="width:100%;justify-content:center;padding:.65rem;" disabled>
-                  Enter amount
-                </button>
-                <p style="font-family:var(--font-mono);font-size:.5rem;color:var(--stone);text-align:center;margin-top:.4rem;">
-                  0.5% fee · 50% buys $GSB · Powered by GSB Swarm
-                </p>
-              </div>
-            </div>
-          </div>
-        </div>
-        <div>
-          <div class="wr-card">
-            <div class="wr-card-head"><div class="wr-card-title">Recent Swaps</div></div>
-            <div class="wr-card-body" style="padding:.5rem 0;"><div id="swapHistory" class="log-wrap" style="height:220px;"></div></div>
-          </div>
-        </div>
-      </div>
-    </div>
-
-    <!-- ══════════════════════════════════════════════════════ -->
-    <!-- PANEL: X RAID -->
-    <!-- ══════════════════════════════════════════════════════ -->
-    <div class="wr-panel" id="panel-raid">
-      <div class="wr-grid-2">
-        <div>
-          <div class="wr-card">
-            <div class="wr-card-head">
-              <div>
-                <div class="wr-card-title">🐦 X Raid Coordinator</div>
-                <div class="wr-card-sub">Direct agents to raid, reply, and amplify posts on X</div>
-              </div>
-            </div>
-            <div class="wr-card-body">
-              <div class="op-form">
-                <div class="op-field">
-                  <label>Target Post URL</label>
-                  <input type="text" id="raid-url" placeholder="https://x.com/user/status/...">
-                </div>
-                <div class="op-row">
-                  <div class="op-field">
-                    <label>Raid Type</label>
-                    <select id="raid-type">
-                      <option value="reply">Reply Raid (comment)</option>
-                      <option value="like">Like + Boost</option>
-                      <option value="thread">Thread Amplify</option>
-                      <option value="full">Full Raid (all actions)</option>
-                    </select>
-                  </div>
-                  <div class="op-field">
-                    <label>Agents</label>
-                    <select id="raid-agents">
-                      <option value="all">All agents</option>
-                      <option value="3">3 agents</option>
-                      <option value="2">2 agents</option>
-                      <option value="1">1 agent</option>
-                    </select>
-                  </div>
-                </div>
-                <div class="op-field">
-                  <label>Message / Talking Points</label>
-                  <textarea id="raid-msg" placeholder="Bullish on $PEPE — community is growing, volume up 3x today. Not financial advice."></textarea>
-                </div>
-                <div class="op-row">
-                  <div class="op-field">
-                    <label>Token Hashtag</label>
-                    <input type="text" id="raid-hashtag" placeholder="#PEPE">
-                  </div>
-                  <div class="op-field">
-                    <label>Post cadence</label>
-                    <select id="raid-cadence">
-                      <option>Simultaneous</option>
-                      <option>Staggered 30s</option>
-                      <option>Staggered 2 min</option>
-                    </select>
-                  </div>
-                </div>
-                <button class="wr-btn wr-btn-gold" onclick="launchRaid()" style="width:100%;justify-content:center;padding:.65rem;">
-                  🐦 Deploy Raid
-                </button>
-              </div>
-            </div>
-          </div>
-
-          <div class="wr-card">
-            <div class="wr-card-head">
-              <div class="wr-card-title">Thread Writer</div>
-              <div class="wr-card-sub">AI-generate bullish threads for agents to post</div>
-            </div>
-            <div class="wr-card-body">
-              <div class="op-form">
-                <div class="op-row">
-                  <div class="op-field">
-                    <label>Token</label>
-                    <input type="text" id="thread-token" placeholder="$PEPE">
-                  </div>
-                  <div class="op-field">
-                    <label>Tone</label>
-                    <select id="thread-tone">
-                      <option>Bullish Analysis</option>
-                      <option>Technical Breakdown</option>
-                      <option>Community Hype</option>
-                      <option>Whale Alert</option>
-                    </select>
-                  </div>
-                </div>
-                <div id="thread-output" style="display:none;" class="wr-card" style="margin:.5rem 0 0;">
-                  <div class="wr-card-body" style="padding:.6rem .75rem;">
-                    <div id="thread-text" style="font-family:var(--font-mono);font-size:.58rem;color:var(--parchment-aged);line-height:1.7;white-space:pre-line;"></div>
-                  </div>
-                </div>
-                <div style="display:flex;gap:.5rem;margin-top:.25rem;">
-                  <button class="wr-btn wr-btn-dim" onclick="generateThread()" style="flex:1;justify-content:center;">✍ Generate Thread</button>
-                  <button class="wr-btn wr-btn-gold wr-btn-sm" onclick="deployThread()" style="flex:1;justify-content:center;" id="deployThreadBtn" disabled>🚀 Deploy to Agents</button>
-                </div>
-              </div>
-            </div>
-          </div>
-        </div>
-
-        <div>
-          <div class="wr-card">
-            <div class="wr-card-head">
-              <div class="wr-card-title">Active Raids</div>
-            </div>
-            <div class="wr-card-body" style="padding:.5rem 0;"><div id="activeRaids"></div></div>
-          </div>
-        </div>
-      </div>
-    </div>
-
-    <!-- ══════════════════════════════════════════════════════ -->
-    <!-- PANEL: ARBITRAGE -->
-    <!-- ══════════════════════════════════════════════════════ -->
-    <div class="wr-panel" id="panel-arb">
-      <div class="wr-card" style="margin-bottom:1.25rem;">
-        <div class="wr-card-head">
-          <div>
-            <div class="wr-card-title">🔍 Arbitrage Scanner</div>
-            <div class="wr-card-sub">Live cross-DEX price spreads — auto-refreshes every 30s</div>
-          </div>
-          <div style="display:flex;gap:.5rem;align-items:center;">
-            <span class="wr-sb-live" style="margin:0;"><span class="live-dot"></span>Scanning</span>
-            <button class="wr-btn wr-btn-dim wr-btn-sm" onclick="refreshArb()">↻ Refresh</button>
-          </div>
-        </div>
-        <div style="padding:0;">
-          <div class="arb-row arb-row-head">
-            <span>Pair</span><span>Spread</span><span>DEX A</span><span>DEX B</span>
-            <span>Est. Profit</span><span>Action</span>
-          </div>
-          <div id="arbTable"></div>
-        </div>
-      </div>
-      <div class="wr-card">
-        <div class="wr-card-head">
-          <div class="wr-card-title">Auto-Arb Settings</div>
-          <div class="wr-card-sub">Set a minimum spread and let agents execute automatically</div>
-        </div>
-        <div class="wr-card-body">
-          <div class="op-row-3">
-            <div class="op-field">
-              <label>Min Spread to Execute</label>
-              <input type="number" id="arb-min-spread" placeholder="0.5" step="0.1"> <span style="font-family:var(--font-mono);font-size:.55rem;color:var(--stone);">%</span>
-            </div>
-            <div class="op-field">
-              <label>Max Per Trade (USD)</label>
-              <input type="number" id="arb-max" placeholder="100">
-            </div>
-            <div class="op-field">
-              <label>Agent</label>
-              <select id="arb-agent">
-                <option>Auto-assign fastest</option>
-                <option>Agent Alpha — US-East</option>
-                <option>Agent Bravo — EU-West</option>
-              </select>
-            </div>
-          </div>
-          <button class="wr-btn wr-btn-green" onclick="enableAutoArb()" style="margin-top:.75rem;">⚡ Enable Auto-Arb</button>
-        </div>
-      </div>
-    </div>
-
-    <!-- ══════════════════════════════════════════════════════ -->
-    <!-- PANEL: SETTINGS -->
-    <!-- ══════════════════════════════════════════════════════ -->
-    <div class="wr-panel" id="panel-settings">
-      <div class="wr-grid-2">
-        <div class="wr-card">
-          <div class="wr-card-head"><div class="wr-card-title">Agent Configuration</div></div>
-          <div class="wr-card-body">
-            <div class="op-form">
-              <div class="op-field">
-                <label>GSB Backend URL</label>
-                <input type="text" id="cfg-api" value="https://gsb-swarm-production.up.railway.app">
-              </div>
-              <div class="op-field">
-                <label>Telegram User ID</label>
-                <input type="text" id="cfg-uid" placeholder="Your Telegram user ID">
-              </div>
-              <div class="op-field">
-                <label>Default Chain</label>
-                <select id="cfg-chain">
-                  <option>Base</option><option>Ethereum</option><option>Solana</option>
+            <div class="ac-row">
+              <div class="ac-field">
+                <label>Raid Type</label>
+                <select id="raid-type">
+                  <option value="reply">Reply Raid</option>
+                  <option value="like">Like + Boost</option>
+                  <option value="thread">Thread Amplify</option>
+                  <option value="full">Full Raid (all)</option>
                 </select>
               </div>
-              <button class="wr-btn wr-btn-gold" onclick="saveSettings()">Save Settings</button>
+              <div class="ac-field">
+                <label>Agents</label>
+                <select id="raid-agents">
+                  <option value="all">All agents</option>
+                  <option value="3">3 agents</option>
+                  <option value="2">2 agents</option>
+                  <option value="1">1 agent</option>
+                </select>
+              </div>
             </div>
+            <div class="ac-field">
+              <label>Talking Points</label>
+              <textarea id="raid-msg" placeholder="Bullish on this token — volume is up, community growing. Not financial advice."></textarea>
+            </div>
+            <button class="deploy-btn raid" onclick="launchRaid()">🐦 Deploy Raid</button>
           </div>
         </div>
-        <div class="wr-card">
-          <div class="wr-card-head"><div class="wr-card-title">Fee Structure</div></div>
-          <div class="wr-card-body">
-            <div style="display:grid;gap:.6rem;font-family:var(--font-mono);font-size:.6rem;">
-              <div style="display:flex;justify-content:space-between;padding:.5rem 0;border-bottom:1px solid rgba(200,150,12,.1);">
-                <span style="color:var(--dust)">Swap fee</span><span style="color:var(--gold-bright)">0.5%</span>
+      </div>
+
+      <!-- ░░ BUY BOT ░░ -->
+      <div class="action-card" id="card-buy">
+        <div class="action-card-head" onclick="toggleCard('buy')">
+          <div class="action-card-left">
+            <div class="action-icon buy">⚡</div>
+            <div>
+              <div class="action-name">Buy Bot</div>
+              <div class="action-tagline">Schedule buys — linear or random</div>
+            </div>
+          </div>
+          <button class="action-info-btn" onclick="event.stopPropagation();toggleInfo('buy')" title="What does this do?">?</button>
+        </div>
+        <div class="action-info-box" id="info-buy">
+          Automates recurring token purchases. Linear mode buys the same amount on a fixed schedule. Random mode randomizes size and timing across agents to avoid pattern detection. Stealth mode rotates agents and geo-locations per buy.
+        </div>
+        <div class="action-body" id="body-buy">
+          <div class="ac-form">
+            <div class="ac-row">
+              <div class="ac-field">
+                <label>Mode</label>
+                <select id="buy-mode" onchange="updateBuyPreview()">
+                  <option value="linear">Linear</option>
+                  <option value="random">Random</option>
+                  <option value="stealth">Stealth</option>
+                </select>
               </div>
-              <div style="display:flex;justify-content:space-between;padding:.5rem 0;border-bottom:1px solid rgba(200,150,12,.1);">
-                <span style="color:var(--dust)">Pump bot fee</span><span style="color:var(--gold-bright)">10%</span>
+              <div class="ac-field">
+                <label>Per-Buy (USD)</label>
+                <input type="number" id="buy-amount" placeholder="0.01" min="0.01" step="0.01" oninput="updateBuyPreview()">
               </div>
-              <div style="display:flex;justify-content:space-between;padding:.5rem 0;border-bottom:1px solid rgba(200,150,12,.1);">
-                <span style="color:var(--dust)">DCA fee</span><span style="color:var(--gold-bright)">0.5% per buy</span>
+            </div>
+            <div class="ac-row">
+              <div class="ac-field">
+                <label>Interval</label>
+                <select id="buy-interval" onchange="updateBuyPreview()">
+                  <option value="5m">Every 5 min</option>
+                  <option value="10m" selected>Every 10 min</option>
+                  <option value="15m">Every 15 min</option>
+                  <option value="30m">Every 30 min</option>
+                  <option value="1h">Every 1 hour</option>
+                </select>
               </div>
-              <div style="display:flex;justify-content:space-between;padding:.5rem 0;">
-                <span style="color:var(--dust)">GSB buyback</span><span style="color:#4ade80;">50% of all fees</span>
+              <div class="ac-field">
+                <label>Agents</label>
+                <select id="buy-agents">
+                  <option value="1">1 agent</option>
+                  <option value="2">2 agents</option>
+                  <option value="3">3 agents</option>
+                  <option value="all">All agents</option>
+                </select>
               </div>
+            </div>
+            <div class="ac-field">
+              <label>Total Budget (USD)</label>
+              <input type="number" id="buy-budget" placeholder="50" oninput="updateBuyPreview()">
+            </div>
+            <div id="buy-preview" style="font-family:var(--font-mono);font-size:.52rem;color:var(--stone);line-height:1.6;padding:.35rem 0;"></div>
+            <button class="deploy-btn buy" onclick="launchBuyBot()">⚡ Start Buy Bot</button>
+          </div>
+        </div>
+      </div>
+
+      <!-- ░░ THREAD + POST ░░ -->
+      <div class="action-card" id="card-thread">
+        <div class="action-card-head" onclick="toggleCard('thread')">
+          <div class="action-card-left">
+            <div class="action-icon thread">✍</div>
+            <div>
+              <div class="action-name">Thread + Post</div>
+              <div class="action-tagline">Write and deploy to X</div>
+            </div>
+          </div>
+          <button class="action-info-btn" onclick="event.stopPropagation();toggleInfo('thread')" title="What does this do?">?</button>
+        </div>
+        <div class="action-info-box" id="info-thread">
+          Generates a bullish thread for the target token and deploys it to X via your posting agents. You pick the tone — the AI writes the copy. Agents post from their own accounts, staggered to look organic. You can also provide custom copy.
+        </div>
+        <div class="action-body" id="body-thread">
+          <div class="ac-form">
+            <div class="ac-row">
+              <div class="ac-field">
+                <label>Tone</label>
+                <select id="thread-tone">
+                  <option>Bullish Analysis</option>
+                  <option>Technical Breakdown</option>
+                  <option>Community Hype</option>
+                  <option>Whale Alert</option>
+                </select>
+              </div>
+              <div class="ac-field">
+                <label>Post Cadence</label>
+                <select id="thread-cadence">
+                  <option>Simultaneous</option>
+                  <option>Staggered 30s</option>
+                  <option>Staggered 2 min</option>
+                </select>
+              </div>
+            </div>
+            <div id="thread-preview-box" style="display:none;background:rgba(0,0,0,.3);border:1px solid rgba(59,130,246,.25);border-radius:4px;padding:.55rem .7rem;font-family:var(--font-mono);font-size:.52rem;color:var(--parchment-aged);line-height:1.7;white-space:pre-line;max-height:120px;overflow-y:auto;"></div>
+            <div style="display:flex;gap:.4rem;">
+              <button class="wr-btn wr-btn-dim" onclick="generateThread()" style="flex:1;justify-content:center;">✍ Generate</button>
+              <button class="deploy-btn thread" id="deployThreadBtn" onclick="deployThread()" style="flex:2;" disabled>🚀 Deploy to Agents</button>
             </div>
           </div>
         </div>
       </div>
+
+      <!-- ░░ DCA ENGINE ░░ -->
+      <div class="action-card" id="card-dca">
+        <div class="action-card-head" onclick="toggleCard('dca')">
+          <div class="action-card-left">
+            <div class="action-icon dca">📈</div>
+            <div>
+              <div class="action-name">DCA Engine</div>
+              <div class="action-tagline">Recurring buys, multi-agent</div>
+            </div>
+          </div>
+          <button class="action-info-btn" onclick="event.stopPropagation();toggleInfo('dca')" title="What does this do?">?</button>
+        </div>
+        <div class="action-info-box" id="info-dca">
+          Dollar-cost averaging engine. Set a per-agent buy amount and interval — agents will automatically buy the token on schedule until the budget is exhausted. Multi-agent spreads the buying across geo-locations to look natural.
+        </div>
+        <div class="action-body" id="body-dca">
+          <div class="ac-form">
+            <div class="ac-row">
+              <div class="ac-field">
+                <label>Per-Agent Buy (USD)</label>
+                <input type="number" id="dca-amount" placeholder="0.05" min="0.01" step="0.01">
+              </div>
+              <div class="ac-field">
+                <label>Interval</label>
+                <select id="dca-interval">
+                  <option value="5m">Every 5 min</option>
+                  <option value="10m" selected>Every 10 min</option>
+                  <option value="15m">Every 15 min</option>
+                  <option value="30m">Every 30 min</option>
+                  <option value="1h">Every 1 hour</option>
+                  <option value="6h">Every 6 hours</option>
+                </select>
+              </div>
+            </div>
+            <div class="ac-row">
+              <div class="ac-field">
+                <label>Agents</label>
+                <select id="dca-agents">
+                  <option value="1">1 agent</option>
+                  <option value="2">2 agents</option>
+                  <option value="3">3 agents</option>
+                  <option value="all">All agents</option>
+                </select>
+              </div>
+              <div class="ac-field">
+                <label>Total Budget (USD)</label>
+                <input type="number" id="dca-budget" placeholder="100">
+              </div>
+            </div>
+            <button class="deploy-btn dca" onclick="launchDca()">📈 Launch DCA</button>
+          </div>
+        </div>
+      </div>
+
+      <!-- ░░ ACP DEPLOY ░░ -->
+      <div class="action-card" id="card-acp">
+        <div class="action-card-head" onclick="toggleCard('acp')">
+          <div class="action-card-left">
+            <div class="action-icon acp">🤖</div>
+            <div>
+              <div class="action-name">ACP Deploy</div>
+              <div class="action-tagline">Hire agents from the network</div>
+            </div>
+          </div>
+          <button class="action-info-btn" onclick="event.stopPropagation();toggleInfo('acp')" title="What does this do?">?</button>
+        </div>
+        <div class="action-info-box" id="info-acp">
+          Connects to the Agent Commerce Protocol network to hire external specialist agents. You can deploy Alpha Scanner to find momentum tokens, Thread Writer to produce content, or Wallet Profiler to analyze wallet behavior — all in one click.
+        </div>
+        <div class="action-body" id="body-acp">
+          <div class="ac-form">
+            <div class="ac-field">
+              <label>ACP Agent</label>
+              <select id="acp-agent-type">
+                <option value="alpha">Alpha Scanner — find trending tokens</option>
+                <option value="thread">Thread Writer — content for X</option>
+                <option value="wallet">Wallet Profiler — analyze addresses</option>
+                <option value="analyst">Token Analyst — deep dive report</option>
+              </select>
+            </div>
+            <div class="ac-field">
+              <label>Task / Prompt</label>
+              <textarea id="acp-prompt" placeholder="e.g. Scan Solana for tokens with 3x volume spike in the last 4 hours"></textarea>
+            </div>
+            <button class="deploy-btn acp" onclick="launchAcp()">🤖 Deploy ACP Agent</button>
+          </div>
+        </div>
+      </div>
+
+    </div><!-- /cmd-actions -->
+
+    <!-- Settings strip -->
+    <div class="cmd-settings">
+      <div class="cmd-settings-title">Config</div>
+      <div style="display:flex;gap:.4rem;align-items:center;">
+        <input id="cfg-api" type="text" style="flex:1;background:rgba(0,0,0,.4);border:1px solid var(--gold-dim);border-radius:3px;padding:.38rem .6rem;font-family:var(--font-mono);font-size:.52rem;color:var(--dust-light);outline:none;" placeholder="API base URL">
+        <button class="wr-btn wr-btn-dim wr-btn-sm" onclick="saveSettings()">Save</button>
+      </div>
     </div>
 
-  </main>
-</div>
+  </aside><!-- /cmd-panel -->
+
+  <!-- ══ CENTER: LIVE JOB FEED ══ -->
+  <section class="job-feed">
+    <div class="job-feed-head">
+      <div class="job-feed-title">
+        <span class="live-dot"></span>
+        Live Job Feed
+      </div>
+      <div class="job-filter-tabs">
+        <button class="jf-tab active" onclick="filterFeed('all',this)">All</button>
+        <button class="jf-tab" onclick="filterFeed('buy',this)">Buy</button>
+        <button class="jf-tab" onclick="filterFeed('raid',this)">Raid</button>
+        <button class="jf-tab" onclick="filterFeed('post',this)">Post</button>
+        <button class="jf-tab" onclick="filterFeed('swap',this)">Swap</button>
+        <button class="jf-tab jf-tab-clear" onclick="clearFeed()" style="margin-left:.4rem;color:var(--stone);">Clear</button>
+      </div>
+    </div>
+    <div class="job-scroll" id="jobScroll">
+      <div class="feed-empty" id="feedEmpty">
+        <div class="feed-empty-icon">📋</div>
+        <div>No jobs yet — deploy an operation from the left panel</div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ══ RIGHT: AGENT ROSTER ══ -->
+  <aside class="agent-roster">
+    <div class="roster-head">
+      <div class="roster-title">⚔ Agent Roster</div>
+      <div class="roster-subtitle" id="rosterSub">5 active · 1 idle</div>
+    </div>
+    <div class="roster-body" id="rosterBody"></div>
+  </aside>
+
+</div><!-- /wr-shell -->
 
 <!-- TOAST -->
 <div class="wr-toast" id="wrToast">
-  <span id="wrToastIcon">⚔</span>
-  <span id="wrToastMsg">Action complete.</span>
+  <span id="wrToastIcon">✅</span>
+  <span id="wrToastMsg">Done</span>
 </div>
 
 <script>
 // ── CONFIG ──────────────────────────────────────────────────────────────────
 const API_BASE = localStorage.getItem('wr_api') || 'https://gsb-swarm-production.up.railway.app';
-
-// ── PANEL META ───────────────────────────────────────────────────────────────
-const PANEL_META = {
-  agents:   { title:'Agent Fleet',         sub:'All active agents and their current operations' },
-  log:      { title:'Activity Log',        sub:'Every action taken by every agent — live feed' },
-  tokens:   { title:'Token Registry',      sub:'All tokens your agents are currently working with' },
-  dca:      { title:'DCA Buy Engine',      sub:'Schedule recurring automated buys' },
-  pump:     { title:'Pump Bot',            sub:'Rapid coordinated buys to generate volume' },
-  swap:     { title:'Swap',               sub:'Execute token swaps via best-price routing' },
-  raid:     { title:'X Raid Coordinator', sub:'Direct agents to raid and amplify posts on X' },
-  arb:      { title:'Arbitrage Scanner',  sub:'Live cross-DEX spreads — auto-refresh 30s' },
-  settings: { title:'Settings',           sub:'Configure API, agents, and defaults' },
-};
-
-function switchPanel(id, el) {
-  document.querySelectorAll('.wr-panel').forEach(p => p.classList.remove('active'));
-  document.querySelectorAll('.wr-sb-btn').forEach(b => b.classList.remove('active'));
-  document.getElementById('panel-' + id).classList.add('active');
-  if (el) el.classList.add('active');
-  else document.querySelector(`[data-panel="${id}"]`)?.classList.add('active');
-  const m = PANEL_META[id] || {};
-  document.getElementById('panelTitle').textContent = m.title || id;
-  document.getElementById('panelSub').textContent   = m.sub   || '';
-}
+let selectedChain = 'base';
 
 // ── CLOCK ────────────────────────────────────────────────────────────────────
 function updateClock() {
@@ -1114,508 +834,305 @@ function toast(icon, msg) {
   document.getElementById('wrToastIcon').textContent = icon;
   document.getElementById('wrToastMsg').textContent  = msg;
   t.classList.add('show');
-  setTimeout(() => t.classList.remove('show'), 3000);
+  setTimeout(() => t.classList.remove('show'), 3200);
 }
 
-// ── AGENT DATA ───────────────────────────────────────────────────────────────
+// ── CHAIN SELECTOR ────────────────────────────────────────────────────────────
+function setChain(chain, el) {
+  selectedChain = chain;
+  document.querySelectorAll('.cmd-chain-btn').forEach(b => b.classList.remove('active'));
+  el.classList.add('active');
+}
+
+// ── TOKEN SYNC ────────────────────────────────────────────────────────────────
+function syncToken(val) {
+  // propagate target token into all forms
+  ['raid-url', 'dca-amount', 'buy-amount'].forEach(() => {});
+  // we just store it and use in launchers
+}
+
+// ── ACTION CARD TOGGLE ────────────────────────────────────────────────────────
+const openCards = new Set();
+function toggleCard(id) {
+  const body = document.getElementById('body-' + id);
+  if (openCards.has(id)) {
+    body.classList.remove('open');
+    openCards.delete(id);
+  } else {
+    body.classList.add('open');
+    openCards.add(id);
+  }
+}
+
+// ── INFO BOX TOGGLE ───────────────────────────────────────────────────────────
+const openInfos = new Set();
+function toggleInfo(id) {
+  const box = document.getElementById('info-' + id);
+  if (openInfos.has(id)) {
+    box.classList.remove('open');
+    openInfos.delete(id);
+  } else {
+    box.classList.add('open');
+    openInfos.add(id);
+  }
+}
+
+// ── AGENT DATA ────────────────────────────────────────────────────────────────
 const AGENTS = [
-  { id:'alpha',   name:'Agent Alpha',   geo:'🇺🇸 US-East',      status:'buying',  token:'PEPE',   action:'Buying $0.01 PEPE every 10s via Uniswap Base',      buys:48, spent:'$0.48',  pnl:'+2.1%' },
-  { id:'bravo',   name:'Agent Bravo',   geo:'🇩🇪 EU-West',      status:'raiding', token:'GSB',    action:'Raiding @pumpcade post · Reply + Like · 3 raids',   buys:12, spent:'—',      pnl:'—' },
-  { id:'charlie', name:'Agent Charlie', geo:'🇯🇵 Asia-Pac',     status:'posting', token:'DOGE',   action:'Posting bullish $DOGE thread on @charlie_raids',    buys:6,  spent:'$0.12',  pnl:'+0.4%' },
-  { id:'delta',   name:'Agent Delta',   geo:'🇺🇸 US-West',      status:'buying',  token:'PEPE',   action:'Buying $0.02 PEPE every 15s — stealth mode active', buys:31, spent:'$0.62',  pnl:'+2.1%' },
-  { id:'echo',    name:'Agent Echo',    geo:'🇧🇷 South America', status:'buying',  token:'VIRTUAL',action:'DCA $0.05 VIRTUAL every 5 min via Jupiter',         buys:18, spent:'$0.90',  pnl:'-0.3%' },
-  { id:'foxtrot', name:'Agent Foxtrot', geo:'🇬🇧 UK',           status:'idle',    token:'—',      action:'Idle — awaiting next campaign assignment',           buys:0,  spent:'—',      pnl:'—' },
+  { id:'alpha',   name:'Alpha',   geo:'🇺🇸 US-East',      status:'buying',  action:'Buying $0.01 PEPE every 10m',        buys:48, spent:'$0.48' },
+  { id:'bravo',   name:'Bravo',   geo:'🇩🇪 EU-West',      status:'raiding', action:'Raiding @pumpcade · Reply + Like',   buys:12, spent:'—' },
+  { id:'charlie', name:'Charlie', geo:'🇯🇵 Asia-Pac',     status:'posting', action:'Posting $DOGE thread on X',          buys:6,  spent:'$0.12' },
+  { id:'delta',   name:'Delta',   geo:'🇺🇸 US-West',      status:'buying',  action:'Buying $0.02 PEPE stealth mode',     buys:31, spent:'$0.62' },
+  { id:'echo',    name:'Echo',    geo:'🇧🇷 South America', status:'buying',  action:'DCA $0.05 VIRTUAL via Jupiter',      buys:18, spent:'$0.90' },
+  { id:'foxtrot', name:'Foxtrot', geo:'🇬🇧 UK',           status:'idle',    action:'Idle — awaiting assignment',         buys:0,  spent:'—' },
 ];
 
-const STATUS_PILL = {
-  buying:  '<span class="agent-status-pill pill-buying">🟢 Buying</span>',
-  posting: '<span class="agent-status-pill pill-posting">🔵 Posting</span>',
-  raiding: '<span class="agent-status-pill pill-raiding">🟡 Raiding</span>',
-  idle:    '<span class="agent-status-pill pill-idle">⚫ Idle</span>',
+function renderRoster() {
+  const body = document.getElementById('rosterBody');
+  const active = AGENTS.filter(a => a.status !== 'idle');
+  const idle   = AGENTS.filter(a => a.status === 'idle');
+
+  document.getElementById('rosterSub').textContent =
+    `${active.length} active · ${idle.length} idle`;
+
+  if (!active.length) {
+    body.innerHTML = `<div class="roster-standby"><div class="roster-standby-icon">⚔</div>Fleet standing by.<br>Deploy an operation to activate agents.</div>`;
+    return;
+  }
+
+  body.innerHTML = active.map(a => `
+    <div class="agent-chip ${a.status} fade-in" id="chip-${a.id}">
+      <div class="agent-chip-avatar">${a.name[0]}</div>
+      <div class="agent-chip-info">
+        <div class="agent-chip-name">${a.name} <span style="font-size:.46rem;color:var(--stone);font-weight:400;">${a.geo}</span></div>
+        <div class="agent-chip-action">${a.action}</div>
+        <div class="agent-chip-stats">
+          <div><div class="ac-stat-val">${a.buys}</div><div class="ac-stat-lbl">Buys</div></div>
+          <div><div class="ac-stat-val">${a.spent}</div><div class="ac-stat-lbl">Spent</div></div>
+        </div>
+      </div>
+      <div class="agent-chip-status"><span class="status-dot ${a.status}"></span></div>
+    </div>
+  `).join('') + (idle.length ? `
+    <div style="padding:.5rem .65rem .25rem;font-family:var(--font-heading);font-size:.48rem;color:var(--stone);text-transform:uppercase;letter-spacing:.15em;margin-top:.25rem;">Standby</div>
+    ${idle.map(a => `
+      <div class="agent-chip idle fade-in">
+        <div class="agent-chip-avatar" style="opacity:.45;">${a.name[0]}</div>
+        <div class="agent-chip-info">
+          <div class="agent-chip-name" style="opacity:.6;">${a.name} <span style="font-size:.46rem;color:var(--stone);font-weight:400;">${a.geo}</span></div>
+          <div class="agent-chip-action" style="color:var(--stone);">Idle</div>
+        </div>
+        <div><span class="status-dot idle"></span></div>
+      </div>
+    `).join('')}
+  ` : '');
+}
+renderRoster();
+
+// ── JOB FEED ─────────────────────────────────────────────────────────────────
+let allJobs = [];
+let feedFilter = 'all';
+
+const TYPE_BADGE = {
+  buy:  '<span class="job-badge jb-buy">BUY</span>',
+  raid: '<span class="job-badge jb-raid">RAID</span>',
+  post: '<span class="job-badge jb-post">POST</span>',
+  swap: '<span class="job-badge jb-swap">SWAP</span>',
+  arb:  '<span class="job-badge jb-arb">ARB</span>',
+  dca:  '<span class="job-badge jb-dca">DCA</span>',
+  acp:  '<span class="job-badge jb-acp">ACP</span>',
 };
 
-function renderAgents() {
-  const grid = document.getElementById('agentGrid');
-  grid.innerHTML = AGENTS.map(a => `
-    <div class="agent-card ${a.status} fade-in" id="ac-${a.id}">
-      <div class="agent-head">
-        <div>
-          <div class="agent-name">${a.name}</div>
-          <div class="agent-geo">${a.geo}</div>
-        </div>
-        ${STATUS_PILL[a.status]}
-      </div>
-      <div class="agent-action">${a.action}</div>
-      <div class="agent-stats">
-        <div class="agent-stat">
-          <div class="agent-stat-val">${a.buys}</div>
-          <div class="agent-stat-lbl">Buys</div>
-        </div>
-        <div class="agent-stat">
-          <div class="agent-stat-val">${a.spent}</div>
-          <div class="agent-stat-lbl">Spent</div>
-        </div>
-        <div class="agent-stat">
-          <div class="agent-stat-val ${a.pnl.startsWith('+') ? 'green' : ''}">${a.pnl}</div>
-          <div class="agent-stat-lbl">PnL</div>
-        </div>
-      </div>
-      <div class="agent-btns">
-        <button class="wr-btn wr-btn-dim wr-btn-sm" onclick="assignAgent('${a.id}')">⚡ Assign</button>
-        <button class="wr-btn wr-btn-dim wr-btn-sm" onclick="pauseAgent('${a.id}')">⏸</button>
-        <button class="wr-btn wr-btn-outline wr-btn-sm" style="margin-left:auto;" onclick="viewAgentLog('${a.id}')">View Log</button>
-      </div>
-    </div>
-  `).join('');
-}
-renderAgents();
-
-// ── ACTIVITY LOG ─────────────────────────────────────────────────────────────
-const LOG_TYPES = { buy:'lb-buy', post:'lb-post', raid:'lb-raid', swap:'lb-swap', arb:'lb-arb' };
-const SEED_LOG = [
+const SEED_JOBS = [
   { time:'12:41:55', agent:'Alpha',   msg:'Bought $0.01 PEPE on Base via Uniswap',           type:'buy' },
   { time:'12:41:48', agent:'Bravo',   msg:'Replied to @pumpcade — "$GSB community growing"', type:'raid' },
   { time:'12:41:40', agent:'Charlie', msg:'Posted bullish $DOGE thread — 3 tweets',          type:'post' },
-  { time:'12:41:45', agent:'Delta',   msg:'Bought $0.02 PEPE on Base — stealth route',       type:'buy' },
-  { time:'12:41:30', agent:'Echo',    msg:'DCA buy $0.05 VIRTUAL on Solana via Jupiter',     type:'buy' },
+  { time:'12:41:35', agent:'Delta',   msg:'Bought $0.02 PEPE — stealth route',               type:'buy' },
+  { time:'12:41:30', agent:'Echo',    msg:'DCA buy $0.05 VIRTUAL on Solana via Jupiter',     type:'dca' },
   { time:'12:41:20', agent:'Alpha',   msg:'Bought $0.01 PEPE on Base via Uniswap',           type:'buy' },
-  { time:'12:41:10', agent:'Delta',   msg:'Bought $0.02 PEPE — randomized timing +3s',       type:'buy' },
-  { time:'12:40:55', agent:'Bravo',   msg:'Liked + Bookmarked target post on X',             type:'raid' },
+  { time:'12:40:55', agent:'Bravo',   msg:'Liked + bookmarked target post on X',             type:'raid' },
   { time:'12:40:44', agent:'Charlie', msg:'Swap 2 USDC → DOGE on BSC',                       type:'swap' },
 ];
+allJobs = [...SEED_JOBS];
 
-let logEntries = [...SEED_LOG];
-let logFilter = 'all';
+function renderFeed() {
+  const scroll = document.getElementById('jobScroll');
+  const empty  = document.getElementById('feedEmpty');
+  const filtered = feedFilter === 'all' ? allJobs : allJobs.filter(j => j.type === feedFilter);
 
-function renderLog() {
-  const wrap = document.getElementById('activityLog');
-  const filtered = logFilter === 'all' ? logEntries : logEntries.filter(e => e.type === logFilter);
-  const rows = filtered.slice(0, 200).map(e => `
-    <div class="log-row">
-      <span class="log-time">${e.time}</span>
-      <span class="log-agent">${e.agent}</span>
-      <span class="log-msg">${e.msg}</span>
-      <span class="log-badge ${LOG_TYPES[e.type] || ''}">${e.type.toUpperCase()}</span>
-    </div>
-  `).join('');
-  wrap.innerHTML = `<div class="log-row token-row-head"><span>Time</span><span>Agent</span><span>Action</span><span>Type</span></div>` + rows;
-  document.getElementById('sb-log-count').textContent = logEntries.length;
-}
-renderLog();
-
-function addLog(agent, msg, type) {
-  const now = new Date();
-  const time = now.toTimeString().slice(0,8);
-  logEntries.unshift({ time, agent, msg, type });
-  renderLog();
-}
-
-function filterLog(type) { logFilter = type; renderLog(); }
-function clearLog() { logEntries = []; renderLog(); }
-
-// ── TOKEN REGISTRY ───────────────────────────────────────────────────────────
-const TOKENS = [
-  { sym:'PEPE',    chain:'Base',     price:'$0.00001247', chg:'+4.2',  vol:'$2.1M',  agents:2 },
-  { sym:'GSB',     chain:'Solana',   price:'$0.00000937', chg:'+0.0',  vol:'$48K',   agents:1 },
-  { sym:'DOGE',    chain:'BSC',      price:'$0.1823',     chg:'+1.1',  vol:'$890M',  agents:1 },
-  { sym:'VIRTUAL', chain:'Solana',   price:'$1.84',       chg:'-2.3',  vol:'$18.4M', agents:1 },
-];
-
-function renderTokenRegistry() {
-  document.getElementById('tokenRegistry').innerHTML = TOKENS.map((t, i) => `
-    <div class="token-row fade-in">
-      <span class="token-rank">#${i+1}</span>
-      <div class="token-info"><div class="t-sym">${t.sym}</div><div class="t-chain">${t.chain}</div></div>
-      <span class="token-price">${t.price}</span>
-      <span class="token-chg ${parseFloat(t.chg) >= 0 ? 'pos' : 'neg'}">${parseFloat(t.chg) >= 0 ? '+' : ''}${t.chg}%</span>
-      <span class="token-vol">${t.vol}</span>
-      <span class="token-agents">${t.agents} agent${t.agents > 1 ? 's' : ''}</span>
-      <div class="token-actions">
-        <button class="wr-btn wr-btn-dim wr-btn-sm" onclick="quickDca('${t.sym}','${t.chain}')">DCA</button>
-        <button class="wr-btn wr-btn-dim wr-btn-sm" onclick="quickPump('${t.sym}','${t.chain}')">Pump</button>
-        <button class="wr-btn wr-btn-dim wr-btn-sm" onclick="quickRaid('${t.sym}')">Raid</button>
-      </div>
-    </div>
-  `).join('');
-}
-renderTokenRegistry();
-
-function addTokenPrompt() {
-  const sym = prompt('Token symbol or contract address:');
-  if (!sym) return;
-  TOKENS.push({ sym: sym.toUpperCase(), chain:'Base', price:'loading...', chg:'0', vol:'—', agents:0 });
-  renderTokenRegistry();
-  toast('🪙', `${sym.toUpperCase()} added to registry`);
-}
-
-// Quick-launch helpers from token registry
-function quickDca(sym, chain) {
-  document.getElementById('dca-token').value = sym;
-  document.getElementById('dca-chain').value = chain;
-  switchPanel('dca', document.querySelector('[data-panel="dca"]'));
-  toast('📈', `DCA pre-loaded for ${sym}`);
-}
-function quickPump(sym, chain) {
-  document.getElementById('pump-token').value = sym;
-  document.getElementById('pump-chain').value = chain.toLowerCase();
-  switchPanel('pump', document.querySelector('[data-panel="pump"]'));
-  toast('⚡', `Pump bot pre-loaded for ${sym}`);
-}
-function quickRaid(sym) {
-  document.getElementById('raid-hashtag').value = '#' + sym;
-  switchPanel('raid', document.querySelector('[data-panel="raid"]'));
-  toast('🐦', `Raid pre-loaded for ${sym}`);
-}
-
-// ── DCA CAMPAIGNS ────────────────────────────────────────────────────────────
-let dcaCampaigns = [
-  { id:1, token:'PEPE',    agents:['Alpha','Delta'], amount:'$0.01+$0.02', interval:'10s+15s', spent:'$1.10', status:'running' },
-  { id:2, token:'VIRTUAL', agents:['Echo'],          amount:'$0.05',       interval:'5m',      spent:'$0.90', status:'running' },
-];
-
-function renderDcaCampaigns() {
-  document.getElementById('dcaCampaigns').innerHTML = dcaCampaigns.length ? dcaCampaigns.map(c => `
-    <div style="padding:.75rem 1rem;border-bottom:1px solid rgba(200,150,12,.1);">
-      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:.4rem;">
-        <span style="font-family:var(--font-heading);font-size:.65rem;color:var(--gold-bright);font-weight:700;">${c.token}</span>
-        <span class="agent-status-pill pill-buying" style="font-size:.48rem;">RUNNING</span>
-      </div>
-      <div style="font-family:var(--font-mono);font-size:.55rem;color:var(--dust);line-height:1.7;">
-        Agents: ${c.agents.join(', ')} · ${c.amount} every ${c.interval}<br>
-        Total spent: ${c.spent}
-      </div>
-      <div style="margin-top:.5rem;display:flex;gap:.4rem;">
-        <button class="wr-btn wr-btn-dim wr-btn-sm" onclick="pauseCampaign(${c.id})">⏸ Pause</button>
-        <button class="wr-btn wr-btn-red wr-btn-sm" onclick="stopCampaign(${c.id})">■ Stop</button>
-      </div>
-    </div>
-  `).join('') : '<div style="padding:1rem;font-family:var(--font-mono);font-size:.58rem;color:var(--stone);text-align:center;">No active campaigns</div>';
-}
-renderDcaCampaigns();
-
-// ── DCA MODE TABS ─────────────────────────────────────────────────────────────
-function setDcaMode(mode, el) {
-  document.querySelectorAll('.mode-tab').forEach(t => t.classList.remove('active'));
-  document.querySelectorAll('.mode-panel').forEach(p => p.classList.remove('active'));
-  el.classList.add('active');
-  document.getElementById('dca-' + mode).classList.add('active');
-}
-
-// ── AGENT CHECKBOXES (multi-dca) ──────────────────────────────────────────────
-function renderAgentCheckboxes() {
-  document.getElementById('agentCheckboxes').innerHTML = AGENTS.map(a => `
-    <label style="display:flex;align-items:center;gap:.35rem;font-family:var(--font-mono);font-size:.55rem;color:var(--dust-light);cursor:pointer;background:rgba(0,0,0,.3);border:1px solid var(--gold-dim);border-radius:3px;padding:.3rem .6rem;">
-      <input type="checkbox" value="${a.id}" onchange="updateMultiDcaPreview()" style="accent-color:var(--gold);">
-      ${a.name} <span style="color:var(--stone)">${a.geo}</span>
-    </label>
-  `).join('');
-}
-renderAgentCheckboxes();
-
-function updateMultiDcaPreview() {
-  const checked = document.querySelectorAll('#agentCheckboxes input:checked');
-  const amt = parseFloat(document.getElementById('dca-m-amount').value) || 0;
-  if (!checked.length || !amt) {
-    document.getElementById('dca-m-preview').textContent = 'Select agents above to see combined buying power.';
+  if (!filtered.length) {
+    scroll.innerHTML = '';
+    scroll.appendChild(empty);
+    empty.style.display = 'flex';
     return;
   }
-  const total = checked.length * amt;
-  const intv = document.getElementById('dca-m-interval').value;
-  document.getElementById('dca-m-preview').textContent =
-    `✓ ${checked.length} agents × $${amt} = $${total.toFixed(2)} per ${intv} combined from ${checked.length} geo-locations.`;
-}
+  empty.style.display = 'none';
 
-// ── LAUNCH OPERATIONS ─────────────────────────────────────────────────────────
-function launchDca() {
-  const token = document.getElementById('dca-token').value.trim();
-  const amt = document.getElementById('dca-amount').value;
-  const intv = document.getElementById('dca-interval').value;
-  const agent = document.getElementById('dca-agent').value.split(' — ')[0];
-  if (!token) { toast('⚠', 'Enter a token first'); return; }
-  if (!amt)   { toast('⚠', 'Enter a buy amount'); return; }
-  dcaCampaigns.push({ id: Date.now(), token: token.toUpperCase(), agents:[agent], amount:'$'+amt, interval:intv, spent:'$0.00', status:'running' });
-  renderDcaCampaigns();
-  addLog(agent, `DCA launched: $${amt} ${token.toUpperCase()} every ${intv}`, 'buy');
-  toast('📈', `DCA campaign started — ${token.toUpperCase()} $${amt} every ${intv}`);
-}
-
-function launchMultiDca() {
-  const token = document.getElementById('dca-m-token').value.trim();
-  const amt = document.getElementById('dca-m-amount').value;
-  const checked = [...document.querySelectorAll('#agentCheckboxes input:checked')];
-  if (!token) { toast('⚠', 'Enter a token first'); return; }
-  if (!checked.length) { toast('⚠', 'Select at least one agent'); return; }
-  const agentNames = checked.map(c => c.value.charAt(0).toUpperCase() + c.value.slice(1));
-  dcaCampaigns.push({ id: Date.now(), token: token.toUpperCase(), agents:agentNames, amount:'$'+amt+' each', interval:document.getElementById('dca-m-interval').value, spent:'$0.00', status:'running' });
-  renderDcaCampaigns();
-  agentNames.forEach(a => addLog(a, `Swarm DCA: $${amt} ${token.toUpperCase()} / agent`, 'buy'));
-  toast('⚡', `Swarm DCA deployed — ${agentNames.length} agents buying ${token.toUpperCase()}`);
-}
-
-function launchStealthDca() {
-  const token = document.getElementById('dca-s-token').value.trim();
-  if (!token) { toast('⚠', 'Enter a token first'); return; }
-  toast('🥷', `Stealth DCA activated for ${token.toUpperCase()} — randomizing timing + geo across all agents`);
-  addLog('All', `Stealth DCA started for ${token.toUpperCase()} — random buys, random agents`, 'buy');
-}
-
-function pauseCampaign(id) {
-  const c = dcaCampaigns.find(x => x.id === id);
-  if (c) { c.status = 'paused'; renderDcaCampaigns(); toast('⏸', 'Campaign paused'); }
-}
-function stopCampaign(id) {
-  dcaCampaigns = dcaCampaigns.filter(x => x.id !== id);
-  renderDcaCampaigns();
-  toast('■', 'Campaign stopped');
-}
-
-// ── PUMP BOT ──────────────────────────────────────────────────────────────────
-let pumpSessions = [];
-
-function renderPumpSessions() {
-  document.getElementById('pumpSessions').innerHTML = pumpSessions.length ? pumpSessions.map(s => `
-    <div style="padding:.75rem 1rem;border-bottom:1px solid rgba(200,150,12,.1);">
-      <div style="display:flex;justify-content:space-between;margin-bottom:.35rem;">
-        <span style="font-family:var(--font-heading);font-size:.65rem;color:var(--gold-bright);font-weight:700;">${s.token}</span>
-        <span class="agent-status-pill pill-buying" style="font-size:.48rem;">RUNNING</span>
-      </div>
-      <div style="font-family:var(--font-mono);font-size:.55rem;color:var(--dust);line-height:1.7;">
-        ${s.perBuy} per buy · ${s.rate} · ${s.agents} agent(s)<br>Budget: ${s.budget} · Spent: ${s.spent}
-      </div>
-      <div class="progress-wrap" style="margin:.4rem 0;"><div class="progress-bar green" style="width:${s.pct}%;"></div></div>
-      <button class="wr-btn wr-btn-red wr-btn-sm" onclick="stopPump(${s.id})">■ Stop</button>
+  scroll.innerHTML = filtered.slice(0, 300).map((j, i) => `
+    <div class="job-row${i === 0 ? ' new' : ''}">
+      <span class="job-time">${j.time}</span>
+      <span class="job-agent">${j.agent}</span>
+      <span class="job-msg">${j.msg}</span>
+      ${TYPE_BADGE[j.type] || ''}
     </div>
-  `).join('') : '<div style="padding:1rem;font-family:var(--font-mono);font-size:.58rem;color:var(--stone);text-align:center;">No active pump sessions</div>';
-}
-renderPumpSessions();
+  `).join('');
 
-function launchPump() {
-  const token = document.getElementById('pump-token').value.trim();
-  const perBuy = document.getElementById('pump-per-buy').value;
-  const budget = document.getElementById('pump-budget').value;
-  const rate   = document.getElementById('pump-rate').value;
-  const agents = document.getElementById('pump-agents').value;
-  if (!token)  { toast('⚠', 'Enter a token address'); return; }
-  if (!perBuy) { toast('⚠', 'Enter per-buy amount'); return; }
-  if (!budget) { toast('⚠', 'Enter total budget'); return; }
-  pumpSessions.push({ id:Date.now(), token:token.toUpperCase(), perBuy:'$'+perBuy, rate, agents, budget:'$'+budget, spent:'$0.00', pct:0 });
-  renderPumpSessions();
-  addLog(agents === 'all' ? 'All' : 'Agent', `Pump started: ${token.toUpperCase()} · $${perBuy}/buy · ${rate}`, 'buy');
-  toast('⚡', `Pump campaign live — ${token.toUpperCase()}`);
+  // update job count stat
+  document.getElementById('stat-buys').textContent = allJobs.length;
 }
+renderFeed();
 
-function stopPump(id) {
-  pumpSessions = pumpSessions.filter(s => s.id !== id);
-  renderPumpSessions();
-  toast('■', 'Pump session stopped');
+function addJob(agent, msg, type) {
+  const now = new Date();
+  const time = now.toTimeString().slice(0, 8);
+  allJobs.unshift({ time, agent, msg, type });
+  renderFeed();
+  // update agent action in roster
+  const a = AGENTS.find(x => x.name.toLowerCase() === agent.toLowerCase() || x.id === agent.toLowerCase());
+  if (a && type !== 'idle') { a.action = msg; a.status = type === 'buy' || type === 'dca' ? 'buying' : type === 'raid' ? 'raiding' : 'posting'; }
+  renderRoster();
 }
 
-// ── SWAP ──────────────────────────────────────────────────────────────────────
-let swapTimer = null;
-
-function previewSwap() {
-  clearTimeout(swapTimer);
-  const amt = parseFloat(document.getElementById('swap-amount-in').value);
-  const tokenOut = document.getElementById('swap-token-out').value.trim();
-  const btn = document.getElementById('swap-submit-btn');
-  const qCard = document.getElementById('swap-quote-card');
-  if (!amt || !tokenOut) { btn.disabled = true; btn.textContent = 'Enter amount'; qCard.style.display = 'none'; return; }
-  btn.disabled = true; btn.textContent = 'Fetching quote…';
-  swapTimer = setTimeout(async () => {
-    try {
-      const tokenIn = document.getElementById('swap-token-in').value;
-      const chain   = document.getElementById('swap-chain').value.toLowerCase();
-      const r = await fetch(`${API_BASE}/api/swap/quote?tokenIn=${tokenIn}&tokenOut=${tokenOut}&amount=${amt}&chain=${chain}`);
-      const d = await r.json();
-      if (d.ok && d.price) {
-        const fee = amt * 0.005;
-        const out = (amt - fee) / d.price;
-        const slip = parseFloat(document.getElementById('swap-slippage').value) || 1;
-        document.getElementById('swap-amount-out').value = out.toFixed(6) + ' ' + tokenOut.toUpperCase();
-        document.getElementById('sq-price').textContent  = '$' + d.price.toFixed(8);
-        const chg = d.change24h || 0;
-        const chgEl = document.getElementById('sq-chg');
-        chgEl.textContent = (chg >= 0 ? '+' : '') + chg.toFixed(2) + '%';
-        chgEl.style.color = chg >= 0 ? '#4ade80' : '#f87171';
-        document.getElementById('sq-fee').textContent = '$' + fee.toFixed(4);
-        document.getElementById('sq-min').textContent = (out * (1 - slip/100)).toFixed(6) + ' ' + tokenOut.toUpperCase();
-        qCard.style.display = 'block';
-        btn.disabled = false;
-        btn.textContent = `Swap ${tokenIn} → ${tokenOut.toUpperCase()}`;
-      } else {
-        qCard.style.display = 'none';
-        btn.textContent = 'Token not found';
-      }
-    } catch {
-      btn.disabled = false; btn.textContent = 'Swap';
-    }
-  }, 500);
+function filterFeed(type, el) {
+  feedFilter = type;
+  document.querySelectorAll('.jf-tab').forEach(t => t.classList.remove('active'));
+  if (el) el.classList.add('active');
+  renderFeed();
 }
 
-function flipSwap() {
-  const inEl  = document.getElementById('swap-token-in');
-  const outEl = document.getElementById('swap-token-out');
-  const tmp   = inEl.value; inEl.value = outEl.value; outEl.value = tmp;
-  previewSwap();
-}
+function clearFeed() { allJobs = []; renderFeed(); }
 
-function executeSwapOp() {
-  const tokenIn  = document.getElementById('swap-token-in').value;
-  const tokenOut = document.getElementById('swap-token-out').value;
-  const amt      = document.getElementById('swap-amount-in').value;
-  const chain    = document.getElementById('swap-chain').value;
-  const agent    = document.getElementById('swap-agent').value.includes('Alpha') ? 'Alpha' :
-                   document.getElementById('swap-agent').value.includes('Bravo') ? 'Bravo' : 'Alpha';
-  addLog(agent, `Swap ${amt} ${tokenIn} → ${tokenOut} on ${chain}`, 'swap');
-  // Add to history
-  const history = document.getElementById('swapHistory');
-  const now = new Date().toTimeString().slice(0,8);
-  history.innerHTML = `<div class="log-row"><span class="log-time">${now}</span><span class="log-agent">${agent}</span><span class="log-msg">${amt} ${tokenIn} → ${tokenOut}</span><span class="log-badge lb-swap">SWAP</span></div>` + history.innerHTML;
-  toast('🔄', `Swap queued: ${amt} ${tokenIn} → ${tokenOut}`);
-}
-
-// ── X RAID ────────────────────────────────────────────────────────────────────
-let activeRaids = [
-  { url:'https://x.com/pumpcade/status/...', type:'Reply Raid', agents:['Bravo','Charlie'], hits:3, target:'@pumpcade' },
-];
-
-function renderActiveRaids() {
-  document.getElementById('activeRaids').innerHTML = activeRaids.length ? activeRaids.map(r => `
-    <div class="raid-target">
-      <div class="raid-target-url">🐦 ${r.url.slice(0,60)}...</div>
-      <div class="raid-target-meta">${r.type} · ${r.hits} actions complete</div>
-      <div class="raid-agents">${r.agents.map(a => `<span class="raid-agent-chip">${a}</span>`).join('')}</div>
-    </div>
-  `).join('') : '<div style="padding:1rem;font-family:var(--font-mono);font-size:.58rem;color:var(--stone);text-align:center;">No active raids</div>';
-}
-renderActiveRaids();
-
+// ── LAUNCH: RAID ──────────────────────────────────────────────────────────────
 function launchRaid() {
+  const token = document.getElementById('cmd-token').value.trim();
   const url   = document.getElementById('raid-url').value.trim();
   const type  = document.getElementById('raid-type').value;
-  const msg   = document.getElementById('raid-msg').value.trim();
   const agts  = document.getElementById('raid-agents').value;
   if (!url) { toast('⚠', 'Enter a target post URL'); return; }
-  const agents = agts === 'all' ? ['Alpha','Bravo','Charlie','Delta','Echo'] :
-                 agts === '3'   ? ['Alpha','Bravo','Charlie'] :
-                 agts === '2'   ? ['Alpha','Bravo'] : ['Alpha'];
-  activeRaids.push({ url, type, agents, hits:0, target:url.split('/')[3] || '@target' });
-  renderActiveRaids();
-  agents.forEach(a => addLog(a, `Raiding: ${url.slice(0,40)}… · ${type}`, 'raid'));
+
+  const pool = ['Alpha','Bravo','Charlie','Delta','Echo'];
+  const agents = agts === 'all' ? pool : agts === '3' ? pool.slice(0,3) : agts === '2' ? pool.slice(0,2) : [pool[0]];
+  agents.forEach(a => addJob(a, `Raiding: ${url.slice(0,45)}… · ${type}`, 'raid'));
+  document.getElementById('stat-raids').textContent = parseInt(document.getElementById('stat-raids').textContent) + 1;
   toast('🐦', `Raid deployed — ${agents.length} agents on target`);
 }
 
-// ── THREAD WRITER ─────────────────────────────────────────────────────────────
+// ── LAUNCH: BUY BOT ───────────────────────────────────────────────────────────
+function updateBuyPreview() {
+  const amt  = parseFloat(document.getElementById('buy-amount').value) || 0;
+  const intv = document.getElementById('buy-interval').value;
+  const budget = parseFloat(document.getElementById('buy-budget').value) || 0;
+  const mode = document.getElementById('buy-mode').value;
+  const prev = document.getElementById('buy-preview');
+  if (!amt) { prev.textContent = ''; return; }
+  const buysLeft = budget > 0 ? Math.floor(budget / amt) : '∞';
+  prev.textContent = `${mode === 'random' ? 'Random ~' : ''}$${amt} every ${intv} · ${buysLeft} buys${budget > 0 ? ` · $${budget} total budget` : ''}`;
+}
+
+function launchBuyBot() {
+  const token  = document.getElementById('cmd-token').value.trim();
+  const amt    = document.getElementById('buy-amount').value;
+  const intv   = document.getElementById('buy-interval').value;
+  const mode   = document.getElementById('buy-mode').value;
+  const agts   = document.getElementById('buy-agents').value;
+  if (!token) { toast('⚠', 'Enter a target token first'); return; }
+  if (!amt)   { toast('⚠', 'Enter per-buy amount'); return; }
+
+  const pool = ['Alpha','Delta','Echo','Bravo','Charlie'];
+  const count = agts === 'all' ? 5 : parseInt(agts);
+  pool.slice(0, count).forEach(a => {
+    addJob(a, `${mode === 'stealth' ? 'Stealth ' : ''}Buy Bot: $${amt} ${token.toUpperCase()} every ${intv} on ${selectedChain}`, 'buy');
+  });
+  toast('⚡', `Buy bot live — ${count} agent${count > 1 ? 's' : ''} buying ${token.toUpperCase()}`);
+}
+
+// ── LAUNCH: THREAD + POST ─────────────────────────────────────────────────────
 const THREAD_TEMPLATES = {
-  'Bullish Analysis': (t) => `1/ 🚨 $${t} is setting up for a major move. Here's what the data says:\n\n2/ Volume up 3x in 24h. Liquidity deepening. Whale wallets accumulating.\n\n3/ Chart: Higher lows forming, compression near resistance. Classic pre-breakout structure.\n\n4/ Fundamentals: Community growing daily, dev team shipping, partnerships incoming.\n\n5/ My thesis: $${t} hits new ATH before end of month. Not financial advice. Do your own research. 🧵`,
-  'Technical Breakdown': (t) => `1/ $${t} technical breakdown — let's go:\n\n2/ RSI at 45 — not overbought, room to run. MACD bullish crossover on 4H.\n\n3/ Key resistance: Flip it and we see 2x from here. Support holding strong.\n\n4/ Volume profile: Accumulation pattern over 7 days. Smart money loading.\n\n5/ Targets: R1, R2, then moon. Set your alerts. 🚀 $${t}`,
-  'Community Hype': (t) => `1/ The $${t} community is one of the strongest I've seen in crypto.\n\n2/ Every dip = buying opportunity. Holders are diamond hands. No paper hands here.\n\n3/ The narrative is just getting started. Early adopters will be richly rewarded.\n\n4/ If you're not in $${t} yet — what are you doing? This is the play of the cycle.\n\n5/ 🤝 RT if you're holding $${t}. Let's show the algo what we're made of.`,
-  'Whale Alert': (t) => `1/ 🐳 WHALE ALERT: Major $${t} accumulation happening right now.\n\n2/ Wallet 0x...a3f just moved 2.4M $${t} from exchange to cold storage. That's a sign.\n\n3/ When whales accumulate, retail follows. History doesn't lie.\n\n4/ We're at the bottom. Whales know it. Do you?\n\n5/ $${t} — watch this space. Something big is coming. 👀`,
+  'Bullish Analysis':    t => `1/ 🚨 $${t} is setting up for a major move.\n\n2/ Volume up 3x in 24h. Liquidity deepening. Whale wallets accumulating.\n\n3/ Chart: Higher lows forming, compression near resistance. Classic pre-breakout structure.\n\n4/ Community growing daily, dev team shipping, partnerships incoming.\n\n5/ My thesis: $${t} hits new ATH before end of month. NFA.`,
+  'Technical Breakdown': t => `1/ $${t} technical breakdown — let's go.\n\n2/ RSI at 45 — not overbought, room to run. MACD bullish crossover on 4H.\n\n3/ Key resistance: Flip it and we see 2x from here.\n\n4/ Volume profile: Accumulation over 7 days. Smart money loading.\n\n5/ Targets: R1, R2, then moon. 🚀 $${t}`,
+  'Community Hype':      t => `1/ The $${t} community is one of the strongest I've seen.\n\n2/ Every dip = buying opportunity. Diamond hands only.\n\n3/ The narrative is just getting started. Early adopters will be rewarded.\n\n4/ If you're not in $${t} yet — what are you doing?\n\n5/ RT if you're holding $${t}. 🤝`,
+  'Whale Alert':         t => `1/ 🐳 WHALE ALERT: Major $${t} accumulation happening now.\n\n2/ Major wallet just moved tokens from exchange to cold storage. Bullish sign.\n\n3/ When whales accumulate, retail follows.\n\n4/ We're at the bottom. Whales know it.\n\n5/ $${t} — watch this space. 👀`,
 };
 
 function generateThread() {
-  const token = document.getElementById('thread-token').value.trim() || 'TOKEN';
+  const token = document.getElementById('cmd-token').value.trim() || 'TOKEN';
   const tone  = document.getElementById('thread-tone').value;
-  const fn = THREAD_TEMPLATES[tone] || THREAD_TEMPLATES['Bullish Analysis'];
-  document.getElementById('thread-text').textContent = fn(token.replace('$',''));
-  document.getElementById('thread-output').style.display = 'block';
+  const fn    = THREAD_TEMPLATES[tone] || THREAD_TEMPLATES['Bullish Analysis'];
+  const box   = document.getElementById('thread-preview-box');
+  box.textContent = fn(token.replace('$',''));
+  box.style.display = 'block';
   document.getElementById('deployThreadBtn').disabled = false;
-  toast('✍', 'Thread generated');
+  toast('✍', 'Thread generated — review and deploy');
 }
 
 function deployThread() {
-  const token = document.getElementById('thread-token').value.trim() || 'TOKEN';
-  addLog('All', `Thread deployed for ${token} — all posting agents activated`, 'post');
-  toast('🚀', `Thread deployed to all posting agents`);
+  const token = document.getElementById('cmd-token').value.trim() || 'TOKEN';
+  ['Charlie','Alpha','Bravo'].forEach(a => addJob(a, `Posted bullish $${token.toUpperCase()} thread on X`, 'post'));
+  toast('🚀', 'Thread deployed to all posting agents');
 }
 
-// ── ARBITRAGE ─────────────────────────────────────────────────────────────────
-const ARB_SEED = [
-  { pair:'PEPE/USDC',    spread:'1.82', spreadClass:'hot',  dexA:'Uniswap $0.00001247', dexB:'Pancake $0.00001224', profit:'+$0.91' },
-  { pair:'ETH/USDC',     spread:'0.43', spreadClass:'warm', dexA:'Uniswap $2218.40',     dexB:'Curve $2208.88',      profit:'+$0.43' },
-  { pair:'DOGE/BNB',     spread:'0.21', spreadClass:'cold', dexA:'Pancake $0.1823',      dexB:'Uniswap $0.1819',     profit:'+$0.21' },
-  { pair:'VIRTUAL/SOL',  spread:'2.14', spreadClass:'hot',  dexA:'Jupiter $1.84',        dexB:'Raydium $1.80',       profit:'+$1.07' },
-  { pair:'WBTC/USDT',    spread:'0.08', spreadClass:'cold', dexA:'Uniswap $84,212',      dexB:'Curve $84,145',       profit:'+$0.08' },
-];
+// ── LAUNCH: DCA ENGINE ────────────────────────────────────────────────────────
+function launchDca() {
+  const token  = document.getElementById('cmd-token').value.trim();
+  const amt    = document.getElementById('dca-amount').value;
+  const intv   = document.getElementById('dca-interval').value;
+  const agts   = document.getElementById('dca-agents').value;
+  const budget = document.getElementById('dca-budget').value;
+  if (!token) { toast('⚠', 'Enter a target token first'); return; }
+  if (!amt)   { toast('⚠', 'Enter per-agent buy amount'); return; }
 
-function renderArbTable() {
-  document.getElementById('arbTable').innerHTML = ARB_SEED.map(r => `
-    <div class="arb-row fade-in">
-      <span class="arb-pair">${r.pair}</span>
-      <span class="arb-spread ${r.spreadClass}">${r.spread}%</span>
-      <span style="font-family:var(--font-mono);font-size:.55rem;color:var(--dust-light);">${r.dexA}</span>
-      <span style="font-family:var(--font-mono);font-size:.55rem;color:var(--dust-light);">${r.dexB}</span>
-      <span class="arb-profit">${r.profit}</span>
-      <div style="display:flex;gap:.3rem;">
-        <button class="wr-btn wr-btn-green wr-btn-sm" onclick="execArb('${r.pair}')">Execute</button>
-      </div>
-    </div>
-  `).join('');
-}
-renderArbTable();
-
-function refreshArb() {
-  ARB_SEED.forEach(r => { r.spread = (Math.random() * 2.5 + 0.05).toFixed(2); r.spreadClass = parseFloat(r.spread) > 1 ? 'hot' : parseFloat(r.spread) > 0.4 ? 'warm' : 'cold'; });
-  renderArbTable(); toast('↻', 'Arb table refreshed');
-}
-setInterval(refreshArb, 30000);
-
-function execArb(pair) {
-  addLog('Alpha', `Arb executed: ${pair} — cross-DEX spread capture`, 'arb');
-  toast('🔍', `Arb trade executed — ${pair}`);
+  const pool  = ['Echo','Alpha','Delta','Bravo','Charlie'];
+  const count = agts === 'all' ? 5 : parseInt(agts);
+  pool.slice(0, count).forEach(a => {
+    addJob(a, `DCA: $${amt}/buy ${token.toUpperCase()} every ${intv} on ${selectedChain}${budget ? ' · $'+budget+' budget' : ''}`, 'dca');
+  });
+  toast('📈', `DCA launched — ${count} agent${count > 1 ? 's' : ''} on ${token.toUpperCase()}`);
 }
 
-function enableAutoArb() {
-  const spread = document.getElementById('arb-min-spread').value || '0.5';
-  toast('⚡', `Auto-arb enabled — executing on spreads > ${spread}%`);
+// ── LAUNCH: ACP AGENT ─────────────────────────────────────────────────────────
+function launchAcp() {
+  const type   = document.getElementById('acp-agent-type').value;
+  const prompt = document.getElementById('acp-prompt').value.trim();
+  const token  = document.getElementById('cmd-token').value.trim();
+  const labels = {
+    alpha:'Alpha Scanner', thread:'Thread Writer', wallet:'Wallet Profiler', analyst:'Token Analyst'
+  };
+  const label = labels[type] || 'ACP Agent';
+  const task  = prompt || (token ? `Analyze ${token.toUpperCase()}` : 'General scan');
+  addJob('ACP', `${label} deployed: ${task}`, 'acp');
+  toast('🤖', `${label} hired from ACP network`);
 }
 
-// ── AGENT ACTIONS ─────────────────────────────────────────────────────────────
-function assignAgent(id) {
-  const agent = AGENTS.find(a => a.id === id);
-  if (!agent) return;
-  switchPanel('dca', document.querySelector('[data-panel="dca"]'));
-  document.getElementById('dca-agent').value = `Agent ${agent.name.split(' ')[1]} — ${agent.geo.split(' ')[1]}`;
-  toast('⚡', `${agent.name} selected — configure and deploy`);
-}
-function pauseAgent(id) { toast('⏸', `Agent ${id} paused`); }
-function viewAgentLog(id) {
-  logFilter = 'all';
-  switchPanel('log', document.querySelector('[data-panel="log"]'));
-}
-function pauseAll() { toast('⏸', 'All agents paused'); }
-
-// ── SETTINGS ──────────────────────────────────────────────────────────────────
+// ── SETTINGS ─────────────────────────────────────────────────────────────────
 function saveSettings() {
   localStorage.setItem('wr_api', document.getElementById('cfg-api').value);
   toast('✅', 'Settings saved');
 }
 
 // ── LIVE SIMULATION ───────────────────────────────────────────────────────────
-// Simulates agent activity so the log feels live
 const SIM_EVENTS = [
-  { agent:'Alpha',   msg:'Bought $0.01 PEPE on Base via Uniswap', type:'buy' },
-  { agent:'Delta',   msg:'Bought $0.02 PEPE — stealth route +7s delay', type:'buy' },
-  { agent:'Echo',    msg:'DCA buy $0.05 VIRTUAL on Solana', type:'buy' },
-  { agent:'Bravo',   msg:'Liked target post on X', type:'raid' },
-  { agent:'Charlie', msg:'Posted tweet: "Watching $DOGE closely 👀"', type:'post' },
-  { agent:'Alpha',   msg:'Swap 1 USDC → PEPE on Base', type:'swap' },
-  { agent:'Delta',   msg:'Bought $0.015 PEPE — randomized amount', type:'buy' },
-  { agent:'Bravo',   msg:'Replied to X post with bullish $GSB narrative', type:'raid' },
+  { agent:'Alpha',   msg:'Bought $0.01 PEPE on Base via Uniswap',          type:'buy' },
+  { agent:'Delta',   msg:'Bought $0.02 PEPE — stealth route +7s delay',    type:'buy' },
+  { agent:'Echo',    msg:'DCA buy $0.05 VIRTUAL on Solana',                 type:'dca' },
+  { agent:'Bravo',   msg:'Liked target post on X',                          type:'raid' },
+  { agent:'Charlie', msg:'Posted tweet: "Watching $DOGE closely 👀"',       type:'post' },
+  { agent:'Alpha',   msg:'Swap 1 USDC → PEPE on Base',                      type:'swap' },
+  { agent:'Delta',   msg:'Bought $0.015 PEPE — randomized amount',          type:'buy' },
+  { agent:'Bravo',   msg:'Replied to X post with bullish $GSB narrative',   type:'raid' },
 ];
 let simIdx = 0;
 function simTick() {
   const e = SIM_EVENTS[simIdx % SIM_EVENTS.length];
-  addLog(e.agent, e.msg, e.type);
+  addJob(e.agent, e.msg, e.type);
   simIdx++;
-  // Vary the buy counter
-  const buyEl = document.getElementById('stat-buys');
-  if (e.type === 'buy') buyEl.textContent = parseInt(buyEl.textContent) + 1;
 }
-setInterval(simTick, 8000); // new event every 8 seconds
+setInterval(simTick, 8000);
 
 // ── INIT ─────────────────────────────────────────────────────────────────────
 document.getElementById('cfg-api').value = API_BASE;
+
+// open raid card by default
+toggleCard('raid');
 </script>
 </body>
 </html>
