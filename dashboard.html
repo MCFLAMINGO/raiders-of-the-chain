@@ -10,10 +10,6 @@
   <link rel="stylesheet" href="style.css">
   <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'><rect width='32' height='32' rx='4' fill='%23FF4D00'/><text x='16' y='22' text-anchor='middle' font-family='monospace' font-weight='900' font-size='16' fill='%23000'>⚔</text></svg>">
   <style>
-    /* ══════════════════════════════════════════════════
-       WAR ROOM — 3 COLUMN LAYOUT
-    ══════════════════════════════════════════════════ */
-
     *, *::before, *::after { box-sizing: border-box; }
 
     .wr-shell {
@@ -24,151 +20,166 @@
       background: var(--temple);
     }
 
-    /* ── STATS BAR (full width top) ── */
+    /* ── STATS BAR ── */
     .wr-statsbar {
       grid-column: 1 / -1;
       display: grid;
-      grid-template-columns: repeat(5, 1fr);
+      grid-template-columns: repeat(6, 1fr);
       gap: 1px;
       background: var(--gold-dim);
       border-bottom: 2px solid var(--gold-dim);
     }
-    .wr-stat {
-      background: var(--leather-dark);
-      padding: .7rem 1rem;
-      display: flex; flex-direction: column; gap: .15rem;
-    }
-    .wr-stat-label {
-      font-family: var(--font-heading); font-size: .46rem;
-      color: var(--stone); text-transform: uppercase; letter-spacing: .14em;
-    }
-    .wr-stat-val {
-      font-family: var(--font-mono); font-size: 1rem; font-weight: 700;
-      color: var(--gold-bright);
-    }
+    .wr-stat { background: var(--leather-dark); padding: .7rem 1rem; display: flex; flex-direction: column; gap: .15rem; }
+    .wr-stat-label { font-family: var(--font-heading); font-size: .46rem; color: var(--stone); text-transform: uppercase; letter-spacing: .14em; }
+    .wr-stat-val { font-family: var(--font-mono); font-size: 1rem; font-weight: 700; color: var(--gold-bright); }
     .wr-stat-val.green { color: #4ade80; }
     .wr-stat-val.red   { color: #f87171; }
     .wr-stat-sub { font-family: var(--font-mono); font-size: .48rem; color: var(--stone); }
+
+    /* ── WALLET CONNECT BAR ── */
+    .wallet-bar {
+      grid-column: 1 / -1;
+      display: flex; align-items: center; justify-content: space-between;
+      padding: .5rem 1rem;
+      background: rgba(0,0,0,.4);
+      border-bottom: 1px solid rgba(200,150,12,.2);
+      flex-wrap: wrap; gap: .5rem;
+    }
+    .wallet-bar-left { display: flex; align-items: center; gap: .75rem; flex-wrap: wrap; }
+    .wallet-addr {
+      font-family: var(--font-mono); font-size: .58rem;
+      color: var(--gold-bright); background: rgba(200,150,12,.1);
+      border: 1px solid rgba(200,150,12,.25); border-radius: 4px;
+      padding: .25rem .6rem;
+    }
+    .x-account-pill {
+      display: inline-flex; align-items: center; gap: .35rem;
+      font-family: var(--font-mono); font-size: .55rem;
+      background: rgba(29,161,242,.12); border: 1px solid rgba(29,161,242,.3);
+      color: #60a5fa; border-radius: 20px; padding: .2rem .6rem;
+      cursor: pointer; transition: background .15s;
+    }
+    .x-account-pill:hover { background: rgba(29,161,242,.22); }
+    .x-account-pill .remove-x { color: #f87171; margin-left: .2rem; font-size: .6rem; }
+    .btn-connect-wallet {
+      font-family: var(--font-heading); font-size: .55rem; font-weight: 700;
+      text-transform: uppercase; letter-spacing: .08em;
+      background: var(--gold); color: var(--leather-dark);
+      border: none; border-radius: 4px; padding: .35rem .85rem; cursor: pointer;
+      transition: background .15s;
+    }
+    .btn-connect-wallet:hover { background: var(--gold-bright); }
+    .btn-connect-wallet.connected { background: rgba(74,222,128,.2); color: #4ade80; border: 1px solid rgba(74,222,128,.3); }
+    .btn-connect-x {
+      font-family: var(--font-heading); font-size: .52rem; font-weight: 700;
+      text-transform: uppercase; letter-spacing: .06em;
+      background: rgba(29,161,242,.15); color: #60a5fa;
+      border: 1px solid rgba(29,161,242,.3); border-radius: 4px;
+      padding: .3rem .7rem; cursor: pointer; transition: all .15s;
+    }
+    .btn-connect-x:hover { background: rgba(29,161,242,.28); }
+    .btn-connect-x:disabled { opacity: .4; cursor: not-allowed; }
 
     /* ── LEFT: COMMAND PANEL ── */
     .cmd-panel {
       background: var(--leather-dark);
       border-right: 1px solid var(--gold-dim);
       overflow-y: auto;
-      height: calc(100vh - 62px - 56px);
+      height: calc(100vh - 62px - 56px - 44px);
       display: flex; flex-direction: column;
     }
     .cmd-panel::-webkit-scrollbar { width: 3px; }
     .cmd-panel::-webkit-scrollbar-thumb { background: var(--gold-dim); border-radius: 2px; }
 
-    /* token target bar */
-    .cmd-target {
-      padding: 1rem 1rem .75rem;
-      border-bottom: 1px solid rgba(200,150,12,.2);
-      background: rgba(0,0,0,.25);
-    }
-    .cmd-target-label {
-      font-family: var(--font-heading); font-size: .5rem;
-      color: var(--gold-dim); text-transform: uppercase; letter-spacing: .2em;
-      margin-bottom: .4rem;
-    }
+    .cmd-target { padding: 1rem 1rem .75rem; border-bottom: 1px solid rgba(200,150,12,.2); background: rgba(0,0,0,.25); }
+    .cmd-target-label { font-family: var(--font-heading); font-size: .5rem; color: var(--gold-dim); text-transform: uppercase; letter-spacing: .2em; margin-bottom: .4rem; }
     .cmd-target-input {
-      width: 100%;
-      background: rgba(0,0,0,.5);
-      border: 1px solid var(--gold);
-      border-radius: 4px;
-      padding: .55rem .75rem;
-      font-family: var(--font-mono); font-size: .7rem;
-      color: var(--gold-bright);
-      outline: none;
+      width: 100%; background: rgba(0,0,0,.5); border: 1px solid var(--gold);
+      border-radius: 4px; padding: .55rem .75rem;
+      font-family: var(--font-mono); font-size: .7rem; color: var(--gold-bright); outline: none;
       transition: border-color .15s, box-shadow .15s;
     }
-    .cmd-target-input:focus {
-      border-color: var(--gold-bright);
-      box-shadow: 0 0 0 2px rgba(200,150,12,.2);
-    }
+    .cmd-target-input:focus { border-color: var(--gold-bright); box-shadow: 0 0 0 2px rgba(200,150,12,.2); }
     .cmd-target-input::placeholder { color: var(--stone); }
-    .cmd-chain-row {
-      display: flex; gap: .4rem; margin-top: .5rem;
-    }
+    .cmd-chain-row { display: flex; gap: .4rem; margin-top: .5rem; }
     .cmd-chain-btn {
       flex: 1; padding: .3rem .2rem;
       font-family: var(--font-heading); font-size: .48rem;
       text-transform: uppercase; letter-spacing: .06em;
       background: rgba(0,0,0,.3); border: 1px solid rgba(200,150,12,.25);
-      color: var(--stone); border-radius: 3px; cursor: pointer;
-      transition: all .15s;
+      color: var(--stone); border-radius: 3px; cursor: pointer; transition: all .15s;
     }
     .cmd-chain-btn:hover { color: var(--gold-bright); border-color: var(--gold-dim); }
     .cmd-chain-btn.active { background: var(--gold); color: var(--leather-dark); border-color: var(--gold); font-weight: 700; }
 
-    /* action cards */
-    .cmd-actions { padding: .75rem .75rem 1.5rem; display: flex; flex-direction: column; gap: .6rem; }
-
-    .action-card {
+    /* ── ALPHA SCANNER PANEL ── */
+    .alpha-panel {
+      margin: .75rem;
       background: rgba(0,0,0,.2);
       border: 1px solid rgba(200,150,12,.2);
       border-radius: 6px;
       overflow: hidden;
-      transition: border-color .15s;
     }
+    .alpha-head {
+      display: flex; align-items: center; justify-content: space-between;
+      padding: .55rem .75rem;
+      background: rgba(0,0,0,.2);
+      border-bottom: 1px solid rgba(200,150,12,.12);
+    }
+    .alpha-title { font-family: var(--font-heading); font-size: .6rem; font-weight: 700; color: var(--gold-bright); text-transform: uppercase; letter-spacing: .08em; }
+    .alpha-scan-btn {
+      font-family: var(--font-mono); font-size: .52rem; font-weight: 700;
+      background: rgba(200,150,12,.15); color: var(--gold-dim);
+      border: 1px solid rgba(200,150,12,.25); border-radius: 3px;
+      padding: .2rem .55rem; cursor: pointer; transition: all .15s;
+    }
+    .alpha-scan-btn:hover { background: rgba(200,150,12,.3); color: var(--gold-bright); }
+    .alpha-results { padding: .4rem .5rem; max-height: 180px; overflow-y: auto; }
+    .alpha-token-row {
+      display: flex; align-items: center; justify-content: space-between;
+      padding: .3rem .4rem; border-radius: 3px; cursor: pointer;
+      transition: background .1s;
+    }
+    .alpha-token-row:hover { background: rgba(200,150,12,.08); }
+    .alpha-token-sym { font-family: var(--font-mono); font-size: .58rem; color: var(--gold-bright); font-weight: 700; }
+    .alpha-token-meta { font-family: var(--font-mono); font-size: .5rem; color: var(--stone); }
+    .alpha-token-change { font-family: var(--font-mono); font-size: .56rem; font-weight: 700; }
+    .alpha-token-change.pos { color: #4ade80; }
+    .alpha-token-change.neg { color: #f87171; }
+    .alpha-empty { font-family: var(--font-mono); font-size: .54rem; color: var(--stone); padding: .6rem .4rem; text-align: center; }
+
+    /* action cards */
+    .cmd-actions { padding: .75rem .75rem 1.5rem; display: flex; flex-direction: column; gap: .6rem; }
+
+    .action-card { background: rgba(0,0,0,.2); border: 1px solid rgba(200,150,12,.2); border-radius: 6px; overflow: hidden; transition: border-color .15s; }
     .action-card:hover { border-color: rgba(200,150,12,.45); }
 
-    .action-card-head {
-      display: flex; align-items: center; justify-content: space-between;
-      padding: .65rem .85rem;
-      cursor: pointer;
-      user-select: none;
-    }
+    .action-card-head { display: flex; align-items: center; justify-content: space-between; padding: .65rem .85rem; cursor: pointer; user-select: none; }
     .action-card-left { display: flex; align-items: center; gap: .65rem; }
-    .action-icon {
-      width: 34px; height: 34px; border-radius: 6px;
-      display: flex; align-items: center; justify-content: center;
-      font-size: 1rem; flex-shrink: 0;
-    }
-    .action-icon.raid    { background: rgba(251,191,36,.15); border: 1px solid rgba(251,191,36,.3); }
-    .action-icon.buy     { background: rgba(34,197,94,.15);  border: 1px solid rgba(34,197,94,.3); }
-    .action-icon.thread  { background: rgba(59,130,246,.15); border: 1px solid rgba(59,130,246,.3); }
-    .action-icon.dca     { background: rgba(139,92,246,.15); border: 1px solid rgba(139,92,246,.3); }
-    .action-icon.acp     { background: rgba(236,72,153,.15); border: 1px solid rgba(236,72,153,.3); }
+    .action-icon { width: 34px; height: 34px; border-radius: 6px; display: flex; align-items: center; justify-content: center; font-size: 1rem; flex-shrink: 0; }
+    .action-icon.raid   { background: rgba(251,191,36,.15); border: 1px solid rgba(251,191,36,.3); }
+    .action-icon.buy    { background: rgba(34,197,94,.15);  border: 1px solid rgba(34,197,94,.3); }
+    .action-icon.thread { background: rgba(59,130,246,.15); border: 1px solid rgba(59,130,246,.3); }
+    .action-icon.dca    { background: rgba(139,92,246,.15); border: 1px solid rgba(139,92,246,.3); }
 
-    .action-name {
-      font-family: var(--font-heading); font-size: .68rem; font-weight: 700;
-      color: var(--gold-bright); text-transform: uppercase; letter-spacing: .06em;
-    }
-    .action-tagline {
-      font-family: var(--font-mono); font-size: .52rem; color: var(--stone);
-      margin-top: .1rem;
-    }
+    .action-name { font-family: var(--font-heading); font-size: .68rem; font-weight: 700; color: var(--gold-bright); text-transform: uppercase; letter-spacing: .06em; }
+    .action-tagline { font-family: var(--font-mono); font-size: .52rem; color: var(--stone); margin-top: .1rem; }
 
     .action-info-btn {
       width: 22px; height: 22px; border-radius: 50%;
       background: rgba(200,150,12,.1); border: 1px solid rgba(200,150,12,.25);
       color: var(--gold-dim); font-family: var(--font-mono); font-size: .6rem;
       font-weight: 700; cursor: pointer; flex-shrink: 0;
-      display: flex; align-items: center; justify-content: center;
-      transition: all .15s;
+      display: flex; align-items: center; justify-content: center; transition: all .15s;
     }
     .action-info-btn:hover { background: rgba(200,150,12,.25); color: var(--gold-bright); }
 
-    .action-info-box {
-      display: none;
-      padding: .5rem .85rem .65rem;
-      font-family: var(--font-mono); font-size: .54rem;
-      color: var(--dust); line-height: 1.7;
-      border-top: 1px solid rgba(200,150,12,.1);
-      background: rgba(0,0,0,.2);
-    }
+    .action-info-box { display: none; padding: .5rem .85rem .65rem; font-family: var(--font-mono); font-size: .54rem; color: var(--dust); line-height: 1.7; border-top: 1px solid rgba(200,150,12,.1); background: rgba(0,0,0,.2); }
     .action-info-box.open { display: block; }
 
-    .action-body {
-      display: none;
-      padding: 0 .85rem .85rem;
-      border-top: 1px solid rgba(200,150,12,.15);
-    }
+    .action-body { display: none; padding: 0 .85rem .85rem; border-top: 1px solid rgba(200,150,12,.15); }
     .action-body.open { display: block; }
 
-    /* ── DEPLOY BUTTON — the big one ── */
     .deploy-btn {
       width: 100%; padding: .7rem;
       font-family: var(--font-heading); font-size: .68rem; font-weight: 700;
@@ -177,270 +188,159 @@
       display: flex; align-items: center; justify-content: center; gap: .5rem;
       transition: all .2s; position: relative; overflow: hidden;
     }
-    .deploy-btn::after {
-      content: ''; position: absolute; inset: 0;
-      background: linear-gradient(180deg, rgba(255,255,255,.07) 0%, transparent 100%);
-    }
+    .deploy-btn::after { content: ''; position: absolute; inset: 0; background: linear-gradient(180deg, rgba(255,255,255,.07) 0%, transparent 100%); }
     .deploy-btn:active { transform: scale(.98); }
+    .deploy-btn:disabled { opacity: .5; cursor: not-allowed; }
 
     .deploy-btn.raid   { background: linear-gradient(135deg,#b45309,#d97706); color: #fff; box-shadow: 0 3px 12px rgba(180,83,9,.4); }
-    .deploy-btn.raid:hover { background: linear-gradient(135deg,#d97706,#fbbf24); }
+    .deploy-btn.raid:hover:not(:disabled)   { background: linear-gradient(135deg,#d97706,#fbbf24); }
     .deploy-btn.buy    { background: linear-gradient(135deg,#166534,#16a34a); color: #fff; box-shadow: 0 3px 12px rgba(22,163,74,.4); }
-    .deploy-btn.buy:hover { background: linear-gradient(135deg,#16a34a,#4ade80); color: #052e16; }
+    .deploy-btn.buy:hover:not(:disabled)    { background: linear-gradient(135deg,#16a34a,#4ade80); color: #052e16; }
     .deploy-btn.thread { background: linear-gradient(135deg,#1e3a8a,#2563eb); color: #fff; box-shadow: 0 3px 12px rgba(37,99,235,.4); }
-    .deploy-btn.thread:hover { background: linear-gradient(135deg,#2563eb,#60a5fa); }
+    .deploy-btn.thread:hover:not(:disabled) { background: linear-gradient(135deg,#2563eb,#60a5fa); }
     .deploy-btn.dca    { background: linear-gradient(135deg,#581c87,#7c3aed); color: #fff; box-shadow: 0 3px 12px rgba(124,58,237,.4); }
-    .deploy-btn.dca:hover { background: linear-gradient(135deg,#7c3aed,#a78bfa); }
-    .deploy-btn.acp    { background: linear-gradient(135deg,#831843,#be185d); color: #fff; box-shadow: 0 3px 12px rgba(190,24,93,.4); }
-    .deploy-btn.acp:hover { background: linear-gradient(135deg,#be185d,#f472b6); }
+    .deploy-btn.dca:hover:not(:disabled)    { background: linear-gradient(135deg,#7c3aed,#a78bfa); }
 
-    /* form inside action card */
     .ac-form { display: grid; gap: .55rem; margin-top: .65rem; }
-    .ac-row   { display: grid; grid-template-columns: 1fr 1fr; gap: .55rem; }
-    .ac-field label {
-      display: block; font-family: var(--font-heading); font-size: .5rem;
-      color: var(--dust); text-transform: uppercase; letter-spacing: .1em;
-      margin-bottom: .25rem;
-    }
+    .ac-row  { display: grid; grid-template-columns: 1fr 1fr; gap: .55rem; }
+    .ac-field label { display: block; font-family: var(--font-heading); font-size: .5rem; color: var(--dust); text-transform: uppercase; letter-spacing: .1em; margin-bottom: .25rem; }
     .ac-field input, .ac-field select, .ac-field textarea {
       width: 100%; background: rgba(0,0,0,.5); border: 1px solid var(--gold-dim);
       border-radius: 3px; padding: .45rem .6rem;
-      font-family: var(--font-mono); font-size: .6rem; color: var(--parchment);
-      outline: none; transition: border-color .15s;
+      font-family: var(--font-mono); font-size: .6rem; color: var(--parchment); outline: none; transition: border-color .15s;
     }
     .ac-field input:focus, .ac-field select:focus { border-color: var(--gold-bright); }
     .ac-field select option { background: var(--leather-dark); }
     .ac-field textarea { resize: vertical; min-height: 56px; line-height: 1.5; }
 
-    /* ── CENTER: JOB FEED ── */
-    .job-feed {
-      display: flex; flex-direction: column;
-      overflow: hidden;
-      height: calc(100vh - 62px - 56px);
-    }
-    .job-feed-head {
+    /* DCA sessions */
+    .dca-sessions { margin-top: .5rem; display: flex; flex-direction: column; gap: .3rem; }
+    .dca-session-row {
       display: flex; align-items: center; justify-content: space-between;
-      padding: .7rem 1rem;
-      background: rgba(0,0,0,.25);
-      border-bottom: 1px solid var(--gold-dim);
-      flex-shrink: 0;
+      padding: .35rem .55rem;
+      background: rgba(139,92,246,.08); border: 1px solid rgba(139,92,246,.2); border-radius: 4px;
+      font-family: var(--font-mono); font-size: .52rem; color: var(--dust-light);
     }
-    .job-feed-title {
-      font-family: var(--font-heading); font-size: .7rem; font-weight: 700;
-      color: var(--gold-bright); text-transform: uppercase; letter-spacing: .08em;
-      display: flex; align-items: center; gap: .5rem;
+    .dca-stop-btn {
+      font-family: var(--font-mono); font-size: .48rem;
+      background: rgba(248,113,113,.12); color: #f87171;
+      border: 1px solid rgba(248,113,113,.25); border-radius: 3px;
+      padding: .15rem .45rem; cursor: pointer; transition: all .15s;
     }
+    .dca-stop-btn:hover { background: rgba(248,113,113,.25); }
+
+    /* X account sections */
+    .x-accounts-list { display: flex; flex-direction: column; gap: .3rem; margin-top: .5rem; }
+    .x-acct-row {
+      display: flex; align-items: center; justify-content: space-between;
+      padding: .3rem .55rem;
+      background: rgba(29,161,242,.06); border: 1px solid rgba(29,161,242,.18); border-radius: 4px;
+      font-family: var(--font-mono); font-size: .54rem; color: #93c5fd;
+    }
+    .x-acct-remove { color: #f87171; cursor: pointer; padding: 0 .25rem; transition: color .15s; }
+    .x-acct-remove:hover { color: #fca5a5; }
+
+    /* ── CENTER: JOB FEED ── */
+    .job-feed { display: flex; flex-direction: column; overflow: hidden; height: calc(100vh - 62px - 56px - 44px); }
+    .job-feed-head { display: flex; align-items: center; justify-content: space-between; padding: .7rem 1rem; background: rgba(0,0,0,.25); border-bottom: 1px solid var(--gold-dim); flex-shrink: 0; }
+    .job-feed-title { font-family: var(--font-heading); font-size: .7rem; font-weight: 700; color: var(--gold-bright); text-transform: uppercase; letter-spacing: .08em; display: flex; align-items: center; gap: .5rem; }
     .live-dot { width: 7px; height: 7px; border-radius: 50%; background: #4ade80; animation: pulse 1.5s infinite; }
+    .live-dot.red { background: #f87171; }
     .job-filter-tabs { display: flex; gap: .3rem; }
-    .jf-tab {
-      padding: .28rem .65rem;
-      font-family: var(--font-heading); font-size: .5rem; text-transform: uppercase; letter-spacing: .06em;
-      background: transparent; border: 1px solid rgba(200,150,12,.25);
-      color: var(--stone); border-radius: 3px; cursor: pointer; transition: all .15s;
-    }
+    .jf-tab { padding: .28rem .65rem; font-family: var(--font-heading); font-size: .5rem; text-transform: uppercase; letter-spacing: .06em; background: transparent; border: 1px solid rgba(200,150,12,.25); color: var(--stone); border-radius: 3px; cursor: pointer; transition: all .15s; }
     .jf-tab:hover { color: var(--gold-bright); border-color: var(--gold-dim); }
     .jf-tab.active { background: rgba(200,150,12,.18); color: var(--gold-bright); border-color: var(--gold); }
 
-    .job-scroll {
-      flex: 1; overflow-y: auto; padding: .35rem 0;
-    }
+    .job-scroll { flex: 1; overflow-y: auto; padding: .35rem 0; }
     .job-scroll::-webkit-scrollbar { width: 3px; }
     .job-scroll::-webkit-scrollbar-thumb { background: var(--gold-dim); border-radius: 2px; }
 
-    .job-row {
-      display: grid;
-      grid-template-columns: 62px 80px 1fr auto;
-      gap: .5rem; align-items: center;
-      padding: .55rem 1rem;
-      border-bottom: 1px solid rgba(200,150,12,.07);
-      transition: background .1s;
-    }
+    .job-row { display: grid; grid-template-columns: 62px 80px 1fr auto; gap: .5rem; align-items: center; padding: .55rem 1rem; border-bottom: 1px solid rgba(200,150,12,.07); transition: background .1s; }
     .job-row:hover { background: rgba(200,150,12,.04); }
     .job-row.new { animation: rowSlide .3s ease both; }
-    .job-time { font-family: var(--font-mono); font-size: .52rem; color: var(--stone); }
-    .job-agent { font-family: var(--font-mono); font-size: .54rem; color: var(--gold-dim); font-weight: 700; }
-    .job-msg { font-family: var(--font-mono); font-size: .56rem; color: var(--dust-light); line-height: 1.4; }
-    .job-badge {
-      padding: .15rem .45rem; border-radius: 3px;
-      font-family: var(--font-mono); font-size: .46rem; font-weight: 700;
-      white-space: nowrap;
-    }
+    .job-time   { font-family: var(--font-mono); font-size: .52rem; color: var(--stone); }
+    .job-agent  { font-family: var(--font-mono); font-size: .54rem; color: var(--gold-dim); font-weight: 700; }
+    .job-msg    { font-family: var(--font-mono); font-size: .56rem; color: var(--dust-light); line-height: 1.4; }
+    .job-badge  { padding: .15rem .45rem; border-radius: 3px; font-family: var(--font-mono); font-size: .46rem; font-weight: 700; white-space: nowrap; }
     .jb-buy    { background: rgba(34,197,94,.12);  color: #4ade80; border: 1px solid rgba(34,197,94,.2); }
     .jb-raid   { background: rgba(251,191,36,.12); color: #fbbf24; border: 1px solid rgba(251,191,36,.2); }
     .jb-post   { background: rgba(59,130,246,.12); color: #60a5fa; border: 1px solid rgba(59,130,246,.2); }
     .jb-swap   { background: rgba(139,92,246,.12); color: #a78bfa; border: 1px solid rgba(139,92,246,.2); }
     .jb-arb    { background: rgba(236,72,153,.12); color: #f472b6; border: 1px solid rgba(236,72,153,.2); }
     .jb-dca    { background: rgba(99,102,241,.12); color: #818cf8; border: 1px solid rgba(99,102,241,.2); }
-    .jb-acp    { background: rgba(236,72,153,.12); color: #f472b6; border: 1px solid rgba(236,72,153,.2); }
-
-    .feed-empty {
-      display: flex; flex-direction: column; align-items: center; justify-content: center;
-      height: 100%; gap: .5rem;
-      font-family: var(--font-mono); font-size: .6rem; color: var(--stone);
-    }
+    .jb-alpha  { background: rgba(251,146,60,.12); color: #fb923c; border: 1px solid rgba(251,146,60,.2); }
+    .feed-empty { display: flex; flex-direction: column; align-items: center; justify-content: center; height: 100%; gap: .5rem; font-family: var(--font-mono); font-size: .6rem; color: var(--stone); }
     .feed-empty-icon { font-size: 2rem; opacity: .3; }
 
     /* ── RIGHT: AGENT ROSTER ── */
-    .agent-roster {
-      background: var(--leather-dark);
-      border-left: 1px solid var(--gold-dim);
-      overflow-y: auto;
-      height: calc(100vh - 62px - 56px);
-    }
+    .agent-roster { background: var(--leather-dark); border-left: 1px solid var(--gold-dim); overflow-y: auto; height: calc(100vh - 62px - 56px - 44px); }
     .agent-roster::-webkit-scrollbar { width: 3px; }
     .agent-roster::-webkit-scrollbar-thumb { background: var(--gold-dim); border-radius: 2px; }
 
-    .roster-head {
-      padding: .7rem .85rem .5rem;
-      border-bottom: 1px solid rgba(200,150,12,.2);
-      background: rgba(0,0,0,.2);
-      position: sticky; top: 0; z-index: 2;
-    }
-    .roster-title {
-      font-family: var(--font-heading); font-size: .62rem; font-weight: 700;
-      color: var(--gold-bright); text-transform: uppercase; letter-spacing: .1em;
-    }
-    .roster-subtitle {
-      font-family: var(--font-mono); font-size: .5rem; color: var(--stone); margin-top: .15rem;
-    }
+    .roster-head { padding: .7rem .85rem .5rem; border-bottom: 1px solid rgba(200,150,12,.2); background: rgba(0,0,0,.2); position: sticky; top: 0; z-index: 2; }
+    .roster-title { font-family: var(--font-heading); font-size: .62rem; font-weight: 700; color: var(--gold-bright); text-transform: uppercase; letter-spacing: .1em; }
+    .roster-subtitle { font-family: var(--font-mono); font-size: .5rem; color: var(--stone); margin-top: .15rem; }
 
     .roster-body { padding: .5rem; }
 
-    .agent-chip {
-      display: flex; align-items: center; gap: .6rem;
-      padding: .6rem .65rem;
-      background: rgba(0,0,0,.2);
-      border: 1px solid rgba(200,150,12,.15);
-      border-radius: 5px;
-      margin-bottom: .4rem;
-      position: relative; overflow: hidden;
-      transition: border-color .15s;
-    }
+    .agent-chip { display: flex; align-items: center; gap: .6rem; padding: .6rem .65rem; background: rgba(0,0,0,.2); border: 1px solid rgba(200,150,12,.15); border-radius: 5px; margin-bottom: .4rem; position: relative; overflow: hidden; transition: border-color .15s; }
     .agent-chip:hover { border-color: rgba(200,150,12,.4); }
-    .agent-chip::before {
-      content: ''; position: absolute; left: 0; top: 0; bottom: 0; width: 2px;
-    }
+    .agent-chip::before { content: ''; position: absolute; left: 0; top: 0; bottom: 0; width: 2px; }
     .agent-chip.buying::before  { background: #4ade80; }
     .agent-chip.raiding::before { background: #fbbf24; }
     .agent-chip.posting::before { background: #60a5fa; }
     .agent-chip.idle::before    { background: var(--stone); }
 
-    .agent-chip-avatar {
-      width: 30px; height: 30px; border-radius: 50%; flex-shrink: 0;
-      background: rgba(200,150,12,.12); border: 1px solid rgba(200,150,12,.25);
-      display: flex; align-items: center; justify-content: center;
-      font-family: var(--font-mono); font-size: .65rem; font-weight: 700; color: var(--gold-bright);
-    }
+    .agent-chip-avatar { width: 30px; height: 30px; border-radius: 50%; flex-shrink: 0; background: rgba(200,150,12,.12); border: 1px solid rgba(200,150,12,.25); display: flex; align-items: center; justify-content: center; font-family: var(--font-mono); font-size: .65rem; font-weight: 700; color: var(--gold-bright); }
     .agent-chip-info { flex: 1; min-width: 0; }
-    .agent-chip-name {
-      font-family: var(--font-heading); font-size: .6rem; font-weight: 700;
-      color: var(--gold-bright); white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
-    }
-    .agent-chip-action {
-      font-family: var(--font-mono); font-size: .5rem; color: var(--dust);
-      white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
-      margin-top: .1rem;
-    }
+    .agent-chip-name { font-family: var(--font-heading); font-size: .6rem; font-weight: 700; color: var(--gold-bright); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+    .agent-chip-action { font-family: var(--font-mono); font-size: .5rem; color: var(--dust); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; margin-top: .1rem; }
     .agent-chip-status { flex-shrink: 0; }
 
-    .status-dot {
-      width: 8px; height: 8px; border-radius: 50%;
-    }
+    .status-dot { width: 8px; height: 8px; border-radius: 50%; }
     .status-dot.buying  { background: #4ade80; animation: pulse 1.5s infinite; }
     .status-dot.raiding { background: #fbbf24; animation: pulse 1.5s infinite; }
     .status-dot.posting { background: #60a5fa; animation: pulse 1.5s infinite; }
     .status-dot.idle    { background: var(--stone); }
 
-    .roster-standby {
-      padding: 1.5rem .85rem; text-align: center;
-      font-family: var(--font-mono); font-size: .58rem; color: var(--stone);
-      line-height: 1.7;
-    }
-    .roster-standby-icon { font-size: 1.5rem; margin-bottom: .4rem; opacity: .4; }
+    .agent-chip-stats { display: flex; gap: .5rem; margin-top: .3rem; }
+    .ac-stat-val { font-family: var(--font-mono); font-size: .52rem; color: var(--gold-dim); font-weight: 700; }
+    .ac-stat-lbl { font-family: var(--font-heading); font-size: .42rem; color: var(--stone); text-transform: uppercase; letter-spacing: .08em; }
 
-    /* stats in roster */
-    .agent-chip-stats {
-      display: flex; gap: .5rem; margin-top: .3rem;
-    }
-    .ac-stat-val {
-      font-family: var(--font-mono); font-size: .52rem; color: var(--gold-dim); font-weight: 700;
-    }
-    .ac-stat-lbl {
-      font-family: var(--font-heading); font-size: .42rem; color: var(--stone);
-      text-transform: uppercase; letter-spacing: .08em;
-    }
+    .cmd-settings { margin-top: auto; border-top: 1px solid rgba(200,150,12,.15); padding: .65rem .85rem; }
+    .cmd-settings-title { font-family: var(--font-heading); font-size: .5rem; color: var(--stone); text-transform: uppercase; letter-spacing: .15em; margin-bottom: .45rem; }
 
-    /* settings drawer at bottom of sidebar (left) */
-    .cmd-settings {
-      margin-top: auto;
-      border-top: 1px solid rgba(200,150,12,.15);
-      padding: .65rem .85rem;
-    }
-    .cmd-settings-title {
-      font-family: var(--font-heading); font-size: .5rem; color: var(--stone);
-      text-transform: uppercase; letter-spacing: .15em; margin-bottom: .45rem;
-    }
-
-    /* ── BUTTONS (shared) ── */
-    .wr-btn {
-      display: inline-flex; align-items: center; gap: .4rem;
-      padding: .45rem .9rem;
-      font-family: var(--font-heading); font-size: .58rem; font-weight: 700;
-      text-transform: uppercase; letter-spacing: .08em;
-      border-radius: var(--r); cursor: pointer; border: none; transition: all .15s;
-    }
+    .wr-btn { display: inline-flex; align-items: center; gap: .4rem; padding: .45rem .9rem; font-family: var(--font-heading); font-size: .58rem; font-weight: 700; text-transform: uppercase; letter-spacing: .08em; border-radius: var(--r); cursor: pointer; border: none; transition: all .15s; }
     .wr-btn-dim { background: rgba(200,150,12,.12); color: var(--dust-light); border: 1px solid rgba(200,150,12,.2); }
     .wr-btn-dim:hover { background: rgba(200,150,12,.22); color: var(--gold-bright); }
     .wr-btn-sm { padding: .28rem .6rem; font-size: .52rem; }
     .wr-btn-gold { background: var(--gold); color: var(--leather-dark); }
     .wr-btn-gold:hover { background: var(--gold-bright); }
-    .wr-btn-red { background: #b91c1c; color: #fff; }
-    .wr-btn-red:hover { background: #991b1b; }
 
-    /* ── TOAST ── */
-    .wr-toast {
-      position: fixed; bottom: 1.5rem; right: 1.5rem; z-index: 999;
-      background: var(--leather-dark); border: 1px solid var(--gold);
-      border-radius: var(--r); padding: .7rem 1.1rem;
-      font-family: var(--font-heading); font-size: .62rem; color: var(--gold-bright);
-      display: flex; align-items: center; gap: .5rem;
-      transform: translateY(100px); opacity: 0;
-      transition: all .3s; pointer-events: none;
-      max-width: 320px;
-    }
+    /* TOAST */
+    .wr-toast { position: fixed; bottom: 1.5rem; right: 1.5rem; z-index: 999; background: var(--leather-dark); border: 1px solid var(--gold); border-radius: var(--r); padding: .7rem 1.1rem; font-family: var(--font-heading); font-size: .62rem; color: var(--gold-bright); display: flex; align-items: center; gap: .5rem; transform: translateY(100px); opacity: 0; transition: all .3s; pointer-events: none; max-width: 320px; }
     .wr-toast.show { transform: translateY(0); opacity: 1; }
 
-    /* pill styles (reused in roster) */
-    .agent-status-pill {
-      font-family: var(--font-mono); font-size: .48rem; font-weight: 700;
-      padding: .15rem .5rem; border-radius: 20px; text-transform: uppercase;
-    }
-    .pill-buying  { background: rgba(34,197,94,.15);   color: #4ade80; border: 1px solid rgba(34,197,94,.3); }
-    .pill-posting { background: rgba(59,130,246,.15);  color: #60a5fa; border: 1px solid rgba(59,130,246,.3); }
-    .pill-raiding { background: rgba(245,158,11,.15);  color: #fbbf24; border: 1px solid rgba(245,158,11,.3); }
-    .pill-idle    { background: rgba(107,90,58,.15);   color: var(--stone); border: 1px solid rgba(107,90,58,.3); }
+    /* CONNECT MODAL */
+    .modal-overlay { position: fixed; inset: 0; background: rgba(0,0,0,.75); z-index: 200; display: flex; align-items: center; justify-content: center; opacity: 0; pointer-events: none; transition: opacity .2s; }
+    .modal-overlay.open { opacity: 1; pointer-events: all; }
+    .modal-box { background: var(--leather-dark); border: 1px solid var(--gold); border-radius: 8px; padding: 1.5rem; max-width: 380px; width: 90%; }
+    .modal-title { font-family: var(--font-heading); font-size: .85rem; font-weight: 700; color: var(--gold-bright); margin-bottom: .4rem; }
+    .modal-sub { font-family: var(--font-mono); font-size: .58rem; color: var(--stone); margin-bottom: 1rem; line-height: 1.6; }
+    .modal-provider-btn { width: 100%; display: flex; align-items: center; gap: .75rem; padding: .7rem 1rem; background: rgba(0,0,0,.3); border: 1px solid rgba(200,150,12,.25); border-radius: 5px; font-family: var(--font-heading); font-size: .65rem; color: var(--gold-bright); cursor: pointer; transition: all .15s; margin-bottom: .4rem; }
+    .modal-provider-btn:hover { border-color: var(--gold); background: rgba(200,150,12,.1); }
+    .modal-close { float: right; background: none; border: none; color: var(--stone); font-size: 1rem; cursor: pointer; margin-top: -.5rem; }
 
-    /* progress */
-    .progress-wrap { background: rgba(0,0,0,.3); border-radius: 20px; height: 4px; margin: .3rem 0; overflow: hidden; }
-    .progress-bar { height: 100%; border-radius: 20px; background: linear-gradient(90deg,var(--gold-dim),var(--gold-bright)); transition: width .5s; }
-    .progress-bar.green { background: linear-gradient(90deg,#166534,#4ade80); }
-
-    /* ── RESPONSIVE ── */
-    @media (max-width: 1100px) {
-      .wr-shell { grid-template-columns: 280px 1fr 0px; }
-      .agent-roster { display: none; }
-    }
-    @media (max-width: 760px) {
-      .wr-shell { grid-template-columns: 1fr; grid-template-rows: auto auto auto auto; }
-      .wr-statsbar { grid-template-columns: repeat(3,1fr); }
-      .cmd-panel, .agent-roster { height: auto; }
-      .job-feed { height: 60vh; }
-    }
+    @media (max-width: 1100px) { .wr-shell { grid-template-columns: 280px 1fr 0px; } .agent-roster { display: none; } }
+    @media (max-width: 760px) { .wr-shell { grid-template-columns: 1fr; } .wr-statsbar { grid-template-columns: repeat(3,1fr); } .cmd-panel, .agent-roster { height: auto; } .job-feed { height: 60vh; } }
 
     @keyframes pulse { 0%,100%{opacity:1} 50%{opacity:.4} }
     @keyframes fadeIn { from{opacity:0;transform:translateY(6px)} to{opacity:1;transform:translateY(0)} }
     @keyframes rowSlide { from{opacity:0;transform:translateX(-8px)} to{opacity:1;transform:translateX(0)} }
     .fade-in { animation: fadeIn .2s ease both; }
+
+    .progress-wrap { background: rgba(0,0,0,.3); border-radius: 20px; height: 4px; margin: .3rem 0; overflow: hidden; }
+    .progress-bar { height: 100%; border-radius: 20px; background: linear-gradient(90deg,var(--gold-dim),var(--gold-bright)); transition: width .5s; }
   </style>
 </head>
 <body>
@@ -461,48 +361,69 @@
 <!-- SHELL -->
 <div class="wr-shell">
 
-  <!-- ══ STATS BAR (top, full width) ══ -->
+  <!-- ══ STATS BAR ══ -->
   <div class="wr-statsbar">
     <div class="wr-stat">
-      <span class="wr-stat-label">Active Agents</span>
-      <span class="wr-stat-val green" id="stat-agents">5</span>
-      <span class="wr-stat-sub">of 6 deployed</span>
+      <span class="wr-stat-label">Wallet</span>
+      <span class="wr-stat-val" id="stat-wallet" style="font-size:.6rem;">Not Connected</span>
+      <span class="wr-stat-sub" id="stat-wallet-sub">Connect to raid</span>
+    </div>
+    <div class="wr-stat">
+      <span class="wr-stat-label">X Accounts</span>
+      <span class="wr-stat-val green" id="stat-x-count">0</span>
+      <span class="wr-stat-sub">connected for raids</span>
     </div>
     <div class="wr-stat">
       <span class="wr-stat-label">Jobs Today</span>
       <span class="wr-stat-val" id="stat-buys">0</span>
-      <span class="wr-stat-sub">buys + raids + posts</span>
-    </div>
-    <div class="wr-stat">
-      <span class="wr-stat-label">Volume</span>
-      <span class="wr-stat-val green">$2.50</span>
-      <span class="wr-stat-sub">session total</span>
+      <span class="wr-stat-sub">raids + buys + posts</span>
     </div>
     <div class="wr-stat">
       <span class="wr-stat-label">Active Raids</span>
-      <span class="wr-stat-val" id="stat-raids">1</span>
+      <span class="wr-stat-val" id="stat-raids">0</span>
       <span class="wr-stat-sub">X campaigns live</span>
     </div>
     <div class="wr-stat">
+      <span class="wr-stat-label">DCA Sessions</span>
+      <span class="wr-stat-val" id="stat-dca">0</span>
+      <span class="wr-stat-sub">pump bots active</span>
+    </div>
+    <div class="wr-stat">
       <span class="wr-stat-label">Clock</span>
-      <span class="wr-stat-val" id="wrClock" style="font-size:.65rem;">—</span>
+      <span class="wr-stat-val" id="wrClock" style="font-size:.6rem;">—</span>
       <span class="wr-stat-sub">UTC</span>
     </div>
+  </div>
+
+  <!-- ══ WALLET + X CONNECT BAR ══ -->
+  <div class="wallet-bar">
+    <div class="wallet-bar-left">
+      <button class="btn-connect-wallet" id="btnConnectWallet" onclick="openWalletModal()">Connect Wallet</button>
+      <span id="walletAddrDisplay" style="display:none;" class="wallet-addr"></span>
+      <button class="btn-connect-x" id="btnConnectX" onclick="connectX()" disabled>+ Connect X Account</button>
+      <div id="xAccountsBar"></div>
+    </div>
+    <span id="walletStatus" style="font-family:var(--font-mono);font-size:.52rem;color:var(--stone);">Connect your wallet to start raiding</span>
   </div>
 
   <!-- ══ LEFT: COMMAND PANEL ══ -->
   <aside class="cmd-panel">
 
+    <!-- Alpha Scanner Panel -->
+    <div class="alpha-panel">
+      <div class="alpha-head">
+        <div class="alpha-title">⚡ Alpha Scanner</div>
+        <button class="alpha-scan-btn" onclick="runAlphaScan()">Scan Now</button>
+      </div>
+      <div class="alpha-results" id="alphaResults">
+        <div class="alpha-empty">Select chain + hit Scan to find momentum tokens</div>
+      </div>
+    </div>
+
     <!-- Token target -->
     <div class="cmd-target">
       <div class="cmd-target-label">Target Token</div>
-      <input
-        class="cmd-target-input"
-        id="cmd-token"
-        type="text"
-        placeholder="PEPE, VIRTUAL, or 0x… / mint address"
-        oninput="syncToken(this.value)"
-      >
+      <input class="cmd-target-input" id="cmd-token" type="text" placeholder="PEPE, VIRTUAL, or 0x… / mint address" oninput="syncToken(this.value)">
       <div class="cmd-chain-row">
         <button class="cmd-chain-btn active" onclick="setChain('base',this)">Base</button>
         <button class="cmd-chain-btn" onclick="setChain('ethereum',this)">ETH</button>
@@ -522,13 +443,13 @@
             <div class="action-icon raid">🐦</div>
             <div>
               <div class="action-name">Raid Token</div>
-              <div class="action-tagline">Mobilize agents on X</div>
+              <div class="action-tagline">Mobilize agents on X — $0.50/raid</div>
             </div>
           </div>
-          <button class="action-info-btn" onclick="event.stopPropagation();toggleInfo('raid')" title="What does this do?">?</button>
+          <button class="action-info-btn" onclick="event.stopPropagation();toggleInfo('raid')">?</button>
         </div>
         <div class="action-info-box" id="info-raid">
-          Sends multiple agents to a target X post to like, reply, and amplify. You supply a post URL and talking points — agents handle the rest. Can also raid the token's own hashtag feed. Great for coordinated community campaigns.
+          Sends agents to a target X post to reply, like, and amplify. You supply a post URL and talking points. $0.50 USDC per raid, charged via your connected wallet. Raids post from your connected X accounts (or @AGENTGASBIBLE if none connected).
         </div>
         <div class="action-body" id="body-raid">
           <div class="ac-form">
@@ -547,83 +468,63 @@
                 </select>
               </div>
               <div class="ac-field">
-                <label>Agents</label>
-                <select id="raid-agents">
-                  <option value="all">All agents</option>
-                  <option value="3">3 agents</option>
-                  <option value="2">2 agents</option>
-                  <option value="1">1 agent</option>
+                <label>Post As</label>
+                <select id="raid-account">
+                  <option value="gsb">@AGENTGASBIBLE (default)</option>
                 </select>
               </div>
             </div>
             <div class="ac-field">
               <label>Talking Points</label>
-              <textarea id="raid-msg" placeholder="Bullish on this token — volume is up, community growing. Not financial advice."></textarea>
+              <textarea id="raid-msg" placeholder="Bullish on this token — volume up, community growing. NFA."></textarea>
             </div>
-            <button class="deploy-btn raid" onclick="launchRaid()">🐦 Deploy Raid</button>
+            <button class="deploy-btn raid" id="btnRaid" onclick="launchRaid()">🐦 Deploy Raid — $0.50</button>
           </div>
         </div>
       </div>
 
-      <!-- ░░ BUY BOT ░░ -->
-      <div class="action-card" id="card-buy">
-        <div class="action-card-head" onclick="toggleCard('buy')">
+      <!-- ░░ DCA PUMP BOT ░░ -->
+      <div class="action-card" id="card-dca">
+        <div class="action-card-head" onclick="toggleCard('dca')">
           <div class="action-card-left">
-            <div class="action-icon buy">⚡</div>
+            <div class="action-icon dca">📈</div>
             <div>
-              <div class="action-name">Buy Bot</div>
-              <div class="action-tagline">Schedule buys — linear or random</div>
+              <div class="action-name">DCA Pump Bot</div>
+              <div class="action-tagline">Jupiter (SOL) + Uniswap (Base)</div>
             </div>
           </div>
-          <button class="action-info-btn" onclick="event.stopPropagation();toggleInfo('buy')" title="What does this do?">?</button>
+          <button class="action-info-btn" onclick="event.stopPropagation();toggleInfo('dca')">?</button>
         </div>
-        <div class="action-info-box" id="info-buy">
-          Automates recurring token purchases. Linear mode buys the same amount on a fixed schedule. Random mode randomizes size and timing across agents to avoid pattern detection. Stealth mode rotates agents and geo-locations per buy.
+        <div class="action-info-box" id="info-dca">
+          Dollar-cost averaging engine. Buys the target token on a schedule via Jupiter (Solana) or Uniswap (Base). Set amount, interval, and budget — agent buys automatically until budget is exhausted or you stop it.
         </div>
-        <div class="action-body" id="body-buy">
+        <div class="action-body" id="body-dca">
           <div class="ac-form">
             <div class="ac-row">
               <div class="ac-field">
-                <label>Mode</label>
-                <select id="buy-mode" onchange="updateBuyPreview()">
-                  <option value="linear">Linear</option>
-                  <option value="random">Random</option>
-                  <option value="stealth">Stealth</option>
-                </select>
-              </div>
-              <div class="ac-field">
                 <label>Per-Buy (USD)</label>
-                <input type="number" id="buy-amount" placeholder="0.01" min="0.01" step="0.01" oninput="updateBuyPreview()">
+                <input type="number" id="dca-amount" placeholder="5" min="0.50" step="0.50">
               </div>
-            </div>
-            <div class="ac-row">
               <div class="ac-field">
                 <label>Interval</label>
-                <select id="buy-interval" onchange="updateBuyPreview()">
+                <select id="dca-interval">
                   <option value="5m">Every 5 min</option>
                   <option value="10m" selected>Every 10 min</option>
                   <option value="15m">Every 15 min</option>
                   <option value="30m">Every 30 min</option>
                   <option value="1h">Every 1 hour</option>
-                </select>
-              </div>
-              <div class="ac-field">
-                <label>Agents</label>
-                <select id="buy-agents">
-                  <option value="1">1 agent</option>
-                  <option value="2">2 agents</option>
-                  <option value="3">3 agents</option>
-                  <option value="all">All agents</option>
+                  <option value="6h">Every 6 hours</option>
                 </select>
               </div>
             </div>
             <div class="ac-field">
               <label>Total Budget (USD)</label>
-              <input type="number" id="buy-budget" placeholder="50" oninput="updateBuyPreview()">
+              <input type="number" id="dca-budget" placeholder="50">
             </div>
-            <div id="buy-preview" style="font-family:var(--font-mono);font-size:.52rem;color:var(--stone);line-height:1.6;padding:.35rem 0;"></div>
-            <button class="deploy-btn buy" onclick="launchBuyBot()">⚡ Start Buy Bot</button>
+            <button class="deploy-btn dca" id="btnDca" onclick="launchDca()">📈 Start DCA Bot</button>
           </div>
+          <!-- Active DCA sessions -->
+          <div class="dca-sessions" id="dcaSessions"></div>
         </div>
       </div>
 
@@ -637,10 +538,10 @@
               <div class="action-tagline">Write and deploy to X</div>
             </div>
           </div>
-          <button class="action-info-btn" onclick="event.stopPropagation();toggleInfo('thread')" title="What does this do?">?</button>
+          <button class="action-info-btn" onclick="event.stopPropagation();toggleInfo('thread')">?</button>
         </div>
         <div class="action-info-box" id="info-thread">
-          Generates a bullish thread for the target token and deploys it to X via your posting agents. You pick the tone — the AI writes the copy. Agents post from their own accounts, staggered to look organic. You can also provide custom copy.
+          Generates a bullish thread for the target token and posts it to X. You pick the tone — AI writes the copy. Posts from your connected X account or @AGENTGASBIBLE.
         </div>
         <div class="action-body" id="body-thread">
           <div class="ac-form">
@@ -655,108 +556,17 @@
                 </select>
               </div>
               <div class="ac-field">
-                <label>Post Cadence</label>
-                <select id="thread-cadence">
-                  <option>Simultaneous</option>
-                  <option>Staggered 30s</option>
-                  <option>Staggered 2 min</option>
+                <label>Post As</label>
+                <select id="thread-account">
+                  <option value="gsb">@AGENTGASBIBLE (default)</option>
                 </select>
               </div>
             </div>
             <div id="thread-preview-box" style="display:none;background:rgba(0,0,0,.3);border:1px solid rgba(59,130,246,.25);border-radius:4px;padding:.55rem .7rem;font-family:var(--font-mono);font-size:.52rem;color:var(--parchment-aged);line-height:1.7;white-space:pre-line;max-height:120px;overflow-y:auto;"></div>
             <div style="display:flex;gap:.4rem;">
               <button class="wr-btn wr-btn-dim" onclick="generateThread()" style="flex:1;justify-content:center;">✍ Generate</button>
-              <button class="deploy-btn thread" id="deployThreadBtn" onclick="deployThread()" style="flex:2;" disabled>🚀 Deploy to Agents</button>
+              <button class="deploy-btn thread" id="deployThreadBtn" onclick="deployThread()" style="flex:2;" disabled>🚀 Deploy to X</button>
             </div>
-          </div>
-        </div>
-      </div>
-
-      <!-- ░░ DCA ENGINE ░░ -->
-      <div class="action-card" id="card-dca">
-        <div class="action-card-head" onclick="toggleCard('dca')">
-          <div class="action-card-left">
-            <div class="action-icon dca">📈</div>
-            <div>
-              <div class="action-name">DCA Engine</div>
-              <div class="action-tagline">Recurring buys, multi-agent</div>
-            </div>
-          </div>
-          <button class="action-info-btn" onclick="event.stopPropagation();toggleInfo('dca')" title="What does this do?">?</button>
-        </div>
-        <div class="action-info-box" id="info-dca">
-          Dollar-cost averaging engine. Set a per-agent buy amount and interval — agents will automatically buy the token on schedule until the budget is exhausted. Multi-agent spreads the buying across geo-locations to look natural.
-        </div>
-        <div class="action-body" id="body-dca">
-          <div class="ac-form">
-            <div class="ac-row">
-              <div class="ac-field">
-                <label>Per-Agent Buy (USD)</label>
-                <input type="number" id="dca-amount" placeholder="0.05" min="0.01" step="0.01">
-              </div>
-              <div class="ac-field">
-                <label>Interval</label>
-                <select id="dca-interval">
-                  <option value="5m">Every 5 min</option>
-                  <option value="10m" selected>Every 10 min</option>
-                  <option value="15m">Every 15 min</option>
-                  <option value="30m">Every 30 min</option>
-                  <option value="1h">Every 1 hour</option>
-                  <option value="6h">Every 6 hours</option>
-                </select>
-              </div>
-            </div>
-            <div class="ac-row">
-              <div class="ac-field">
-                <label>Agents</label>
-                <select id="dca-agents">
-                  <option value="1">1 agent</option>
-                  <option value="2">2 agents</option>
-                  <option value="3">3 agents</option>
-                  <option value="all">All agents</option>
-                </select>
-              </div>
-              <div class="ac-field">
-                <label>Total Budget (USD)</label>
-                <input type="number" id="dca-budget" placeholder="100">
-              </div>
-            </div>
-            <button class="deploy-btn dca" onclick="launchDca()">📈 Launch DCA</button>
-          </div>
-        </div>
-      </div>
-
-      <!-- ░░ ACP DEPLOY ░░ -->
-      <div class="action-card" id="card-acp">
-        <div class="action-card-head" onclick="toggleCard('acp')">
-          <div class="action-card-left">
-            <div class="action-icon acp">🤖</div>
-            <div>
-              <div class="action-name">ACP Deploy</div>
-              <div class="action-tagline">Hire agents from the network</div>
-            </div>
-          </div>
-          <button class="action-info-btn" onclick="event.stopPropagation();toggleInfo('acp')" title="What does this do?">?</button>
-        </div>
-        <div class="action-info-box" id="info-acp">
-          Connects to the Agent Commerce Protocol network to hire external specialist agents. You can deploy Alpha Scanner to find momentum tokens, Thread Writer to produce content, or Wallet Profiler to analyze wallet behavior — all in one click.
-        </div>
-        <div class="action-body" id="body-acp">
-          <div class="ac-form">
-            <div class="ac-field">
-              <label>ACP Agent</label>
-              <select id="acp-agent-type">
-                <option value="alpha">Alpha Scanner — find trending tokens</option>
-                <option value="thread">Thread Writer — content for X</option>
-                <option value="wallet">Wallet Profiler — analyze addresses</option>
-                <option value="analyst">Token Analyst — deep dive report</option>
-              </select>
-            </div>
-            <div class="ac-field">
-              <label>Task / Prompt</label>
-              <textarea id="acp-prompt" placeholder="e.g. Scan Solana for tokens with 3x volume spike in the last 4 hours"></textarea>
-            </div>
-            <button class="deploy-btn acp" onclick="launchAcp()">🤖 Deploy ACP Agent</button>
           </div>
         </div>
       </div>
@@ -778,22 +588,22 @@
   <section class="job-feed">
     <div class="job-feed-head">
       <div class="job-feed-title">
-        <span class="live-dot"></span>
+        <span class="live-dot" id="feedDot"></span>
         Live Job Feed
       </div>
       <div class="job-filter-tabs">
         <button class="jf-tab active" onclick="filterFeed('all',this)">All</button>
-        <button class="jf-tab" onclick="filterFeed('buy',this)">Buy</button>
         <button class="jf-tab" onclick="filterFeed('raid',this)">Raid</button>
+        <button class="jf-tab" onclick="filterFeed('dca',this)">DCA</button>
         <button class="jf-tab" onclick="filterFeed('post',this)">Post</button>
-        <button class="jf-tab" onclick="filterFeed('swap',this)">Swap</button>
+        <button class="jf-tab" onclick="filterFeed('alpha',this)">Alpha</button>
         <button class="jf-tab jf-tab-clear" onclick="clearFeed()" style="margin-left:.4rem;color:var(--stone);">Clear</button>
       </div>
     </div>
     <div class="job-scroll" id="jobScroll">
       <div class="feed-empty" id="feedEmpty">
         <div class="feed-empty-icon">📋</div>
-        <div>No jobs yet — deploy an operation from the left panel</div>
+        <div>Connect your wallet to load live jobs</div>
       </div>
     </div>
   </section>
@@ -802,9 +612,14 @@
   <aside class="agent-roster">
     <div class="roster-head">
       <div class="roster-title">⚔ Agent Roster</div>
-      <div class="roster-subtitle" id="rosterSub">5 active · 1 idle</div>
+      <div class="roster-subtitle" id="rosterSub">Standing by</div>
     </div>
-    <div class="roster-body" id="rosterBody"></div>
+    <div class="roster-body" id="rosterBody">
+      <div class="roster-standby" style="padding:1.5rem .85rem;text-align:center;font-family:var(--font-mono);font-size:.58rem;color:var(--stone);line-height:1.7;">
+        <div style="font-size:1.5rem;margin-bottom:.4rem;opacity:.4;">⚔</div>
+        Connect wallet to activate your raid squad.
+      </div>
+    </div>
   </aside>
 
 </div><!-- /wr-shell -->
@@ -815,16 +630,39 @@
   <span id="wrToastMsg">Done</span>
 </div>
 
+<!-- WALLET CONNECT MODAL -->
+<div class="modal-overlay" id="walletModal">
+  <div class="modal-box">
+    <button class="modal-close" onclick="closeWalletModal()">✕</button>
+    <div class="modal-title">Connect Wallet</div>
+    <div class="modal-sub">Choose your wallet to sign in and authorize raids. Your wallet address is your identity — private key never leaves your device.</div>
+    <button class="modal-provider-btn" onclick="connectMetaMask()">
+      <span style="font-size:1.3rem;">🦊</span> MetaMask / Browser Wallet
+    </button>
+    <button class="modal-provider-btn" onclick="connectWalletConnect()">
+      <span style="font-size:1.3rem;">🔗</span> WalletConnect (Mobile)
+    </button>
+    <button class="modal-provider-btn" onclick="connectPhantom()">
+      <span style="font-size:1.3rem;">👻</span> Phantom (Solana)
+    </button>
+  </div>
+</div>
+
 <script>
-// ── CONFIG ──────────────────────────────────────────────────────────────────
+// ── CONFIG ───────────────────────────────────────────────────────────────────
 const API_BASE = localStorage.getItem('wr_api') || 'https://gsb-swarm-production.up.railway.app';
+const RAIDERS_API = API_BASE + '/api/raiders';
+
 let selectedChain = 'base';
+let connectedWallet = null;   // { address, type }
+let connectedXAccounts = [];  // [{ id, username }]
+let dcaSessions = [];
 
 // ── CLOCK ────────────────────────────────────────────────────────────────────
 function updateClock() {
   const now = new Date();
   document.getElementById('wrClock').textContent =
-    now.toLocaleString('en-US', { month:'short', day:'numeric', hour:'2-digit', minute:'2-digit', second:'2-digit', hour12:false }) + ' UTC';
+    now.toUTCString().replace('GMT','UTC').slice(5,25);
 }
 updateClock(); setInterval(updateClock, 1000);
 
@@ -844,116 +682,175 @@ function setChain(chain, el) {
   el.classList.add('active');
 }
 
-// ── TOKEN SYNC ────────────────────────────────────────────────────────────────
-function syncToken(val) {
-  // propagate target token into all forms
-  ['raid-url', 'dca-amount', 'buy-amount'].forEach(() => {});
-  // we just store it and use in launchers
-}
+function syncToken(val) { /* stored in input — launchers read it live */ }
 
 // ── ACTION CARD TOGGLE ────────────────────────────────────────────────────────
 const openCards = new Set();
 function toggleCard(id) {
   const body = document.getElementById('body-' + id);
-  if (openCards.has(id)) {
-    body.classList.remove('open');
-    openCards.delete(id);
-  } else {
-    body.classList.add('open');
-    openCards.add(id);
-  }
+  if (openCards.has(id)) { body.classList.remove('open'); openCards.delete(id); }
+  else { body.classList.add('open'); openCards.add(id); }
 }
-
-// ── INFO BOX TOGGLE ───────────────────────────────────────────────────────────
 const openInfos = new Set();
 function toggleInfo(id) {
   const box = document.getElementById('info-' + id);
-  if (openInfos.has(id)) {
-    box.classList.remove('open');
-    openInfos.delete(id);
-  } else {
-    box.classList.add('open');
-    openInfos.add(id);
-  }
+  if (openInfos.has(id)) { box.classList.remove('open'); openInfos.delete(id); }
+  else { box.classList.add('open'); openInfos.add(id); }
 }
 
-// ── AGENT DATA ────────────────────────────────────────────────────────────────
-const AGENTS = [
-  { id:'alpha',   name:'Alpha',   geo:'🇺🇸 US-East',      status:'buying',  action:'Buying $0.01 PEPE every 10m',        buys:48, spent:'$0.48' },
-  { id:'bravo',   name:'Bravo',   geo:'🇩🇪 EU-West',      status:'raiding', action:'Raiding @pumpcade · Reply + Like',   buys:12, spent:'—' },
-  { id:'charlie', name:'Charlie', geo:'🇯🇵 Asia-Pac',     status:'posting', action:'Posting $DOGE thread on X',          buys:6,  spent:'$0.12' },
-  { id:'delta',   name:'Delta',   geo:'🇺🇸 US-West',      status:'buying',  action:'Buying $0.02 PEPE stealth mode',     buys:31, spent:'$0.62' },
-  { id:'echo',    name:'Echo',    geo:'🇧🇷 South America', status:'buying',  action:'DCA $0.05 VIRTUAL via Jupiter',      buys:18, spent:'$0.90' },
-  { id:'foxtrot', name:'Foxtrot', geo:'🇬🇧 UK',           status:'idle',    action:'Idle — awaiting assignment',         buys:0,  spent:'—' },
-];
+// ── WALLET MODAL ─────────────────────────────────────────────────────────────
+function openWalletModal() { document.getElementById('walletModal').classList.add('open'); }
+function closeWalletModal() { document.getElementById('walletModal').classList.remove('open'); }
 
-function renderRoster() {
-  const body = document.getElementById('rosterBody');
-  const active = AGENTS.filter(a => a.status !== 'idle');
-  const idle   = AGENTS.filter(a => a.status === 'idle');
-
-  document.getElementById('rosterSub').textContent =
-    `${active.length} active · ${idle.length} idle`;
-
-  if (!active.length) {
-    body.innerHTML = `<div class="roster-standby"><div class="roster-standby-icon">⚔</div>Fleet standing by.<br>Deploy an operation to activate agents.</div>`;
-    return;
-  }
-
-  body.innerHTML = active.map(a => `
-    <div class="agent-chip ${a.status} fade-in" id="chip-${a.id}">
-      <div class="agent-chip-avatar">${a.name[0]}</div>
-      <div class="agent-chip-info">
-        <div class="agent-chip-name">${a.name} <span style="font-size:.46rem;color:var(--stone);font-weight:400;">${a.geo}</span></div>
-        <div class="agent-chip-action">${a.action}</div>
-        <div class="agent-chip-stats">
-          <div><div class="ac-stat-val">${a.buys}</div><div class="ac-stat-lbl">Buys</div></div>
-          <div><div class="ac-stat-val">${a.spent}</div><div class="ac-stat-lbl">Spent</div></div>
-        </div>
-      </div>
-      <div class="agent-chip-status"><span class="status-dot ${a.status}"></span></div>
-    </div>
-  `).join('') + (idle.length ? `
-    <div style="padding:.5rem .65rem .25rem;font-family:var(--font-heading);font-size:.48rem;color:var(--stone);text-transform:uppercase;letter-spacing:.15em;margin-top:.25rem;">Standby</div>
-    ${idle.map(a => `
-      <div class="agent-chip idle fade-in">
-        <div class="agent-chip-avatar" style="opacity:.45;">${a.name[0]}</div>
-        <div class="agent-chip-info">
-          <div class="agent-chip-name" style="opacity:.6;">${a.name} <span style="font-size:.46rem;color:var(--stone);font-weight:400;">${a.geo}</span></div>
-          <div class="agent-chip-action" style="color:var(--stone);">Idle</div>
-        </div>
-        <div><span class="status-dot idle"></span></div>
-      </div>
-    `).join('')}
-  ` : '');
+async function connectMetaMask() {
+  if (!window.ethereum) { toast('⚠', 'MetaMask not detected'); return; }
+  try {
+    const accounts = await window.ethereum.request({ method: 'eth_requestAccounts' });
+    onWalletConnected(accounts[0], 'metamask');
+    closeWalletModal();
+  } catch(e) { toast('✕', 'Connection rejected'); }
 }
-renderRoster();
 
-// ── JOB FEED ─────────────────────────────────────────────────────────────────
+async function connectPhantom() {
+  if (!window.solana?.isPhantom) { toast('⚠', 'Phantom not detected'); return; }
+  try {
+    const resp = await window.solana.connect();
+    onWalletConnected(resp.publicKey.toString(), 'phantom');
+    closeWalletModal();
+  } catch(e) { toast('✕', 'Connection rejected'); }
+}
+
+function connectWalletConnect() {
+  // WalletConnect v2 — deep link fallback
+  const wcUri = `https://metamask.app.link/dapp/${window.location.host}/dashboard.html`;
+  window.open(wcUri, '_blank');
+  toast('🔗', 'Opening WalletConnect...');
+  closeWalletModal();
+}
+
+function onWalletConnected(address, type) {
+  connectedWallet = { address, type };
+
+  // Update UI
+  const short = address.slice(0,6) + '...' + address.slice(-4);
+  document.getElementById('stat-wallet').textContent = short;
+  document.getElementById('stat-wallet-sub').textContent = type;
+  document.getElementById('walletAddrDisplay').textContent = short;
+  document.getElementById('walletAddrDisplay').style.display = '';
+
+  const btn = document.getElementById('btnConnectWallet');
+  btn.textContent = short;
+  btn.classList.add('connected');
+
+  document.getElementById('btnConnectX').disabled = false;
+  document.getElementById('walletStatus').textContent = 'Wallet connected — add X accounts to raid';
+
+  toast('✅', 'Wallet connected: ' + short);
+
+  // Load X accounts and jobs
+  loadXAccounts();
+  loadJobs();
+  loadDcaSessions();
+}
+
+// ── X OAUTH ──────────────────────────────────────────────────────────────────
+function connectX() {
+  if (!connectedWallet) { toast('⚠', 'Connect wallet first'); return; }
+  const url = `${RAIDERS_API}/auth/x/start?wallet=${encodeURIComponent(connectedWallet.address)}`;
+  const popup = window.open(url, 'x_oauth', 'width=600,height=700,left=200,top=100');
+
+  // Poll for callback
+  const poll = setInterval(() => {
+    if (popup.closed) {
+      clearInterval(poll);
+      setTimeout(loadXAccounts, 1000); // reload after OAuth completes
+    }
+  }, 500);
+}
+
+async function loadXAccounts() {
+  if (!connectedWallet) return;
+  try {
+    const res = await fetch(`${RAIDERS_API}/accounts?wallet=${encodeURIComponent(connectedWallet.address)}`);
+    const data = await res.json();
+    connectedXAccounts = data.accounts || [];
+    renderXAccounts();
+  } catch(e) { console.warn('X accounts load failed', e); }
+}
+
+async function disconnectX(accountId, username) {
+  if (!connectedWallet) return;
+  try {
+    await fetch(`${RAIDERS_API}/accounts/disconnect`, {
+      method: 'DELETE',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ wallet: connectedWallet.address, accountId })
+    });
+    toast('✅', '@' + username + ' disconnected');
+    loadXAccounts();
+  } catch(e) { toast('✕', 'Failed to disconnect'); }
+}
+
+function renderXAccounts() {
+  const bar = document.getElementById('xAccountsBar');
+  const count = connectedXAccounts.length;
+  document.getElementById('stat-x-count').textContent = count;
+
+  if (!count) { bar.innerHTML = ''; return; }
+
+  bar.innerHTML = connectedXAccounts.map(a => `
+    <span class="x-account-pill">
+      @${a.username}
+      <span class="remove-x" onclick="disconnectX('${a.id}','${a.username}')">✕</span>
+    </span>
+  `).join('');
+
+  // Update account selects in forms
+  const opts = connectedXAccounts.map(a => `<option value="${a.id}">@${a.username}</option>`).join('');
+  const baseOpt = '<option value="gsb">@AGENTGASBIBLE (default)</option>';
+  document.getElementById('raid-account').innerHTML = baseOpt + opts;
+  document.getElementById('thread-account').innerHTML = baseOpt + opts;
+}
+
+// ── JOB FEED (real Redis) ─────────────────────────────────────────────────────
 let allJobs = [];
 let feedFilter = 'all';
+let jobPollTimer = null;
 
 const TYPE_BADGE = {
-  buy:  '<span class="job-badge jb-buy">BUY</span>',
-  raid: '<span class="job-badge jb-raid">RAID</span>',
-  post: '<span class="job-badge jb-post">POST</span>',
-  swap: '<span class="job-badge jb-swap">SWAP</span>',
-  arb:  '<span class="job-badge jb-arb">ARB</span>',
-  dca:  '<span class="job-badge jb-dca">DCA</span>',
-  acp:  '<span class="job-badge jb-acp">ACP</span>',
+  raid:  '<span class="job-badge jb-raid">RAID</span>',
+  buy:   '<span class="job-badge jb-buy">BUY</span>',
+  post:  '<span class="job-badge jb-post">POST</span>',
+  swap:  '<span class="job-badge jb-swap">SWAP</span>',
+  dca:   '<span class="job-badge jb-dca">DCA</span>',
+  alpha: '<span class="job-badge jb-alpha">ALPHA</span>',
 };
 
-const SEED_JOBS = [
-  { time:'12:41:55', agent:'Alpha',   msg:'Bought $0.01 PEPE on Base via Uniswap',           type:'buy' },
-  { time:'12:41:48', agent:'Bravo',   msg:'Replied to @pumpcade — "$GSB community growing"', type:'raid' },
-  { time:'12:41:40', agent:'Charlie', msg:'Posted bullish $DOGE thread — 3 tweets',          type:'post' },
-  { time:'12:41:35', agent:'Delta',   msg:'Bought $0.02 PEPE — stealth route',               type:'buy' },
-  { time:'12:41:30', agent:'Echo',    msg:'DCA buy $0.05 VIRTUAL on Solana via Jupiter',     type:'dca' },
-  { time:'12:41:20', agent:'Alpha',   msg:'Bought $0.01 PEPE on Base via Uniswap',           type:'buy' },
-  { time:'12:40:55', agent:'Bravo',   msg:'Liked + bookmarked target post on X',             type:'raid' },
-  { time:'12:40:44', agent:'Charlie', msg:'Swap 2 USDC → DOGE on BSC',                       type:'swap' },
-];
-allJobs = [...SEED_JOBS];
+async function loadJobs() {
+  if (!connectedWallet) return;
+  try {
+    const res = await fetch(`${RAIDERS_API}/jobs?wallet=${encodeURIComponent(connectedWallet.address)}`);
+    const data = await res.json();
+    const jobs = data.jobs || [];
+    if (jobs.length) {
+      allJobs = jobs.map(j => ({
+        time: new Date(j.ts || j.timestamp || Date.now()).toTimeString().slice(0,8),
+        agent: j.agent || 'Agent',
+        msg: j.message || j.msg || '',
+        type: j.type || 'post'
+      }));
+      renderFeed();
+      document.getElementById('stat-buys').textContent = allJobs.length;
+    }
+    document.getElementById('feedDot').classList.remove('red');
+  } catch(e) {
+    document.getElementById('feedDot').classList.add('red');
+  }
+
+  // Poll every 8 seconds
+  clearTimeout(jobPollTimer);
+  jobPollTimer = setTimeout(loadJobs, 8000);
+}
 
 function renderFeed() {
   const scroll = document.getElementById('jobScroll');
@@ -964,33 +861,26 @@ function renderFeed() {
     scroll.innerHTML = '';
     scroll.appendChild(empty);
     empty.style.display = 'flex';
+    empty.querySelector('div:last-child').textContent =
+      connectedWallet ? 'No jobs yet — deploy an operation' : 'Connect your wallet to load live jobs';
     return;
   }
   empty.style.display = 'none';
-
-  scroll.innerHTML = filtered.slice(0, 300).map((j, i) => `
-    <div class="job-row${i === 0 ? ' new' : ''}">
+  scroll.innerHTML = filtered.slice(0,300).map((j,i) => `
+    <div class="job-row${i===0?' new':''}">
       <span class="job-time">${j.time}</span>
       <span class="job-agent">${j.agent}</span>
       <span class="job-msg">${j.msg}</span>
       ${TYPE_BADGE[j.type] || ''}
     </div>
   `).join('');
-
-  // update job count stat
   document.getElementById('stat-buys').textContent = allJobs.length;
 }
-renderFeed();
 
 function addJob(agent, msg, type) {
-  const now = new Date();
-  const time = now.toTimeString().slice(0, 8);
+  const time = new Date().toTimeString().slice(0,8);
   allJobs.unshift({ time, agent, msg, type });
   renderFeed();
-  // update agent action in roster
-  const a = AGENTS.find(x => x.name.toLowerCase() === agent.toLowerCase() || x.id === agent.toLowerCase());
-  if (a && type !== 'idle') { a.action = msg; a.status = type === 'buy' || type === 'dca' ? 'buying' : type === 'raid' ? 'raiding' : 'posting'; }
-  renderRoster();
 }
 
 function filterFeed(type, el) {
@@ -1002,51 +892,187 @@ function filterFeed(type, el) {
 
 function clearFeed() { allJobs = []; renderFeed(); }
 
+// ── ALPHA SCANNER ─────────────────────────────────────────────────────────────
+async function runAlphaScan() {
+  const btn = document.querySelector('.alpha-scan-btn');
+  btn.textContent = 'Scanning...';
+  btn.disabled = true;
+
+  const container = document.getElementById('alphaResults');
+  container.innerHTML = '<div class="alpha-empty">Scanning ' + selectedChain + '...</div>';
+
+  try {
+    const query = document.getElementById('cmd-token').value.trim() || 'trending';
+    const res = await fetch(`${RAIDERS_API}/alpha?chain=${selectedChain}&query=${encodeURIComponent(query)}`);
+    const data = await res.json();
+    const tokens = data.tokens || [];
+
+    if (!tokens.length) {
+      container.innerHTML = '<div class="alpha-empty">No signals found — try a different chain</div>';
+    } else {
+      container.innerHTML = tokens.slice(0,8).map(t => `
+        <div class="alpha-token-row" onclick="selectAlphaToken('${t.address||t.symbol}','${t.symbol}')">
+          <div>
+            <div class="alpha-token-sym">${t.symbol}</div>
+            <div class="alpha-token-meta">${t.name || ''} · vol $${fmtNum(t.volume24h||0)}</div>
+          </div>
+          <div class="alpha-token-change ${(t.priceChange24h||0)>=0?'pos':'neg'}">
+            ${(t.priceChange24h||0)>=0?'+':''}${(t.priceChange24h||0).toFixed(1)}%
+          </div>
+        </div>
+      `).join('');
+    }
+    addJob('Alpha Scanner', `Scanned ${selectedChain} — found ${tokens.length} signals`, 'alpha');
+  } catch(e) {
+    container.innerHTML = '<div class="alpha-empty">Scan failed — check connection</div>';
+  }
+
+  btn.textContent = 'Scan Now';
+  btn.disabled = false;
+}
+
+function selectAlphaToken(address, symbol) {
+  document.getElementById('cmd-token').value = address || symbol;
+  toast('⚡', symbol + ' loaded as target');
+}
+
+function fmtNum(n) {
+  if (n >= 1e6) return (n/1e6).toFixed(1)+'M';
+  if (n >= 1e3) return (n/1e3).toFixed(1)+'K';
+  return n.toFixed(0);
+}
+
 // ── LAUNCH: RAID ──────────────────────────────────────────────────────────────
-function launchRaid() {
+async function launchRaid() {
+  if (!connectedWallet) { toast('⚠', 'Connect wallet first'); return; }
+  const url  = document.getElementById('raid-url').value.trim();
+  const type = document.getElementById('raid-type').value;
+  const msg  = document.getElementById('raid-msg').value.trim();
+  const acct = document.getElementById('raid-account').value;
   const token = document.getElementById('cmd-token').value.trim();
-  const url   = document.getElementById('raid-url').value.trim();
-  const type  = document.getElementById('raid-type').value;
-  const agts  = document.getElementById('raid-agents').value;
+
   if (!url) { toast('⚠', 'Enter a target post URL'); return; }
 
-  const pool = ['Alpha','Bravo','Charlie','Delta','Echo'];
-  const agents = agts === 'all' ? pool : agts === '3' ? pool.slice(0,3) : agts === '2' ? pool.slice(0,2) : [pool[0]];
-  agents.forEach(a => addJob(a, `Raiding: ${url.slice(0,45)}… · ${type}`, 'raid'));
-  document.getElementById('stat-raids').textContent = parseInt(document.getElementById('stat-raids').textContent) + 1;
-  toast('🐦', `Raid deployed — ${agents.length} agents on target`);
+  const btn = document.getElementById('btnRaid');
+  btn.textContent = 'Deploying...';
+  btn.disabled = true;
+
+  try {
+    const res = await fetch(`${RAIDERS_API}/raid`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        wallet: connectedWallet.address,
+        targetUrl: url,
+        raidType: type,
+        talkingPoints: msg,
+        token: token || undefined,
+        chain: selectedChain,
+        xAccountId: acct !== 'gsb' ? acct : undefined
+      })
+    });
+    const data = await res.json();
+    if (data.error) throw new Error(data.error);
+
+    addJob('Raider', `Raid deployed → ${url.slice(0,50)}… [${type}]`, 'raid');
+    document.getElementById('stat-raids').textContent =
+      parseInt(document.getElementById('stat-raids').textContent) + 1;
+    toast('🐦', 'Raid live — ' + (data.tweetId ? 'tweet ' + data.tweetId : 'dispatched'));
+  } catch(e) {
+    toast('✕', 'Raid failed: ' + (e.message||'check logs'));
+  }
+
+  btn.textContent = '🐦 Deploy Raid — $0.50';
+  btn.disabled = false;
 }
 
-// ── LAUNCH: BUY BOT ───────────────────────────────────────────────────────────
-function updateBuyPreview() {
-  const amt  = parseFloat(document.getElementById('buy-amount').value) || 0;
-  const intv = document.getElementById('buy-interval').value;
-  const budget = parseFloat(document.getElementById('buy-budget').value) || 0;
-  const mode = document.getElementById('buy-mode').value;
-  const prev = document.getElementById('buy-preview');
-  if (!amt) { prev.textContent = ''; return; }
-  const buysLeft = budget > 0 ? Math.floor(budget / amt) : '∞';
-  prev.textContent = `${mode === 'random' ? 'Random ~' : ''}$${amt} every ${intv} · ${buysLeft} buys${budget > 0 ? ` · $${budget} total budget` : ''}`;
-}
-
-function launchBuyBot() {
+// ── LAUNCH: DCA PUMP BOT ──────────────────────────────────────────────────────
+async function launchDca() {
+  if (!connectedWallet) { toast('⚠', 'Connect wallet first'); return; }
   const token  = document.getElementById('cmd-token').value.trim();
-  const amt    = document.getElementById('buy-amount').value;
-  const intv   = document.getElementById('buy-interval').value;
-  const mode   = document.getElementById('buy-mode').value;
-  const agts   = document.getElementById('buy-agents').value;
-  if (!token) { toast('⚠', 'Enter a target token first'); return; }
-  if (!amt)   { toast('⚠', 'Enter per-buy amount'); return; }
+  const amount = parseFloat(document.getElementById('dca-amount').value);
+  const interval = document.getElementById('dca-interval').value;
+  const budget = parseFloat(document.getElementById('dca-budget').value) || 0;
 
-  const pool = ['Alpha','Delta','Echo','Bravo','Charlie'];
-  const count = agts === 'all' ? 5 : parseInt(agts);
-  pool.slice(0, count).forEach(a => {
-    addJob(a, `${mode === 'stealth' ? 'Stealth ' : ''}Buy Bot: $${amt} ${token.toUpperCase()} every ${intv} on ${selectedChain}`, 'buy');
-  });
-  toast('⚡', `Buy bot live — ${count} agent${count > 1 ? 's' : ''} buying ${token.toUpperCase()}`);
+  if (!token) { toast('⚠', 'Enter a target token first'); return; }
+  if (!amount || amount < 0.5) { toast('⚠', 'Min per-buy is $0.50'); return; }
+
+  const btn = document.getElementById('btnDca');
+  btn.textContent = 'Starting...';
+  btn.disabled = true;
+
+  try {
+    const res = await fetch(`${RAIDERS_API}/dca/start`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        wallet: connectedWallet.address,
+        token,
+        chain: selectedChain,
+        amountUsd: amount,
+        intervalMinutes: parseIntervalMinutes(interval),
+        budgetUsd: budget || undefined
+      })
+    });
+    const data = await res.json();
+    if (data.error) throw new Error(data.error);
+
+    addJob('DCA Bot', `DCA started: $${amount} ${token.toUpperCase()} every ${interval} on ${selectedChain}`, 'dca');
+    toast('📈', 'DCA bot live on ' + token.toUpperCase());
+    loadDcaSessions();
+  } catch(e) {
+    toast('✕', 'DCA failed: ' + (e.message||'check logs'));
+  }
+
+  btn.textContent = '📈 Start DCA Bot';
+  btn.disabled = false;
 }
 
-// ── LAUNCH: THREAD + POST ─────────────────────────────────────────────────────
+function parseIntervalMinutes(s) {
+  if (s.endsWith('m')) return parseInt(s);
+  if (s.endsWith('h')) return parseInt(s) * 60;
+  return 10;
+}
+
+async function loadDcaSessions() {
+  if (!connectedWallet) return;
+  try {
+    const res = await fetch(`${RAIDERS_API}/dca/sessions?wallet=${encodeURIComponent(connectedWallet.address)}`);
+    const data = await res.json();
+    dcaSessions = data.sessions || [];
+    renderDcaSessions();
+    document.getElementById('stat-dca').textContent = dcaSessions.filter(s => s.status === 'active').length;
+  } catch(e) { console.warn('DCA load failed', e); }
+}
+
+function renderDcaSessions() {
+  const container = document.getElementById('dcaSessions');
+  if (!dcaSessions.length) { container.innerHTML = ''; return; }
+  container.innerHTML = dcaSessions.map(s => `
+    <div class="dca-session-row">
+      <div>
+        <strong>${s.token}</strong> — $${s.amountUsd}/${s.intervalMinutes}min
+        ${s.budgetUsd ? ' · $'+s.budgetUsd+' budget' : ''}
+        <span style="color:${s.status==='active'?'#4ade80':'#f87171'};margin-left:.4rem;">${s.status}</span>
+      </div>
+      ${s.status==='active'?`<button class="dca-stop-btn" onclick="stopDca('${s.sessionId}')">Stop</button>`:''}
+    </div>
+  `).join('');
+}
+
+async function stopDca(sessionId) {
+  try {
+    await fetch(`${RAIDERS_API}/dca/stop`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ sessionId, wallet: connectedWallet.address })
+    });
+    toast('⏹', 'DCA session stopped');
+    loadDcaSessions();
+  } catch(e) { toast('✕', 'Stop failed'); }
+}
+
+// ── THREAD + POST ─────────────────────────────────────────────────────────────
 const THREAD_TEMPLATES = {
   'Bullish Analysis':    t => `1/ 🚨 $${t} is setting up for a major move.\n\n2/ Volume up 3x in 24h. Liquidity deepening. Whale wallets accumulating.\n\n3/ Chart: Higher lows forming, compression near resistance. Classic pre-breakout structure.\n\n4/ Community growing daily, dev team shipping, partnerships incoming.\n\n5/ My thesis: $${t} hits new ATH before end of month. NFA.`,
   'Technical Breakdown': t => `1/ $${t} technical breakdown — let's go.\n\n2/ RSI at 45 — not overbought, room to run. MACD bullish crossover on 4H.\n\n3/ Key resistance: Flip it and we see 2x from here.\n\n4/ Volume profile: Accumulation over 7 days. Smart money loading.\n\n5/ Targets: R1, R2, then moon. 🚀 $${t}`,
@@ -1065,74 +1091,127 @@ function generateThread() {
   toast('✍', 'Thread generated — review and deploy');
 }
 
-function deployThread() {
-  const token = document.getElementById('cmd-token').value.trim() || 'TOKEN';
-  ['Charlie','Alpha','Bravo'].forEach(a => addJob(a, `Posted bullish $${token.toUpperCase()} thread on X`, 'post'));
-  toast('🚀', 'Thread deployed to all posting agents');
+async function deployThread() {
+  if (!connectedWallet) { toast('⚠', 'Connect wallet first'); return; }
+  const token   = document.getElementById('cmd-token').value.trim() || 'TOKEN';
+  const content = document.getElementById('thread-preview-box').textContent;
+  const acct    = document.getElementById('thread-account').value;
+  const btn     = document.getElementById('deployThreadBtn');
+
+  btn.textContent = 'Posting...';
+  btn.disabled = true;
+
+  try {
+    const res = await fetch(`${RAIDERS_API}/raid`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        wallet: connectedWallet.address,
+        raidType: 'thread',
+        talkingPoints: content,
+        token,
+        chain: selectedChain,
+        xAccountId: acct !== 'gsb' ? acct : undefined
+      })
+    });
+    const data = await res.json();
+    if (data.error) throw new Error(data.error);
+    addJob('Thread Writer', `Posted $${token.toUpperCase()} thread on X`, 'post');
+    toast('🚀', 'Thread live on X');
+  } catch(e) {
+    toast('✕', 'Post failed: ' + (e.message||'check logs'));
+  }
+
+  btn.textContent = '🚀 Deploy to X';
+  btn.disabled = false;
 }
 
-// ── LAUNCH: DCA ENGINE ────────────────────────────────────────────────────────
-function launchDca() {
-  const token  = document.getElementById('cmd-token').value.trim();
-  const amt    = document.getElementById('dca-amount').value;
-  const intv   = document.getElementById('dca-interval').value;
-  const agts   = document.getElementById('dca-agents').value;
-  const budget = document.getElementById('dca-budget').value;
-  if (!token) { toast('⚠', 'Enter a target token first'); return; }
-  if (!amt)   { toast('⚠', 'Enter per-agent buy amount'); return; }
+// ── ROSTER ────────────────────────────────────────────────────────────────────
+function renderRoster() {
+  const body = document.getElementById('rosterBody');
+  if (!connectedWallet) {
+    body.innerHTML = `<div style="padding:1.5rem .85rem;text-align:center;font-family:var(--font-mono);font-size:.58rem;color:var(--stone);line-height:1.7;"><div style="font-size:1.5rem;margin-bottom:.4rem;opacity:.4;">⚔</div>Connect wallet to activate your raid squad.</div>`;
+    return;
+  }
 
-  const pool  = ['Echo','Alpha','Delta','Bravo','Charlie'];
-  const count = agts === 'all' ? 5 : parseInt(agts);
-  pool.slice(0, count).forEach(a => {
-    addJob(a, `DCA: $${amt}/buy ${token.toUpperCase()} every ${intv} on ${selectedChain}${budget ? ' · $'+budget+' budget' : ''}`, 'dca');
-  });
-  toast('📈', `DCA launched — ${count} agent${count > 1 ? 's' : ''} on ${token.toUpperCase()}`);
-}
+  const xCount = connectedXAccounts.length;
+  const dcaCount = dcaSessions.filter(s => s.status === 'active').length;
+  document.getElementById('rosterSub').textContent = `${xCount} X acct${xCount!==1?'s':''} · ${dcaCount} DCA active`;
 
-// ── LAUNCH: ACP AGENT ─────────────────────────────────────────────────────────
-function launchAcp() {
-  const type   = document.getElementById('acp-agent-type').value;
-  const prompt = document.getElementById('acp-prompt').value.trim();
-  const token  = document.getElementById('cmd-token').value.trim();
-  const labels = {
-    alpha:'Alpha Scanner', thread:'Thread Writer', wallet:'Wallet Profiler', analyst:'Token Analyst'
-  };
-  const label = labels[type] || 'ACP Agent';
-  const task  = prompt || (token ? `Analyze ${token.toUpperCase()}` : 'General scan');
-  addJob('ACP', `${label} deployed: ${task}`, 'acp');
-  toast('🤖', `${label} hired from ACP network`);
+  const chips = [];
+  if (xCount > 0) {
+    connectedXAccounts.forEach(a => {
+      chips.push(`
+        <div class="agent-chip raiding fade-in">
+          <div class="agent-chip-avatar">X</div>
+          <div class="agent-chip-info">
+            <div class="agent-chip-name">@${a.username}</div>
+            <div class="agent-chip-action">Ready to raid</div>
+          </div>
+          <div class="agent-chip-status"><span class="status-dot raiding"></span></div>
+        </div>
+      `);
+    });
+  }
+  if (dcaCount > 0) {
+    dcaSessions.filter(s => s.status === 'active').forEach(s => {
+      chips.push(`
+        <div class="agent-chip buying fade-in">
+          <div class="agent-chip-avatar">D</div>
+          <div class="agent-chip-info">
+            <div class="agent-chip-name">DCA · ${s.token}</div>
+            <div class="agent-chip-action">$${s.amountUsd} every ${s.intervalMinutes}min</div>
+          </div>
+          <div class="agent-chip-status"><span class="status-dot buying"></span></div>
+        </div>
+      `);
+    });
+  }
+  if (!chips.length) {
+    body.innerHTML = `<div style="padding:1.5rem .85rem;text-align:center;font-family:var(--font-mono);font-size:.58rem;color:var(--stone);line-height:1.7;"><div style="font-size:1.5rem;margin-bottom:.4rem;opacity:.4;">⚔</div>Add X accounts or start DCA to see your squad here.</div>`;
+    return;
+  }
+  body.innerHTML = chips.join('');
 }
 
 // ── SETTINGS ─────────────────────────────────────────────────────────────────
 function saveSettings() {
   localStorage.setItem('wr_api', document.getElementById('cfg-api').value);
-  toast('✅', 'Settings saved');
+  toast('✅', 'Settings saved — reload to apply');
 }
-
-// ── LIVE SIMULATION ───────────────────────────────────────────────────────────
-const SIM_EVENTS = [
-  { agent:'Alpha',   msg:'Bought $0.01 PEPE on Base via Uniswap',          type:'buy' },
-  { agent:'Delta',   msg:'Bought $0.02 PEPE — stealth route +7s delay',    type:'buy' },
-  { agent:'Echo',    msg:'DCA buy $0.05 VIRTUAL on Solana',                 type:'dca' },
-  { agent:'Bravo',   msg:'Liked target post on X',                          type:'raid' },
-  { agent:'Charlie', msg:'Posted tweet: "Watching $DOGE closely 👀"',       type:'post' },
-  { agent:'Alpha',   msg:'Swap 1 USDC → PEPE on Base',                      type:'swap' },
-  { agent:'Delta',   msg:'Bought $0.015 PEPE — randomized amount',          type:'buy' },
-  { agent:'Bravo',   msg:'Replied to X post with bullish $GSB narrative',   type:'raid' },
-];
-let simIdx = 0;
-function simTick() {
-  const e = SIM_EVENTS[simIdx % SIM_EVENTS.length];
-  addJob(e.agent, e.msg, e.type);
-  simIdx++;
-}
-setInterval(simTick, 8000);
 
 // ── INIT ─────────────────────────────────────────────────────────────────────
 document.getElementById('cfg-api').value = API_BASE;
-
-// open raid card by default
 toggleCard('raid');
+renderFeed();
+renderRoster();
+
+// Check for wallet already in storage
+const savedWallet = localStorage.getItem('raidersWallet');
+if (savedWallet) {
+  try {
+    const w = JSON.parse(savedWallet);
+    onWalletConnected(w.address, w.type);
+  } catch(e) {}
+}
+
+// Persist wallet on connect
+const _origOnWalletConnected = onWalletConnected;
+window.onWalletConnected = function(address, type) {
+  localStorage.setItem('raidersWallet', JSON.stringify({ address, type }));
+  _origOnWalletConnected(address, type);
+  renderRoster();
+};
+
+// Reload DCA + roster on a slow poll
+setInterval(() => {
+  if (connectedWallet) { loadDcaSessions().then(renderRoster); }
+}, 30000);
+
+// Check OAuth callback result (popup closed)
+window.addEventListener('focus', () => {
+  if (connectedWallet) loadXAccounts().then(renderRoster);
+});
 </script>
 </body>
 </html>
