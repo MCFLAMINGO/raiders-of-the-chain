@@ -635,16 +635,41 @@
   <div class="modal-box">
     <button class="modal-close" onclick="closeWalletModal()">✕</button>
     <div class="modal-title">Connect Wallet</div>
-    <div class="modal-sub">Choose your wallet to sign in and authorize raids. Your wallet address is your identity — private key never leaves your device.</div>
-    <button class="modal-provider-btn" onclick="connectMetaMask()">
-      <span style="font-size:1.3rem;">🦊</span> MetaMask / Browser Wallet
-    </button>
-    <button class="modal-provider-btn" onclick="connectWalletConnect()">
-      <span style="font-size:1.3rem;">🔗</span> WalletConnect (Mobile)
-    </button>
-    <button class="modal-provider-btn" onclick="connectPhantom()">
-      <span style="font-size:1.3rem;">👻</span> Phantom (Solana)
-    </button>
+    <div class="modal-sub">Your wallet is your identity — private key never leaves your device.</div>
+
+    <div id="walletProviderBtns">
+      <button class="modal-provider-btn" onclick="connectMetaMask()">
+        <span style="font-size:1.3rem;">🦊</span>
+        <span><strong>MetaMask</strong><br><span style="font-size:.55rem;opacity:.6;">Browser extension — Base / EVM</span></span>
+      </button>
+      <button class="modal-provider-btn" onclick="connectPhantom()">
+        <span style="font-size:1.3rem;">👻</span>
+        <span><strong>Phantom</strong><br><span style="font-size:.55rem;opacity:.6;">Solana + EVM</span></span>
+      </button>
+      <button class="modal-provider-btn" onclick="connectCoinbase()">
+        <span style="font-size:1.3rem;">🔵</span>
+        <span><strong>Coinbase Wallet</strong><br><span style="font-size:.55rem;opacity:.6;">Base-native · also X wallet</span></span>
+      </button>
+      <button class="modal-provider-btn" onclick="connectXWallet()">
+        <span style="font-size:1.3rem;">𝕏</span>
+        <span><strong>X Wallet</strong><br><span style="font-size:.55rem;opacity:.6;">Scan QR from X app → Wallet tab</span></span>
+      </button>
+      <button class="modal-provider-btn" onclick="connectWalletConnect()">
+        <span style="font-size:1.3rem;">🔗</span>
+        <span><strong>WalletConnect</strong><br><span style="font-size:.55rem;opacity:.6;">Any mobile wallet — Trust, Rainbow, etc.</span></span>
+      </button>
+    </div>
+
+    <!-- WC QR section -->
+    <div id="wcQrSection" style="display:none;flex-direction:column;align-items:center;margin-top:.5rem;">
+      <div id="wcQrBox" style="width:200px;height:200px;background:#fff;border-radius:10px;display:flex;align-items:center;justify-content:center;overflow:hidden;"></div>
+      <div style="font-size:.6rem;color:#888;margin:.5rem 0;">Open your wallet app and scan this code</div>
+      <button class="modal-provider-btn" onclick="cancelWalletConnect()" style="width:auto;padding:.4rem 1rem;">← Back</button>
+    </div>
+
+    <!-- Status / error -->
+    <div id="wcStatus" style="display:none;font-size:.62rem;color:#f5c842;margin-top:.5rem;text-align:center;"></div>
+    <div id="wcError"  style="display:none;font-size:.62rem;color:#f87171;margin-top:.4rem;padding:.5rem;background:rgba(239,68,68,.1);border-radius:6px;text-align:center;"></div>
   </div>
 </div>
 
@@ -699,33 +724,213 @@ function toggleInfo(id) {
 }
 
 // ── WALLET MODAL ─────────────────────────────────────────────────────────────
-function openWalletModal() { document.getElementById('walletModal').classList.add('open'); }
-function closeWalletModal() { document.getElementById('walletModal').classList.remove('open'); }
+const WC_PROJECT_ID = 'ff5dd5e462b92932d7b28c00b81695e8';
+let _wcProvider = null, _wcSdkLoaded = false;
+
+function openWalletModal() {
+  // reset state
+  document.getElementById('walletProviderBtns').style.display = 'block';
+  document.getElementById('wcQrSection').style.display = 'none';
+  document.getElementById('wcStatus').style.display = 'none';
+  document.getElementById('wcError').style.display = 'none';
+  document.getElementById('walletModal').classList.add('open');
+}
+function closeWalletModal() {
+  document.getElementById('walletModal').classList.remove('open');
+  if (_wcProvider) { try { _wcProvider.disconnect(); } catch(_) {} _wcProvider = null; }
+}
+
+function _wcShowStatus(msg) {
+  const el = document.getElementById('wcStatus');
+  el.textContent = msg; el.style.display = msg ? 'block' : 'none';
+}
+function _wcShowError(msg) {
+  const el = document.getElementById('wcError');
+  el.textContent = msg; el.style.display = msg ? 'block' : 'none';
+}
+function _wcSetBtnsDisabled(d) {
+  document.querySelectorAll('#walletProviderBtns .modal-provider-btn').forEach(b => b.disabled = d);
+}
 
 async function connectMetaMask() {
-  if (!window.ethereum) { toast('⚠', 'MetaMask not detected'); return; }
+  _wcShowError('');
+  _wcSetBtnsDisabled(true);
+  _wcShowStatus('Connecting…');
   try {
-    const accounts = await window.ethereum.request({ method: 'eth_requestAccounts' });
+    // Try MetaMask, then Phantom EVM, then any injected provider
+    const provider =
+      window.ethereum?.providers?.find(p => p.isMetaMask) ||
+      (window.ethereum?.isMetaMask ? window.ethereum : null) ||
+      window.phantom?.ethereum ||
+      window.ethereum;
+    if (!provider) throw new Error('no_provider');
+    const accounts = await provider.request({ method: 'eth_requestAccounts' });
     onWalletConnected(accounts[0], 'metamask');
     closeWalletModal();
-  } catch(e) { toast('✕', 'Connection rejected'); }
+  } catch(e) {
+    _wcShowStatus('');
+    _wcSetBtnsDisabled(false);
+    if (e.message === 'no_provider') {
+      _wcShowError('No browser wallet found. Install MetaMask or use WalletConnect.');
+    } else if (e.code === 4001) {
+      _wcShowError('Connection cancelled.');
+    } else {
+      _wcShowError('Connection failed: ' + (e.message || e));
+    }
+  }
 }
 
 async function connectPhantom() {
-  if (!window.solana?.isPhantom) { toast('⚠', 'Phantom not detected'); return; }
+  _wcShowError('');
+  _wcSetBtnsDisabled(true);
+  _wcShowStatus('Connecting Phantom…');
   try {
-    const resp = await window.solana.connect();
-    onWalletConnected(resp.publicKey.toString(), 'phantom');
+    // Try Phantom Solana first, then Phantom EVM, then legacy window.solana
+    if (window.phantom?.solana) {
+      const resp = await window.phantom.solana.connect();
+      onWalletConnected(resp.publicKey.toString(), 'phantom');
+      closeWalletModal(); return;
+    }
+    if (window.phantom?.ethereum) {
+      const accounts = await window.phantom.ethereum.request({ method: 'eth_requestAccounts' });
+      onWalletConnected(accounts[0], 'phantom-evm');
+      closeWalletModal(); return;
+    }
+    if (window.solana?.isPhantom) {
+      const resp = await window.solana.connect();
+      onWalletConnected(resp.publicKey.toString(), 'phantom');
+      closeWalletModal(); return;
+    }
+    // Not installed — redirect to open this page inside Phantom browser
+    _wcShowStatus('');
+    _wcSetBtnsDisabled(false);
+    const phantomLink = `https://phantom.app/ul/browse/${encodeURIComponent(window.location.href)}?ref=${encodeURIComponent('https://raiders-of-the-chain.vercel.app')}`;
+    _wcShowError('Phantom not installed. Tap to open in Phantom browser.');
+    document.getElementById('wcError').style.cursor = 'pointer';
+    document.getElementById('wcError').onclick = () => window.location.href = phantomLink;
+  } catch(e) {
+    _wcShowStatus('');
+    _wcSetBtnsDisabled(false);
+    _wcShowError(e.code === 4001 ? 'Cancelled.' : 'Phantom connection failed: ' + (e.message || e));
+  }
+}
+
+async function connectCoinbase() {
+  _wcShowError('');
+  _wcSetBtnsDisabled(true);
+  _wcShowStatus('Connecting Coinbase Wallet…');
+  try {
+    const provider =
+      window.coinbaseWalletExtension ||
+      (window.ethereum?.isCoinbaseWallet ? window.ethereum : null) ||
+      window.ethereum?.providers?.find(p => p.isCoinbaseWallet);
+    if (!provider) {
+      // No extension — fall through to WC QR (Coinbase Wallet mobile scans WC)
+      _wcShowStatus('');
+      _wcSetBtnsDisabled(false);
+      connectWalletConnect();
+      return;
+    }
+    const accounts = await provider.request({ method: 'eth_requestAccounts' });
+    onWalletConnected(accounts[0], 'coinbase');
     closeWalletModal();
-  } catch(e) { toast('✕', 'Connection rejected'); }
+  } catch(e) {
+    _wcShowStatus('');
+    _wcSetBtnsDisabled(false);
+    _wcShowError(e.code === 4001 ? 'Cancelled.' : 'Coinbase Wallet error: ' + (e.message || e));
+  }
+}
+
+// X Wallet = Coinbase Smart Wallet on Base — connects via WC QR
+// User opens X app → Wallet tab → scan QR. We show QR with a hint.
+function connectXWallet() {
+  _wcShowError('');
+  // Swap the hint text to explain X wallet flow
+  const hintEl = document.querySelector('#wcQrSection div');
+  if (hintEl) hintEl.textContent = 'Open X app → Wallet tab → tap QR icon → scan';
+  connectWalletConnect();
+}
+
+function _loadWCSdk(cb) {
+  if (_wcSdkLoaded) { cb(); return; }
+  _wcShowStatus('Loading WalletConnect…');
+  const s = document.createElement('script');
+  s.src = 'https://unpkg.com/@walletconnect/ethereum-provider@2.17.0/dist/index.umd.js';
+  s.onload = () => { _wcSdkLoaded = true; _wcShowStatus(''); cb(); };
+  s.onerror = () => { _wcShowStatus(''); _wcShowError('Could not load WalletConnect SDK.'); };
+  document.head.appendChild(s);
 }
 
 function connectWalletConnect() {
-  // WalletConnect v2 — deep link fallback
-  const wcUri = `https://metamask.app.link/dapp/${window.location.host}/dashboard.html`;
-  window.open(wcUri, '_blank');
-  toast('🔗', 'Opening WalletConnect...');
-  closeWalletModal();
+  _wcShowError('');
+  _wcSetBtnsDisabled(true);
+  document.getElementById('walletProviderBtns').style.display = 'none';
+  document.getElementById('wcQrSection').style.display = 'flex';
+  _loadWCSdk(async () => {
+    try {
+      const EthereumProvider = window.EthereumProvider ||
+        window.WalletConnectEthereumProvider ||
+        window['@walletconnect/ethereum-provider']?.EthereumProvider;
+      if (!EthereumProvider) throw new Error('EthereumProvider not in bundle');
+      _wcShowStatus('Generating QR…');
+      _wcProvider = await EthereumProvider.init({
+        projectId: WC_PROJECT_ID,
+        chains: [1, 8453],
+        showQrModal: false,
+        methods: ['eth_requestAccounts','eth_accounts','personal_sign','eth_sendTransaction'],
+        events: ['accountsChanged','chainChanged','disconnect'],
+        metadata: {
+          name: 'Raiders of the Chain',
+          description: 'GSB Raid Platform',
+          url: 'https://raiders-of-the-chain.vercel.app',
+          icons: ['https://raiders-of-the-chain.vercel.app/favicon.ico']
+        },
+      });
+      _wcShowStatus('');
+      _wcProvider.on('display_uri', uri => _renderWcQR(uri));
+      _wcProvider.on('connect', async () => {
+        document.getElementById('wcQrSection').style.display = 'none';
+        _wcShowStatus('Connected! Fetching address…');
+        try {
+          const accounts = await _wcProvider.request({ method: 'eth_accounts' });
+          if (accounts?.[0]) { onWalletConnected(accounts[0], 'walletconnect'); closeWalletModal(); }
+        } catch(e) { _wcShowError('Connected but address fetch failed.'); }
+      });
+      _wcProvider.on('disconnect', () => {
+        if (!document.getElementById('walletModal').classList.contains('open')) return;
+        cancelWalletConnect(); _wcShowError('WalletConnect session ended.');
+      });
+      await _wcProvider.enable();
+    } catch(e) {
+      document.getElementById('wcQrSection').style.display = 'none';
+      document.getElementById('walletProviderBtns').style.display = 'block';
+      _wcSetBtnsDisabled(false);
+      _wcShowError('WalletConnect error: ' + (e.message || e));
+    }
+  });
+}
+
+function _renderWcQR(uri) {
+  const box = document.getElementById('wcQrBox');
+  if (typeof QRCode !== 'undefined') {
+    box.innerHTML = '';
+    try { new QRCode(box, { text: uri, width: 200, height: 200, colorDark:'#000', colorLight:'#fff', correctLevel: QRCode.CorrectLevel.M }); return; }
+    catch(_) {}
+  }
+  // Load QR lib then render
+  const s = document.createElement('script');
+  s.src = 'https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js';
+  s.onload  = () => { box.innerHTML=''; new QRCode(box, { text:uri, width:200, height:200, colorDark:'#000', colorLight:'#fff' }); };
+  s.onerror = () => { box.innerHTML = `<img src="https://api.qrserver.com/v1/create-qr-code/?size=200x200&data=${encodeURIComponent(uri)}&margin=4" style="width:200px;height:200px;" />`; };
+  document.head.appendChild(s);
+}
+
+function cancelWalletConnect() {
+  document.getElementById('wcQrSection').style.display = 'none';
+  document.getElementById('walletProviderBtns').style.display = 'block';
+  _wcSetBtnsDisabled(false);
+  _wcShowError('');
+  if (_wcProvider) { try { _wcProvider.disconnect(); } catch(_) {} _wcProvider = null; }
 }
 
 function onWalletConnected(address, type) {
