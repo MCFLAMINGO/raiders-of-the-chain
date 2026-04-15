@@ -25,9 +25,9 @@
   --font-heading: 'Cinzel', serif;
   --font-body: 'IM Fell English', serif;
   --font-mono: 'Space Mono', monospace;
-  --text-xs: clamp(0.7rem, 0.65rem + 0.25vw, 0.8rem);
-  --text-sm: clamp(0.875rem, 0.8rem + 0.35vw, 1rem);
-  --text-base: clamp(1rem, 0.95rem + 0.25vw, 1.125rem);
+  --text-xs: clamp(0.78rem, 0.72rem + 0.25vw, 0.9rem);
+  --text-sm: clamp(0.9rem, 0.85rem + 0.35vw, 1.05rem);
+  --text-base: clamp(1rem, 0.95rem + 0.25vw, 1.15rem);
   --text-lg: clamp(1.1rem, 1rem + 0.6vw, 1.4rem);
   --text-xl: clamp(1.4rem, 1.1rem + 1.2vw, 2rem);
   --text-2xl: clamp(1.8rem, 1rem + 2.5vw, 3.2rem);
@@ -227,7 +227,7 @@ body {
 }
 .stat-label {
   font-family: var(--font-heading);
-  font-size: .6rem;
+  font-size: .78rem;
   color: var(--dust);
   text-transform: uppercase;
   letter-spacing: .12em;
@@ -271,7 +271,7 @@ body {
 
 .section-label {
   font-family: var(--font-heading);
-  font-size: .65rem;
+  font-size: .82rem;
   color: #A88840;
   text-transform: uppercase;
   letter-spacing: .25em;
@@ -341,7 +341,7 @@ body {
   background: var(--gold);
   color: var(--leather-dark);
   font-family: var(--font-heading);
-  font-size: .6rem;
+  font-size: .78rem;
   font-weight: 700;
   padding: .2rem .7rem;
   letter-spacing: .1em;
@@ -351,7 +351,7 @@ body {
 .bot-icon { font-size: 2rem; line-height: 1; filter: drop-shadow(0 0 8px rgba(200,150,12,.4)); }
 .bot-tag {
   font-family: var(--font-heading);
-  font-size: .6rem;
+  font-size: .78rem;
   color: #C8A030;
   text-transform: uppercase;
   letter-spacing: .2em;
@@ -377,7 +377,7 @@ body {
   border: 1px solid var(--gold-dim);
   padding: .625rem 1.25rem;
   font-family: var(--font-heading);
-  font-size: .65rem;
+  font-size: .82rem;
   font-weight: 700;
   letter-spacing: .1em;
   text-transform: uppercase;
@@ -434,19 +434,19 @@ body {
 .pricing-badge {
   position: absolute; top: 1rem; right: 1rem;
   background: var(--gold); color: var(--leather-dark);
-  font-family: var(--font-heading); font-size: .6rem; font-weight: 700;
+  font-family: var(--font-heading); font-size: .78rem; font-weight: 700;
   padding: .2rem .7rem; letter-spacing: .1em; text-transform: uppercase;
   clip-path: polygon(6px 0%, 100% 0%, calc(100% - 6px) 100%, 0% 100%);
 }
-.pricing-tier { font-family: var(--font-heading); font-size: .65rem; color: var(--gold-dim); text-transform: uppercase; letter-spacing: .2em; }
+.pricing-tier { font-family: var(--font-heading); font-size: .82rem; color: var(--gold-dim); text-transform: uppercase; letter-spacing: .2em; }
 .pricing-hero { display: flex; align-items: baseline; gap: .4rem; flex-wrap: wrap; }
 .pricing-amount { font-family: var(--font-heading); font-size: var(--text-2xl); font-weight: 700; color: var(--parchment); }
 .pricing-period { font-size: var(--text-xs); color: var(--dust); font-family: var(--font-heading); letter-spacing: .05em; }
 .pricing-features { list-style: none; display: flex; flex-direction: column; gap: .6rem; font-size: var(--text-sm); color: #B8A880; flex: 1; font-style: italic; }
 .pricing-features li { padding-left: 1.2rem; position: relative; }
-.pricing-features li::before { content: "✦"; color: var(--gold-dim); position: absolute; left: 0; font-size: .6rem; top: .25rem; }
+.pricing-features li::before { content: "✦"; color: var(--gold-dim); position: absolute; left: 0; font-size: .78rem; top: .25rem; }
 .payment-note { display: flex; align-items: center; gap: .5rem; justify-content: center; margin-top: 2.5rem; font-size: var(--text-xs); color: var(--dust); flex-wrap: wrap; text-align: center; font-family: var(--font-heading); letter-spacing: .04em; }
-.payment-note code { font-family: var(--font-mono); color: var(--gold-dim); font-size: .65rem; }
+.payment-note code { font-family: var(--font-mono); color: var(--gold-dim); font-size: .78rem; }
 
 /* ── DEPLOY FORM ─────────────────────────────────────────────────────────── */
 .deploy-form {
@@ -465,7 +465,7 @@ body {
 }
 .form-row { display: grid; grid-template-columns: 1fr 1fr; gap: 1.25rem; }
 .form-group { display: flex; flex-direction: column; gap: .5rem; }
-.form-label { font-family: var(--font-heading); font-size: .7rem; font-weight: 600; color: var(--gold-dim); text-transform: uppercase; letter-spacing: .1em; }
+.form-label { font-family: var(--font-heading); font-size: .85rem; font-weight: 600; color: var(--gold-dim); text-transform: uppercase; letter-spacing: .1em; }
 .req { color: var(--amber); }
 .form-input {
   background: rgba(0,0,0,.4);
@@ -502,8 +502,8 @@ body {
 .bot-select-card:hover { border-color: var(--gold-dim); }
 .bot-select-option input:checked + .bot-select-card { border-color: var(--gold); background: rgba(200,150,12,.12); }
 .bot-select-icon { font-size: 1.5rem; }
-.bot-select-name { font-family: var(--font-heading); font-size: .7rem; font-weight: 700; color: var(--parchment); letter-spacing: .06em; text-transform: uppercase; }
-.bot-select-price { font-family: var(--font-mono); font-size: .6rem; color: var(--dust); }
+.bot-select-name { font-family: var(--font-heading); font-size: .82rem; font-weight: 700; color: var(--parchment); letter-spacing: .06em; text-transform: uppercase; }
+.bot-select-price { font-family: var(--font-mono); font-size: .78rem; color: var(--dust); }
 
 /* SUCCESS */
 .hidden { display: none !important; }
@@ -529,12 +529,12 @@ body {
 .footer-brand p { font-size: var(--text-sm); color: var(--dust); line-height: 1.7; font-style: italic; }
 .footer-links { display: flex; gap: 3rem; }
 .footer-col { display: flex; flex-direction: column; gap: .6rem; }
-.footer-col-title { font-family: var(--font-heading); font-size: .6rem; text-transform: uppercase; letter-spacing: .15em; color: var(--gold-dim); margin-bottom: .25rem; }
+.footer-col-title { font-family: var(--font-heading); font-size: .78rem; text-transform: uppercase; letter-spacing: .15em; color: var(--gold-dim); margin-bottom: .25rem; }
 .footer-col a { font-size: var(--text-sm); color: var(--dust); transition: color 150ms; }
 .footer-col a:hover { color: var(--gold-bright); }
 .footer-bottom { max-width: 1100px; margin: 2rem auto 0; display: flex; flex-direction: column; gap: .4rem; }
-.footer-bottom p { font-family: var(--font-heading); font-size: .6rem; color: var(--stone); letter-spacing: .05em; text-align: center; }
-.footer-bottom code { font-family: var(--font-mono); color: var(--dust); font-size: .55rem; }
+.footer-bottom p { font-family: var(--font-heading); font-size: .78rem; color: var(--stone); letter-spacing: .05em; text-align: center; }
+.footer-bottom code { font-family: var(--font-mono); color: var(--dust); font-size: .72rem; }
 
 /* ── RESPONSIVE ──────────────────────────────────────────────────────────── */
 @media(max-width: 900px) {
