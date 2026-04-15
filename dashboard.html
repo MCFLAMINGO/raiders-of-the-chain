@@ -455,13 +455,13 @@
             <div class="action-icon raid">🐦</div>
             <div>
               <div class="action-name">Raid Token</div>
-              <div class="action-tagline">Mobilize agents on X — $0.50/raid</div>
+              <div class="action-tagline">Mobilize agents on X — 1% service fee</div>
             </div>
           </div>
           <button class="action-info-btn" onclick="event.stopPropagation();toggleInfo('raid')">?</button>
         </div>
         <div class="action-info-box" id="info-raid">
-          Sends agents to a target X post to reply, like, and amplify. You supply a post URL and talking points. $0.50 USDC per raid, charged via your connected wallet. Raids post from your connected X accounts (or @AGENTGASBIBLE if none connected).
+          Sends agents to a target X post to reply, like, and amplify. You supply a post URL and talking points. A 1% service fee is taken from each execution — no subscriptions, no upfront cost. Raids post from your connected X accounts (or @AGENTGASBIBLE if none connected).
         </div>
         <div class="action-body" id="body-raid">
           <div class="ac-form">
@@ -490,7 +490,7 @@
               <label>Talking Points</label>
               <textarea id="raid-msg" placeholder="Bullish on this token — volume up, community growing. NFA."></textarea>
             </div>
-            <button class="deploy-btn raid" id="btnRaid" onclick="launchRaid()">🐦 Deploy Raid — $0.50</button>
+            <button class="deploy-btn raid" id="btnRaid" onclick="launchRaid()">🐦 Deploy Raid</button>
           </div>
         </div>
       </div>
@@ -502,7 +502,7 @@
             <div class="action-icon dca">📈</div>
             <div>
               <div class="action-name">DCA Pump Bot</div>
-              <div class="action-tagline">Jupiter (SOL) + Uniswap (Base)</div>
+              <div class="action-tagline">1% per buy · no minimums · stop anytime</div>
             </div>
           </div>
           <button class="action-info-btn" onclick="event.stopPropagation();toggleInfo('dca')">?</button>
@@ -547,7 +547,7 @@
             <div class="action-icon thread">✍</div>
             <div>
               <div class="action-name">Thread + Post</div>
-              <div class="action-tagline">Write and deploy to X</div>
+              <div class="action-tagline">Free to generate · 1% fee if deployed</div>
             </div>
           </div>
           <button class="action-info-btn" onclick="event.stopPropagation();toggleInfo('thread')">?</button>
@@ -1231,7 +1231,7 @@ async function launchRaid() {
     toast('✕', 'Raid failed: ' + (e.message||'check logs'));
   }
 
-  btn.textContent = '🐦 Deploy Raid — $0.50';
+  btn.textContent = '🐦 Deploy Raid';
   btn.disabled = false;
 }
 
@@ -1244,7 +1244,7 @@ async function launchDca() {
   const budget = parseFloat(document.getElementById('dca-budget').value) || 0;
 
   if (!token) { toast('⚠', 'Enter a target token first'); return; }
-  if (!amount || amount < 0.5) { toast('⚠', 'Min per-buy is $0.50'); return; }
+  if (!amount || amount <= 0) { toast('⚠', 'Enter a buy amount'); return; }
 
   const btn = document.getElementById('btnDca');
   btn.textContent = 'Starting...';
