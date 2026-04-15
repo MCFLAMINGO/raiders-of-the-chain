@@ -509,7 +509,7 @@
           <button class="action-info-btn" onclick="event.stopPropagation();toggleInfo('dca')">?</button>
         </div>
         <div class="action-info-box" id="info-dca">
-          Dollar-cost averaging engine. Buys the target token on a schedule via Jupiter (Solana) or Uniswap (Base). Set amount, interval, and budget — agent buys automatically until budget is exhausted or you stop it.
+          Approve a one-time USDC spend limit from your connected wallet. Your wallet retains full control — no deposits, no custody. The DCA engine executes each buy on your schedule using your allowance, sending tokens directly to your wallet. 1% service fee per buy.
         </div>
         <div class="action-body" id="body-dca">
           <div class="ac-form">
@@ -534,7 +534,7 @@
               <label>Total Budget (USD)</label>
               <input type="number" id="dca-budget" placeholder="50">
             </div>
-            <button class="deploy-btn dca" id="btnDca" onclick="launchDca()">📈 Start DCA Bot</button>
+            <button class="deploy-btn dca" id="btnDca" onclick="launchDca()">📈 Approve & Start DCA</button>
           </div>
           <!-- Active DCA sessions -->
           <div class="dca-sessions" id="dcaSessions"></div>
@@ -901,6 +901,7 @@ function connectWalletConnect() {
         },
       });
       _wcShowStatus('');
+      window._wcProvider = _wcProvider;
       _wcProvider.on('display_uri', uri => _renderWcQR(uri));
       _wcProvider.on('connect', async () => {
         document.getElementById('wcQrSection').style.display = 'none';
@@ -1253,28 +1254,56 @@ async function resolveTokenAddress(ticker, chain) {
 
 async function launchDca() {
   if (!connectedWallet) { toast('⚠', 'Connect wallet first'); return; }
-  const token  = document.getElementById('cmd-token').value.trim();
+  const token = document.getElementById('cmd-token').value.trim();
   const amount = parseFloat(document.getElementById('dca-amount').value);
   const interval = document.getElementById('dca-interval').value;
-  const budget = parseFloat(document.getElementById('dca-budget').value) || 0;
+  const budget = parseFloat(document.getElementById('dca-budget').value);
 
   if (!token) { toast('⚠', 'Enter a target token first'); return; }
-  if (!amount || amount <= 0) { toast('⚠', 'Enter a buy amount'); return; }
+  if (!amount || amount <= 0) { toast('⚠', 'Enter a per-buy amount'); return; }
+  if (!budget || budget <= 0) { toast('⚠', 'Enter total budget'); return; }
+  if (budget < amount) { toast('⚠', 'Budget must be >= per-buy amount'); return; }
 
   const btn = document.getElementById('btnDca');
-  btn.textContent = 'Starting...';
+  btn.textContent = 'Approving USDC...';
   btn.disabled = true;
 
   try {
-    // Convert token name/ticker to address via DexScreener if needed
+    // Step 1: resolve token address
     const tokenAddress = token.startsWith('0x') || token.length > 30
-      ? token  // already an address
+      ? token
       : await resolveTokenAddress(token, selectedChain);
-    if (!tokenAddress) { toast('✕', 'Could not find token address for ' + token); btn.textContent = '📈 Start DCA Bot'; btn.disabled = false; return; }
+    if (!tokenAddress) { toast('✕', 'Token not found: ' + token); btn.textContent = '📈 Approve & Start DCA'; btn.disabled = false; return; }
 
-    const intervalMins = parseIntervalMinutes(interval);
-    const buyCount = budget > 0 ? Math.floor(budget / amount) : 10;
+    // Step 2: send USDC approval from user's wallet
+    const USDC_BASE = '0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913';
+    const ROUTER = '0x2626664c2603336E57B271c5C0b26F421741e481';
+    const approveAmount = BigInt(Math.round(budget * 1_000_000)); // USDC 6 decimals
+    // ERC-20 approve calldata: approve(address,uint256)
+    const approveData = '0x095ea7b3' +
+      ROUTER.slice(2).toLowerCase().padStart(64, '0') +
+      approveAmount.toString(16).padStart(64, '0');
 
+    // Get the right provider based on wallet type
+    let provider = window.ethereum;
+    if (connectedWallet.type === 'phantom-evm' && window.phantom?.ethereum) provider = window.phantom.ethereum;
+    if (connectedWallet.type === 'walletconnect' && window._wcProvider) provider = window._wcProvider;
+
+    toast('📝', 'Approve USDC in your wallet...');
+    const txHash = await provider.request({
+      method: 'eth_sendTransaction',
+      params: [{ from: connectedWallet.address, to: USDC_BASE, data: approveData }]
+    });
+
+    btn.textContent = 'Waiting for confirmation...';
+    toast('⏳', 'Waiting for approval tx...');
+
+    // Wait for tx confirmation by polling
+    await waitForTx(txHash, provider);
+    toast('✓', 'USDC approved! Starting DCA...');
+
+    // Step 3: register DCA session with backend
+    const buyCount = Math.floor(budget / amount);
     const res = await fetch(`${RAIDERS_API}/dca/start`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
@@ -1282,23 +1311,35 @@ async function launchDca() {
         wallet: connectedWallet.address,
         tokenAddress,
         chain: selectedChain,
-        solPerBuy: amount,
+        solPerBuy: amount,       // USD per buy
         buyCount,
-        intervalMinutes: intervalMins
+        intervalMinutes: parseIntervalMinutes(interval),
+        budgetUsdc: budget,
+        approvalTx: txHash,
       })
     });
     const data = await res.json();
     if (data.error) throw new Error(data.error);
 
-    addJob('DCA Bot', `DCA started: $${amount} ${token.toUpperCase()} every ${interval} on ${selectedChain}`, 'dca');
-    toast('📈', 'DCA bot live on ' + token.toUpperCase());
+    addJob('DCA Bot', `DCA started: $${amount}/buy × ${buyCount} buys, ${interval} interval — ${token.toUpperCase()} on ${selectedChain}`, 'dca');
+    toast('📈', `DCA live! ${buyCount} buys of $${amount} each`);
     loadDcaSessions();
   } catch(e) {
-    toast('✕', 'DCA failed: ' + (e.message||'check logs'));
+    toast('✕', 'DCA failed: ' + (e.message || String(e)));
   }
-
-  btn.textContent = '📈 Start DCA Bot';
+  btn.textContent = '📈 Approve & Start DCA';
   btn.disabled = false;
+}
+
+async function waitForTx(txHash, provider) {
+  for (let i = 0; i < 60; i++) {
+    await new Promise(r => setTimeout(r, 3000));
+    try {
+      const receipt = await provider.request({ method: 'eth_getTransactionReceipt', params: [txHash] });
+      if (receipt && receipt.blockNumber) return receipt;
+    } catch(_) {}
+  }
+  throw new Error('Transaction confirmation timeout');
 }
 
 function parseIntervalMinutes(s) {
