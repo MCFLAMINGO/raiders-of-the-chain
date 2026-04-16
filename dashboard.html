@@ -6,7 +6,7 @@
   <title>War Room — Raiders of the Chain</title>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;600;700;900&family=IM+Fell+English:ital@0;1&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="style.css">
   <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'><rect width='32' height='32' rx='4' fill='%23FF4D00'/><text x='16' y='22' text-anchor='middle' font-family='monospace' font-weight='900' font-size='16' fill='%23000'>⚔</text></svg>">
   <style>
@@ -91,6 +91,23 @@
       background: rgba(0,200,150,.08); color: #00c896;
       border: 1px solid rgba(0,200,150,.3);
     }
+    .chain-wallet-slot {
+      display: flex; flex-direction: column; align-items: flex-start;
+      background: #111; border: 1px solid #2a2a2a; border-radius: 8px;
+      padding: 6px 12px; cursor: pointer; min-width: 90px;
+      transition: border-color .15s;
+    }
+    .chain-wallet-slot:hover { border-color: #c9a84c; }
+    .chain-wallet-slot.connected { border-color: #00c896; }
+    .cw-chain {
+      font-size: 9px; font-weight: 700; letter-spacing: .1em;
+      color: #888; text-transform: uppercase; margin-bottom: 2px;
+    }
+    .chain-wallet-slot.connected .cw-chain { color: #00c896; }
+    .cw-addr {
+      font-size: 12px; font-weight: 500; color: #c9a84c; font-family: monospace;
+    }
+    .chain-wallet-slot.connected .cw-addr { color: #f0f0f0; }
     .btn-connect-x {
       font-family: 'Inter', system-ui, sans-serif; font-size: 13px; font-weight: 600;
       background: #1a1a1a; color: #1d9bf0;
@@ -630,7 +647,28 @@
   <!-- ══ WALLET + X CONNECT BAR ══ -->
   <div class="wallet-bar">
     <div class="wallet-bar-left">
-      <button class="btn-connect-wallet" id="btnConnectWallet" onclick="openWalletModal()">Connect Wallet</button>
+      <div id="chain-wallet-row" style="display:flex;gap:8px;flex-wrap:wrap;align-items:center;">
+        <div class="chain-wallet-slot" id="slot-base" onclick="openWalletModal('base')">
+          <span class="cw-chain">BASE</span>
+          <span class="cw-addr" id="cw-base">+ Connect</span>
+        </div>
+        <div class="chain-wallet-slot" id="slot-ethereum" onclick="openWalletModal('ethereum')">
+          <span class="cw-chain">ETH</span>
+          <span class="cw-addr" id="cw-ethereum">+ Connect</span>
+        </div>
+        <div class="chain-wallet-slot" id="slot-solana" onclick="openWalletModal('solana')">
+          <span class="cw-chain">SOL</span>
+          <span class="cw-addr" id="cw-solana">+ Connect</span>
+        </div>
+        <div class="chain-wallet-slot" id="slot-bsc" onclick="openWalletModal('bsc')">
+          <span class="cw-chain">BSC</span>
+          <span class="cw-addr" id="cw-bsc">+ Connect</span>
+        </div>
+        <div class="chain-wallet-slot" id="slot-arbitrum" onclick="openWalletModal('arbitrum')">
+          <span class="cw-chain">ARB</span>
+          <span class="cw-addr" id="cw-arbitrum">+ Connect</span>
+        </div>
+      </div>
       <span id="walletAddrDisplay" style="display:none;" class="wallet-addr"></span>
       <button class="btn-connect-x" id="btnConnectX" onclick="connectX()" disabled>+ Connect X Account</button>
       <div id="xAccountsBar"></div>
@@ -876,15 +914,15 @@
     <div class="modal-sub">Your wallet is your identity — private key never leaves your device.</div>
 
     <div id="walletProviderBtns">
-      <button class="modal-provider-btn" onclick="connectMetaMask()">
+      <button class="modal-provider-btn" id="btn-metamask" onclick="connectMetaMask()">
         <span style="font-size:1.3rem;">🦊</span>
         <span><strong>MetaMask</strong><br><span style="font-size:12px;color:#666;">Browser extension — Base / EVM</span></span>
       </button>
-      <button class="modal-provider-btn" onclick="connectPhantom()">
+      <button class="modal-provider-btn" id="btn-phantom" onclick="connectPhantom()">
         <span style="font-size:1.3rem;">👻</span>
         <span><strong>Phantom</strong><br><span style="font-size:12px;color:#666;">Solana + EVM</span></span>
       </button>
-      <button class="modal-provider-btn" onclick="connectCoinbase()">
+      <button class="modal-provider-btn" id="btn-coinbase" onclick="connectCoinbase()">
         <span style="font-size:1.3rem;">🔵</span>
         <span><strong>Coinbase Wallet</strong><br><span style="font-size:12px;color:#666;">Base-native · also X wallet</span></span>
       </button>
@@ -892,7 +930,7 @@
         <span style="font-size:1.3rem;">𝕏</span>
         <span><strong>X Wallet</strong><br><span style="font-size:12px;color:#666;">Scan QR from X app → Wallet tab</span></span>
       </button>
-      <button class="modal-provider-btn" onclick="connectWalletConnect()">
+      <button class="modal-provider-btn" id="btn-wc" onclick="connectWalletConnect()">
         <span style="font-size:1.3rem;">🔗</span>
         <span><strong>WalletConnect</strong><br><span style="font-size:12px;color:#666;">Any mobile wallet — Trust, Rainbow, etc.</span></span>
       </button>
@@ -965,7 +1003,25 @@ function toggleInfo(id) {
 const WC_PROJECT_ID = 'ff5dd5e462b92932d7b28c00b81695e8';
 let _wcProvider = null, _wcSdkLoaded = false;
 
-function openWalletModal() {
+let _connectingChain = null;
+
+function openWalletModal(chain) {
+  _connectingChain = chain || null;
+  const chainLabels = { base:'Base (EVM)', ethereum:'Ethereum (EVM)', solana:'Solana', bsc:'BNB Chain (EVM)', arbitrum:'Arbitrum (EVM)' };
+  const chainHints  = { base:'MetaMask, Phantom EVM, or Coinbase', ethereum:'MetaMask or WalletConnect', solana:'Phantom (Solana)', bsc:'MetaMask', arbitrum:'MetaMask or WalletConnect' };
+  const isSolana = chain === 'solana';
+
+  const labelEl = document.getElementById('modal-chain-label');
+  const hintEl  = document.getElementById('modal-chain-hint');
+  if (labelEl) labelEl.textContent = chain ? (chainLabels[chain] || chain) : 'All Chains';
+  if (hintEl)  hintEl.textContent  = chain ? (chainHints[chain]  || 'Choose your wallet') : 'Choose your wallet provider';
+
+  // Show/hide providers by chain
+  const mm = document.getElementById('btn-metamask');
+  const cb = document.getElementById('btn-coinbase');
+  if (mm) mm.style.display = isSolana ? 'none' : 'flex';
+  if (cb) cb.style.display = isSolana ? 'none' : 'flex';
+
   // reset state
   document.getElementById('walletProviderBtns').style.display = 'block';
   document.getElementById('wcQrSection').style.display = 'none';
@@ -1172,36 +1228,68 @@ function cancelWalletConnect() {
   if (_wcProvider) { try { _wcProvider.disconnect(); } catch(_) {} _wcProvider = null; }
 }
 
+// Per-chain wallet registry (persisted in localStorage)
+let chainWallets = JSON.parse(localStorage.getItem('raiders_chain_wallets') || '{}');
+
+function updateChainSlotUI() {
+  const evmChains = ['base','ethereum','bsc','arbitrum'];
+  // Reset all
+  [...evmChains, 'solana'].forEach(c => {
+    const el   = document.getElementById('cw-' + c);
+    const slot = document.getElementById('slot-' + c);
+    if (el)   el.textContent = '+ Connect';
+    if (slot) slot.classList.remove('connected');
+  });
+  // Apply stored wallets
+  Object.entries(chainWallets).forEach(([chain, w]) => {
+    const el   = document.getElementById('cw-' + chain);
+    const slot = document.getElementById('slot-' + chain);
+    const short = w.address.slice(0,4) + '..' + w.address.slice(-4);
+    if (el)   el.textContent = short;
+    if (slot) slot.classList.add('connected');
+  });
+}
+
 function onWalletConnected(address, type) {
   connectedWallet = { address, type };
+
+  // Store per chain
+  const isSolana = (type === 'phantom' && !address.startsWith('0x')) || type === 'solana';
+  const targetChain = _connectingChain || (isSolana ? 'solana' : 'base');
+  if (isSolana) {
+    chainWallets['solana'] = { address, type };
+  } else {
+    // EVM wallet covers all EVM chains
+    ['base','ethereum','bsc','arbitrum'].forEach(c => { chainWallets[c] = { address, type }; });
+  }
+  localStorage.setItem('raiders_chain_wallets', JSON.stringify(chainWallets));
+  updateChainSlotUI();
 
   // Update UI
   const short = address.slice(0,6) + '...' + address.slice(-4);
   document.getElementById('stat-wallet').textContent = short;
   document.getElementById('stat-wallet-sub').textContent = type;
-  document.getElementById('walletAddrDisplay').textContent = short;
-  document.getElementById('walletAddrDisplay').style.display = '';
-
-  const btn = document.getElementById('btnConnectWallet');
-  btn.textContent = short;
-  btn.classList.add('connected');
+  const addrEl = document.getElementById('walletAddrDisplay');
+  if (addrEl) { addrEl.textContent = short; addrEl.style.display = ''; }
 
   document.getElementById('btnConnectX').disabled = false;
   document.getElementById('walletStatus').textContent = 'Wallet connected — add X accounts to raid';
-
   toast('✅', 'Wallet connected: ' + short);
 
-  // Load X accounts and jobs
+  // Load data
   loadXAccounts();
   loadJobs();
   loadDcaSessions();
 }
 
 // ── X OAUTH ──────────────────────────────────────────────────────────────────
-function connectX() {
+async function connectX() {
   if (!connectedWallet) { toast('⚠', 'Connect wallet first'); return; }
-  const url = `${RAIDERS_API}/auth/x/start?wallet=${encodeURIComponent(connectedWallet.address)}`;
-  const popup = window.open(url, 'x_oauth', 'width=600,height=700,left=200,top=100');
+  try {
+    const res  = await fetch(`${RAIDERS_API}/auth/x/start?wallet=${encodeURIComponent(connectedWallet.address)}`);
+    const data = await res.json();
+    if (data.error) { toast('✕', 'X Auth error: ' + data.error); return; }
+    const popup = window.open(data.authUrl, 'x_oauth', 'width=600,height=700,left=200,top=100');
 
   // Poll for callback
   const poll = setInterval(() => {
