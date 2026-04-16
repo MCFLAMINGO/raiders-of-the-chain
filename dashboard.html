@@ -1198,10 +1198,13 @@ function onWalletConnected(address, type) {
 }
 
 // ── X OAUTH ──────────────────────────────────────────────────────────────────
-function connectX() {
+async function connectX() {
   if (!connectedWallet) { toast('⚠', 'Connect wallet first'); return; }
-  const url = `${RAIDERS_API}/auth/x/start?wallet=${encodeURIComponent(connectedWallet.address)}`;
-  const popup = window.open(url, 'x_oauth', 'width=600,height=700,left=200,top=100');
+  try {
+    const res  = await fetch(`${RAIDERS_API}/auth/x/start?wallet=${encodeURIComponent(connectedWallet.address)}`);
+    const data = await res.json();
+    if (data.error) { toast('✕', 'X Auth error: ' + data.error); return; }
+    const popup = window.open(data.authUrl, 'x_oauth', 'width=600,height=700,left=200,top=100');
 
   // Poll for callback
   const poll = setInterval(() => {
