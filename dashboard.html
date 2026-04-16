@@ -9,7 +9,571 @@
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="style.css">
   <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'><rect width='32' height='32' rx='4' fill='%23FF4D00'/><text x='16' y='22' text-anchor='middle' font-family='monospace' font-weight='900' font-size='16' fill='%23000'>⚔</text></svg>">
-  <!-- styles in style.css -->
+  <style>
+    *, *::before, *::after { box-sizing: border-box; }
+
+    /* ── WAR ROOM SHELL ── */
+    .wr-shell {
+      display: grid;
+      grid-template-columns: 300px 1fr 220px;
+      grid-template-rows: auto auto 1fr;
+      min-height: calc(100vh - 56px);
+      background: #0a0a0a;
+    }
+
+    /* ── STATS BAR ── */
+    .wr-statsbar {
+      grid-column: 1 / -1;
+      display: grid;
+      grid-template-columns: repeat(6, 1fr);
+      gap: 0;
+      background: #111;
+      border-bottom: 1px solid #222;
+    }
+    .wr-stat {
+      padding: 14px 18px;
+      display: flex; flex-direction: column; gap: 2px;
+      border-right: 1px solid #1a1a1a;
+    }
+    .wr-stat:last-child { border-right: none; }
+    .wr-stat-label {
+      font-family: 'Inter', system-ui, sans-serif;
+      font-size: 11px; font-weight: 500;
+      color: #888; text-transform: uppercase;
+      letter-spacing: 0.1em;
+    }
+    .wr-stat-val {
+      font-family: 'Inter', system-ui, sans-serif;
+      font-size: 28px; font-weight: 700;
+      color: #f0f0f0;
+    }
+    .wr-stat-val.green { color: #00c896; }
+    .wr-stat-val.red   { color: #ff4444; }
+    .wr-stat-sub {
+      font-family: 'Inter', system-ui, sans-serif;
+      font-size: 12px; color: #666;
+    }
+
+    /* ── WALLET CONNECT BAR ── */
+    .wallet-bar {
+      grid-column: 1 / -1;
+      display: flex; align-items: center; justify-content: space-between;
+      padding: 12px 20px;
+      background: #0d0d0d;
+      border-bottom: 1px solid #222;
+      flex-wrap: wrap; gap: 8px;
+    }
+    .wallet-bar-left { display: flex; align-items: center; gap: 10px; flex-wrap: wrap; }
+    .wallet-addr {
+      font-family: 'Inter', system-ui, sans-serif; font-size: 13px;
+      color: #c9a84c; background: rgba(201,168,76,.08);
+      border: 1px solid rgba(201,168,76,.2); border-radius: 20px;
+      padding: 6px 14px;
+    }
+    .x-account-pill {
+      display: inline-flex; align-items: center; gap: 6px;
+      font-family: 'Inter', system-ui, sans-serif; font-size: 13px;
+      background: rgba(29,155,240,.08); border: 1px solid rgba(29,155,240,.25);
+      color: #1d9bf0; border-radius: 20px; padding: 6px 14px;
+      cursor: pointer; transition: background .15s;
+    }
+    .x-account-pill:hover { background: rgba(29,155,240,.15); }
+    .x-account-pill .remove-x { color: #ff4444; margin-left: 4px; font-size: 12px; }
+    .btn-connect-wallet {
+      font-family: 'Inter', system-ui, sans-serif; font-size: 13px; font-weight: 600;
+      background: #1a1a1a; color: #c9a84c;
+      border: 1px solid #c9a84c; border-radius: 20px;
+      padding: 8px 18px; cursor: pointer;
+      transition: all .15s; min-height: 36px;
+    }
+    .btn-connect-wallet:hover { background: rgba(201,168,76,.1); }
+    .btn-connect-wallet.connected {
+      background: rgba(0,200,150,.08); color: #00c896;
+      border: 1px solid rgba(0,200,150,.3);
+    }
+    .btn-connect-x {
+      font-family: 'Inter', system-ui, sans-serif; font-size: 13px; font-weight: 600;
+      background: #1a1a1a; color: #1d9bf0;
+      border: 1px solid #1d9bf0; border-radius: 20px;
+      padding: 8px 18px; cursor: pointer;
+      transition: all .15s; min-height: 36px;
+    }
+    .btn-connect-x:hover { background: rgba(29,155,240,.1); }
+    .btn-connect-x:disabled { opacity: .35; cursor: not-allowed; }
+
+    /* ── LEFT: COMMAND PANEL ── */
+    .cmd-panel {
+      background: #0d0d0d;
+      border-right: 1px solid #222;
+      overflow-y: auto;
+      height: calc(100vh - 56px - 64px - 52px);
+      display: flex; flex-direction: column;
+    }
+    .cmd-panel::-webkit-scrollbar { width: 3px; }
+    .cmd-panel::-webkit-scrollbar-thumb { background: #333; border-radius: 2px; }
+
+    .cmd-target {
+      padding: 16px 16px 12px;
+      border-bottom: 1px solid #1a1a1a;
+      background: #0a0a0a;
+    }
+    .cmd-target-label {
+      font-family: 'Inter', system-ui, sans-serif;
+      font-size: 11px; font-weight: 500;
+      color: #666; text-transform: uppercase;
+      letter-spacing: 0.1em; margin-bottom: 8px;
+    }
+    .cmd-target-input {
+      width: 100%; background: #0a0a0a;
+      border: 1px solid #333; border-radius: 8px;
+      padding: 10px 14px; height: 44px;
+      font-family: 'Inter', system-ui, sans-serif;
+      font-size: 15px; color: #f0f0f0; outline: none;
+      transition: border-color .15s, box-shadow .15s;
+    }
+    .cmd-target-input:focus { border-color: #c9a84c; box-shadow: 0 0 0 2px rgba(201,168,76,.12); }
+    .cmd-target-input::placeholder { color: #555; }
+    .cmd-chain-row { display: flex; gap: 6px; margin-top: 10px; }
+    .cmd-chain-btn {
+      flex: 1; padding: 6px 4px; height: 28px;
+      font-family: 'Inter', system-ui, sans-serif; font-size: 11px; font-weight: 500;
+      text-transform: uppercase;
+      background: #1a1a1a; border: 1px solid #333;
+      color: #888; border-radius: 6px; cursor: pointer; transition: all .15s;
+    }
+    .cmd-chain-btn:hover { color: #f0f0f0; border-color: #444; }
+    .cmd-chain-btn.active { border-color: #c9a84c; color: #c9a84c; background: rgba(201,168,76,.06); font-weight: 600; }
+
+    /* ── ALPHA SCANNER PANEL ── */
+    .alpha-panel {
+      margin: 12px;
+      background: #111;
+      border: 1px solid #1a1a1a;
+      border-radius: 12px;
+      overflow: hidden;
+    }
+    .alpha-head {
+      display: flex; align-items: center; justify-content: space-between;
+      padding: 10px 14px;
+      background: #0d0d0d;
+      border-bottom: 1px solid #1a1a1a;
+    }
+    .alpha-title {
+      font-family: 'Inter', system-ui, sans-serif;
+      font-size: 13px; font-weight: 600; color: #f0f0f0;
+      text-transform: uppercase; letter-spacing: 0.04em;
+    }
+    .alpha-scan-btn {
+      font-family: 'Inter', system-ui, sans-serif; font-size: 12px; font-weight: 600;
+      background: rgba(201,168,76,.08); color: #c9a84c;
+      border: 1px solid rgba(201,168,76,.2); border-radius: 6px;
+      padding: 6px 14px; cursor: pointer; transition: all .15s;
+    }
+    .alpha-scan-btn:hover { background: rgba(201,168,76,.15); }
+    .alpha-results { padding: 6px 8px; max-height: 180px; overflow-y: auto; }
+    .alpha-token-row {
+      display: flex; align-items: center; justify-content: space-between;
+      padding: 6px 8px; border-radius: 6px; cursor: pointer;
+      transition: background .1s;
+    }
+    .alpha-token-row:hover { background: rgba(255,255,255,.03); }
+    .alpha-token-sym { font-family: 'Inter', system-ui, sans-serif; font-size: 13px; color: #f0f0f0; font-weight: 600; }
+    .alpha-token-meta { font-family: 'Inter', system-ui, sans-serif; font-size: 12px; color: #666; }
+    .alpha-token-change { font-family: 'Inter', system-ui, sans-serif; font-size: 13px; font-weight: 600; }
+    .alpha-token-change.pos { color: #00c896; }
+    .alpha-token-change.neg { color: #ff4444; }
+    .alpha-empty { font-family: 'Inter', system-ui, sans-serif; font-size: 12px; color: #555; padding: 12px 8px; text-align: center; }
+
+    /* action cards */
+    .cmd-actions { padding: 12px 12px 24px; display: flex; flex-direction: column; gap: 8px; }
+
+    .action-card { padding: 20px !important;
+      background: #111; border: 1px solid #1a1a1a;
+      border-radius: 12px; overflow: hidden; transition: border-color .15s;
+    }
+    .action-card:hover { border-color: #333; }
+
+    .action-card-head {
+      display: flex; align-items: center; justify-content: space-between;
+      padding: 14px 16px; cursor: pointer; user-select: none;
+    }
+    .action-card-left { display: flex; align-items: center; gap: 12px; }
+    .action-icon {
+      width: 32px; height: 32px; border-radius: 50%;
+      background: #1a1a1a;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 14px; flex-shrink: 0;
+    }
+    .action-icon.raid   { background: rgba(201,168,76,.1); }
+    .action-icon.buy    { background: rgba(0,200,150,.1); }
+    .action-icon.thread { background: rgba(59,130,246,.1); }
+    .action-icon.dca    { background: rgba(201,168,76,.1); }
+
+    .action-name {
+      font-family: 'Inter', system-ui, sans-serif;
+      font-size: 15px; font-weight: 700; color: #f0f0f0;
+    }
+    .action-tagline { white-space: normal !important; overflow: visible !important; text-overflow: unset !important;
+      font-family: 'Inter', system-ui, sans-serif;
+      font-size: 12px; color: #888; margin-top: 1px;
+      white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+    }
+
+    .action-info-btn {
+      width: 20px; height: 20px; border-radius: 50%;
+      background: transparent; border: 1px solid #333;
+      color: #666; font-family: 'Inter', system-ui, sans-serif;
+      font-size: 11px; font-weight: 600; cursor: pointer; flex-shrink: 0;
+      display: flex; align-items: center; justify-content: center;
+      transition: all .15s; line-height: 1;
+    }
+    .action-info-btn:hover { border-color: #555; color: #aaa; }
+
+    .action-info-box {
+      display: none; padding: 10px 16px 14px;
+      font-family: 'Inter', system-ui, sans-serif;
+      font-size: 13px; color: #888; line-height: 1.6;
+      border-top: 1px solid #1a1a1a; background: #0d0d0d;
+    }
+    .action-info-box.open { display: block; }
+
+    .action-body {
+      display: none; padding: 0 16px 16px;
+      border-top: 1px solid #1a1a1a;
+    }
+    .action-body.open { display: block; }
+
+    .deploy-btn {
+      width: 100%; padding: 0; height: 48px;
+      font-family: 'Inter', system-ui, sans-serif;
+      font-size: 14px; font-weight: 700;
+      text-transform: uppercase; letter-spacing: 0.05em;
+      border: none; border-radius: 8px; cursor: pointer;
+      display: flex; align-items: center; justify-content: center; gap: 8px;
+      transition: all .15s; position: relative; overflow: hidden;
+    }
+    .deploy-btn:active { transform: scale(.98); }
+    .deploy-btn:disabled { opacity: .4; cursor: not-allowed; }
+
+    .deploy-btn.raid   { background: #c9a84c; color: #000; }
+    .deploy-btn.raid:hover:not(:disabled)   { background: #d4b85c; }
+    .deploy-btn.buy    { background: #c9a84c; color: #000; }
+    .deploy-btn.buy:hover:not(:disabled)    { background: #d4b85c; }
+    .deploy-btn.thread { background: #c9a84c; color: #000; }
+    .deploy-btn.thread:hover:not(:disabled) { background: #d4b85c; }
+    .deploy-btn.dca    { background: #c9a84c; color: #000; }
+    .deploy-btn.dca:hover:not(:disabled)    { background: #d4b85c; }
+
+    .ac-form { display: grid; gap: 10px; margin-top: 12px; }
+    .ac-row  { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+    .ac-field label {
+      display: block;
+      font-family: 'Inter', system-ui, sans-serif;
+      font-size: 11px; font-weight: 500;
+      color: #666; text-transform: uppercase;
+      letter-spacing: 0.06em; margin-bottom: 6px;
+    }
+    .ac-field input, .ac-field select, .ac-field textarea {
+      width: 100%; background: #0a0a0a; border: 1px solid #333;
+      border-radius: 8px; padding: 10px 12px;
+      font-family: 'Inter', system-ui, sans-serif;
+      font-size: 13px; color: #f0f0f0; outline: none;
+      transition: border-color .15s;
+    }
+    .ac-field input:focus, .ac-field select:focus, .ac-field textarea:focus { border-color: #c9a84c; }
+    .ac-field select option { background: #111; color: #f0f0f0; }
+    .ac-field textarea { resize: vertical; min-height: 56px; line-height: 1.5; }
+
+    /* DCA sessions */
+    .dca-sessions { margin-top: 8px; display: flex; flex-direction: column; gap: 4px; }
+    .dca-session-row {
+      display: flex; align-items: center; justify-content: space-between;
+      padding: 8px 12px;
+      background: rgba(201,168,76,.04); border: 1px solid #222; border-radius: 8px;
+      font-family: 'Inter', system-ui, sans-serif; font-size: 12px; color: #aaa;
+    }
+    .dca-stop-btn {
+      font-family: 'Inter', system-ui, sans-serif; font-size: 12px; font-weight: 600;
+      background: #1a1a1a; color: #ff4444;
+      border: 1px solid #ff4444; border-radius: 6px;
+      padding: 4px 10px; cursor: pointer; transition: all .15s;
+    }
+    .dca-stop-btn:hover { background: rgba(255,68,68,.1); }
+
+    /* X account sections */
+    .x-accounts-list { display: flex; flex-direction: column; gap: 4px; margin-top: 8px; }
+    .x-acct-row {
+      display: flex; align-items: center; justify-content: space-between;
+      padding: 6px 12px;
+      background: rgba(29,155,240,.04); border: 1px solid rgba(29,155,240,.15); border-radius: 8px;
+      font-family: 'Inter', system-ui, sans-serif; font-size: 13px; color: #1d9bf0;
+    }
+    .x-acct-remove { color: #ff4444; cursor: pointer; padding: 0 4px; transition: color .15s; }
+    .x-acct-remove:hover { color: #ff6666; }
+
+    /* ── CENTER: JOB FEED ── */
+    .job-feed {
+      display: flex; flex-direction: column; overflow: hidden;
+      height: calc(100vh - 56px - 64px - 52px);
+      background: #0a0a0a;
+    }
+    .job-feed-head {
+      display: flex; align-items: center; justify-content: space-between;
+      padding: 12px 16px;
+      background: #0d0d0d;
+      border-bottom: 1px solid #222;
+      flex-shrink: 0;
+    }
+    .job-feed-title {
+      font-family: 'Inter', system-ui, sans-serif;
+      font-size: 10px; font-weight: 500;
+      color: #888; text-transform: uppercase;
+      letter-spacing: 0.1em;
+      display: flex; align-items: center; gap: 8px;
+    }
+    .live-dot { width: 7px; height: 7px; border-radius: 50%; background: #00c896; animation: pulse 1.5s infinite; }
+    .live-dot.red { background: #ff4444; }
+    .job-filter-tabs { display: flex; gap: 4px; }
+    .jf-tab {
+      padding: 6px 12px;
+      font-family: 'Inter', system-ui, sans-serif;
+      font-size: 12px; font-weight: 500;
+      background: transparent; border: none;
+      color: #666; border-radius: 6px; cursor: pointer;
+      transition: all .15s;
+    }
+    .jf-tab:hover { color: #aaa; background: #1a1a1a; }
+    .jf-tab.active { background: #222; color: #f0f0f0; }
+    .jf-tab-clear { color: #555 !important; }
+
+    .job-scroll { flex: 1; overflow-y: auto; padding: 0; }
+    .job-scroll::-webkit-scrollbar { width: 3px; }
+    .job-scroll::-webkit-scrollbar-thumb { background: #333; border-radius: 2px; }
+
+    .job-row {
+      display: grid; grid-template-columns: 72px 90px 1fr auto auto;
+      gap: 8px; align-items: center;
+      padding: 10px 16px; min-height: 44px;
+      border-bottom: 1px solid #1a1a1a;
+      transition: background .1s;
+    }
+    .job-row:nth-child(odd) { background: #0d0d0d; }
+    .job-row:nth-child(even) { background: #111; }
+    .job-row:hover { background: #1a1a1a; }
+    .job-row.new { animation: rowSlide .3s ease both; }
+    .job-time {
+      font-family: 'Inter', system-ui, sans-serif;
+      font-size: 12px; color: #555;
+    }
+    .job-agent {
+      font-family: 'Inter', system-ui, sans-serif;
+      font-size: 13px; color: #f0f0f0; font-weight: 600;
+    }
+    .job-msg {
+      font-family: 'Inter', system-ui, sans-serif;
+      font-size: 13px; color: #aaa; line-height: 1.4;
+      white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+    }
+    .job-badge {
+      padding: 3px 8px; border-radius: 4px;
+      font-family: 'Inter', system-ui, sans-serif;
+      font-size: 11px; font-weight: 600; white-space: nowrap;
+    }
+    .jb-buy    { background: rgba(0,200,150,.1);  color: #00c896; }
+    .jb-raid   { background: rgba(59,130,246,.1);  color: #60a5fa; }
+    .jb-post   { background: rgba(168,85,247,.1);  color: #a855f7; }
+    .jb-swap   { background: rgba(201,168,76,.1);  color: #c9a84c; }
+    .jb-arb    { background: rgba(236,72,153,.1);  color: #f472b6; }
+    .jb-dca    { background: rgba(201,168,76,.1);  color: #c9a84c; }
+    .jb-alpha  { background: rgba(0,200,150,.1);   color: #00c896; }
+    .feed-empty {
+      display: flex; flex-direction: column; align-items: center;
+      justify-content: center; height: 100%; gap: 8px;
+      font-family: 'Inter', system-ui, sans-serif;
+      font-size: 14px; color: #444;
+    }
+    .feed-empty-icon { font-size: 2rem; opacity: .2; }
+
+    /* ── RIGHT: AGENT ROSTER ── */
+    .agent-roster {
+      background: #0d0d0d; border-left: 1px solid #222;
+      overflow-y: auto;
+      height: calc(100vh - 56px - 64px - 52px);
+    }
+    .agent-roster::-webkit-scrollbar { width: 3px; }
+    .agent-roster::-webkit-scrollbar-thumb { background: #333; border-radius: 2px; }
+
+    .roster-head {
+      padding: 14px 14px 10px;
+      border-bottom: 1px solid #1a1a1a;
+      background: #0d0d0d; position: sticky; top: 0; z-index: 2;
+    }
+    .roster-title {
+      font-family: 'Inter', system-ui, sans-serif;
+      font-size: 10px; font-weight: 500;
+      color: #888; text-transform: uppercase;
+      letter-spacing: 0.1em;
+    }
+    .roster-subtitle {
+      font-family: 'Inter', system-ui, sans-serif;
+      font-size: 12px; color: #555; margin-top: 2px;
+    }
+
+    .roster-body { padding: 8px; }
+
+    .agent-chip {
+      display: flex; align-items: center; gap: 10px;
+      padding: 8px 10px; height: 40px;
+      background: #111; border: 1px solid #1a1a1a;
+      border-radius: 8px; margin-bottom: 6px;
+      position: relative; overflow: hidden; transition: border-color .15s;
+    }
+    .agent-chip:hover { border-color: #333; }
+    .agent-chip::before { content: ''; position: absolute; left: 0; top: 0; bottom: 0; width: 2px; }
+    .agent-chip.buying::before  { background: #00c896; }
+    .agent-chip.raiding::before { background: #60a5fa; }
+    .agent-chip.posting::before { background: #a855f7; }
+    .agent-chip.idle::before    { background: #333; }
+
+    .agent-chip-avatar {
+      width: 32px; height: 32px; border-radius: 50%; flex-shrink: 0;
+      background: #1a1a1a;
+      display: flex; align-items: center; justify-content: center;
+      font-family: 'Inter', system-ui, sans-serif;
+      font-size: 12px; font-weight: 700; color: #f0f0f0;
+    }
+    .agent-chip-info { flex: 1; min-width: 0; }
+    .agent-chip-name {
+      font-family: 'Inter', system-ui, sans-serif;
+      font-size: 13px; font-weight: 600; color: #f0f0f0;
+      white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+    }
+    .agent-chip-action {
+      font-family: 'Inter', system-ui, sans-serif;
+      font-size: 11px; color: #666;
+      white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+      margin-top: 1px;
+    }
+    .agent-chip-status { flex-shrink: 0; }
+
+    .status-dot { width: 8px; height: 8px; border-radius: 50%; }
+    .status-dot.buying  { background: #00c896; animation: pulse 1.5s infinite; }
+    .status-dot.raiding { background: #60a5fa; animation: pulse 1.5s infinite; }
+    .status-dot.posting { background: #a855f7; animation: pulse 1.5s infinite; }
+    .status-dot.idle    { background: #444; }
+
+    .agent-chip-stats { display: flex; gap: 8px; margin-top: 4px; }
+    .ac-stat-val { font-family: 'Inter', system-ui, sans-serif; font-size: 12px; color: #c9a84c; font-weight: 600; }
+    .ac-stat-lbl { font-family: 'Inter', system-ui, sans-serif; font-size: 10px; color: #666; text-transform: uppercase; letter-spacing: 0.06em; }
+
+    .cmd-settings {
+      margin-top: auto;
+      border-top: 1px solid #1a1a1a;
+      padding: 12px 14px;
+    }
+    .cmd-settings-title {
+      font-family: 'Inter', system-ui, sans-serif;
+      font-size: 10px; font-weight: 500;
+      color: #666; text-transform: uppercase;
+      letter-spacing: 0.1em; margin-bottom: 8px;
+    }
+
+    .wr-btn {
+      display: inline-flex; align-items: center; gap: 6px;
+      padding: 8px 14px;
+      font-family: 'Inter', system-ui, sans-serif;
+      font-size: 13px; font-weight: 600;
+      border-radius: 8px; cursor: pointer; border: none;
+      transition: all .15s;
+    }
+    .wr-btn-dim { background: #1a1a1a; color: #888; border: 1px solid #333; }
+    .wr-btn-dim:hover { background: #222; color: #f0f0f0; }
+    .wr-btn-sm { padding: 6px 12px; font-size: 12px; }
+    .wr-btn-gold { background: #c9a84c; color: #000; }
+    .wr-btn-gold:hover { background: #d4b85c; }
+
+    /* TOAST */
+    .wr-toast {
+      position: fixed; bottom: 24px; right: 24px; z-index: 999;
+      background: #1a1a1a; border: 1px solid #333;
+      border-radius: 10px; padding: 12px 18px;
+      font-family: 'Inter', system-ui, sans-serif;
+      font-size: 13px; color: #f0f0f0;
+      display: flex; align-items: center; gap: 8px;
+      transform: translateY(100px); opacity: 0;
+      transition: all .3s; pointer-events: none;
+      max-width: 380px;
+      box-shadow: 0 8px 32px rgba(0,0,0,.5);
+    }
+    .wr-toast.show { transform: translateY(0); opacity: 1; }
+
+    /* CONNECT MODAL */
+    .modal-overlay {
+      position: fixed; inset: 0;
+      background: rgba(0,0,0,.8); backdrop-filter: blur(4px);
+      z-index: 200; display: flex; align-items: center; justify-content: center;
+      opacity: 0; pointer-events: none; transition: opacity .2s;
+    }
+    .modal-overlay.open { opacity: 1; pointer-events: all; }
+    .modal-box {
+      background: #1a1a1a; border: 1px solid #333;
+      border-radius: 16px; padding: 24px; max-width: 380px; width: 90%;
+    }
+    .modal-title {
+      font-family: 'Inter', system-ui, sans-serif;
+      font-size: 18px; font-weight: 700; color: #f0f0f0;
+      margin-bottom: 6px;
+    }
+    .modal-sub {
+      font-family: 'Inter', system-ui, sans-serif;
+      font-size: 13px; color: #888; margin-bottom: 16px; line-height: 1.6;
+    }
+    .modal-provider-btn {
+      width: 100%; display: flex; align-items: center; gap: 12px;
+      padding: 12px 16px; background: #111;
+      border: 1px solid #222; border-radius: 10px;
+      font-family: 'Inter', system-ui, sans-serif;
+      font-size: 14px; color: #f0f0f0; cursor: pointer;
+      transition: all .15s; margin-bottom: 6px; min-height: 48px;
+    }
+    .modal-provider-btn:hover { border-color: #444; background: #1a1a1a; }
+    .modal-close {
+      float: right; background: none; border: none;
+      color: #666; font-size: 18px; cursor: pointer; margin-top: -4px;
+    }
+    .modal-close:hover { color: #aaa; }
+
+    @media (max-width: 1100px) {
+      .wr-shell { grid-template-columns: 280px 1fr 0px; }
+      .agent-roster { display: none; }
+    }
+    @media (max-width: 760px) {
+      .wr-shell { grid-template-columns: 1fr; }
+      .wr-statsbar { grid-template-columns: repeat(3,1fr); }
+      .cmd-panel, .agent-roster { height: auto; }
+      .job-feed { height: 60vh; }
+    }
+
+    @keyframes pulse { 0%,100%{opacity:1} 50%{opacity:.4} }
+    @keyframes fadeIn { from{opacity:0;transform:translateY(4px)} to{opacity:1;transform:translateY(0)} }
+    @keyframes rowSlide { from{opacity:0;transform:translateX(-6px)} to{opacity:1;transform:translateX(0)} }
+    .fade-in { animation: fadeIn .2s ease both; }
+
+    .progress-wrap { background: #1a1a1a; border-radius: 20px; height: 3px; margin: 4px 0; overflow: hidden; }
+    .progress-bar { height: 100%; border-radius: 20px; background: linear-gradient(90deg,#a08030,#c9a84c); transition: width .5s; }
+
+    /* Send to Telegram button */
+    .btn-tg {
+      padding: 4px 8px; height: 28px;
+      font-family: 'Inter', system-ui, sans-serif;
+      font-size: 11px; font-weight: 600;
+      background: rgba(0,136,204,.08); color: #38bdf8;
+      border: 1px solid rgba(0,136,204,.2); border-radius: 6px;
+      cursor: pointer; transition: all .15s; white-space: nowrap;
+    }
+    .btn-tg:hover { background: rgba(0,136,204,.15); color: #7dd3fc; }
+    .btn-tg:disabled { opacity: .35; cursor: not-allowed; }
+  </style>
 </head>
 <body>
 
@@ -66,28 +630,7 @@
   <!-- ══ WALLET + X CONNECT BAR ══ -->
   <div class="wallet-bar">
     <div class="wallet-bar-left">
-      <div id="chain-wallet-row" style="display:flex;gap:8px;flex-wrap:wrap;align-items:center;">
-        <div class="chain-wallet-slot" id="slot-base" onclick="openWalletModal('base')">
-          <span class="cw-chain">BASE</span>
-          <span class="cw-addr" id="cw-base">+ Connect</span>
-        </div>
-        <div class="chain-wallet-slot" id="slot-ethereum" onclick="openWalletModal('ethereum')">
-          <span class="cw-chain">ETH</span>
-          <span class="cw-addr" id="cw-ethereum">+ Connect</span>
-        </div>
-        <div class="chain-wallet-slot" id="slot-solana" onclick="openWalletModal('solana')">
-          <span class="cw-chain">SOL</span>
-          <span class="cw-addr" id="cw-solana">+ Connect</span>
-        </div>
-        <div class="chain-wallet-slot" id="slot-bsc" onclick="openWalletModal('bsc')">
-          <span class="cw-chain">BSC</span>
-          <span class="cw-addr" id="cw-bsc">+ Connect</span>
-        </div>
-        <div class="chain-wallet-slot" id="slot-arbitrum" onclick="openWalletModal('arbitrum')">
-          <span class="cw-chain">ARB</span>
-          <span class="cw-addr" id="cw-arbitrum">+ Connect</span>
-        </div>
-      </div>
+      <button class="btn-connect-wallet" id="btnConnectWallet" onclick="openWalletModal()">Connect Wallet</button>
       <span id="walletAddrDisplay" style="display:none;" class="wallet-addr"></span>
       <button class="btn-connect-x" id="btnConnectX" onclick="connectX()" disabled>+ Connect X Account</button>
       <div id="xAccountsBar"></div>
@@ -333,15 +876,15 @@
     <div class="modal-sub">Your wallet is your identity — private key never leaves your device.</div>
 
     <div id="walletProviderBtns">
-      <button class="modal-provider-btn" id="btn-metamask" onclick="connectMetaMask()">
+      <button class="modal-provider-btn" onclick="connectMetaMask()">
         <span style="font-size:1.3rem;">🦊</span>
         <span><strong>MetaMask</strong><br><span style="font-size:12px;color:#666;">Browser extension — Base / EVM</span></span>
       </button>
-      <button class="modal-provider-btn" id="btn-phantom" onclick="connectPhantom()">
+      <button class="modal-provider-btn" onclick="connectPhantom()">
         <span style="font-size:1.3rem;">👻</span>
         <span><strong>Phantom</strong><br><span style="font-size:12px;color:#666;">Solana + EVM</span></span>
       </button>
-      <button class="modal-provider-btn" id="btn-coinbase" onclick="connectCoinbase()">
+      <button class="modal-provider-btn" onclick="connectCoinbase()">
         <span style="font-size:1.3rem;">🔵</span>
         <span><strong>Coinbase Wallet</strong><br><span style="font-size:12px;color:#666;">Base-native · also X wallet</span></span>
       </button>
@@ -349,7 +892,7 @@
         <span style="font-size:1.3rem;">𝕏</span>
         <span><strong>X Wallet</strong><br><span style="font-size:12px;color:#666;">Scan QR from X app → Wallet tab</span></span>
       </button>
-      <button class="modal-provider-btn" id="btn-wc" onclick="connectWalletConnect()">
+      <button class="modal-provider-btn" onclick="connectWalletConnect()">
         <span style="font-size:1.3rem;">🔗</span>
         <span><strong>WalletConnect</strong><br><span style="font-size:12px;color:#666;">Any mobile wallet — Trust, Rainbow, etc.</span></span>
       </button>
@@ -422,25 +965,7 @@ function toggleInfo(id) {
 const WC_PROJECT_ID = 'ff5dd5e462b92932d7b28c00b81695e8';
 let _wcProvider = null, _wcSdkLoaded = false;
 
-let _connectingChain = null;
-
-function openWalletModal(chain) {
-  _connectingChain = chain || null;
-  const chainLabels = { base:'Base (EVM)', ethereum:'Ethereum (EVM)', solana:'Solana', bsc:'BNB Chain (EVM)', arbitrum:'Arbitrum (EVM)' };
-  const chainHints  = { base:'MetaMask, Phantom EVM, or Coinbase', ethereum:'MetaMask or WalletConnect', solana:'Phantom (Solana)', bsc:'MetaMask', arbitrum:'MetaMask or WalletConnect' };
-  const isSolana = chain === 'solana';
-
-  const labelEl = document.getElementById('modal-chain-label');
-  const hintEl  = document.getElementById('modal-chain-hint');
-  if (labelEl) labelEl.textContent = chain ? (chainLabels[chain] || chain) : 'All Chains';
-  if (hintEl)  hintEl.textContent  = chain ? (chainHints[chain]  || 'Choose your wallet') : 'Choose your wallet provider';
-
-  // Show/hide providers by chain
-  const mm = document.getElementById('btn-metamask');
-  const cb = document.getElementById('btn-coinbase');
-  if (mm) mm.style.display = isSolana ? 'none' : 'flex';
-  if (cb) cb.style.display = isSolana ? 'none' : 'flex';
-
+function openWalletModal() {
   // reset state
   document.getElementById('walletProviderBtns').style.display = 'block';
   document.getElementById('wcQrSection').style.display = 'none';
@@ -647,68 +1172,36 @@ function cancelWalletConnect() {
   if (_wcProvider) { try { _wcProvider.disconnect(); } catch(_) {} _wcProvider = null; }
 }
 
-// Per-chain wallet registry (persisted in localStorage)
-let chainWallets = JSON.parse(localStorage.getItem('raiders_chain_wallets') || '{}');
-
-function updateChainSlotUI() {
-  const evmChains = ['base','ethereum','bsc','arbitrum'];
-  // Reset all
-  [...evmChains, 'solana'].forEach(c => {
-    const el   = document.getElementById('cw-' + c);
-    const slot = document.getElementById('slot-' + c);
-    if (el)   el.textContent = '+ Connect';
-    if (slot) slot.classList.remove('connected');
-  });
-  // Apply stored wallets
-  Object.entries(chainWallets).forEach(([chain, w]) => {
-    const el   = document.getElementById('cw-' + chain);
-    const slot = document.getElementById('slot-' + chain);
-    const short = w.address.slice(0,4) + '..' + w.address.slice(-4);
-    if (el)   el.textContent = short;
-    if (slot) slot.classList.add('connected');
-  });
-}
-
 function onWalletConnected(address, type) {
   connectedWallet = { address, type };
-
-  // Store per chain
-  const isSolana = (type === 'phantom' && !address.startsWith('0x')) || type === 'solana';
-  const targetChain = _connectingChain || (isSolana ? 'solana' : 'base');
-  if (isSolana) {
-    chainWallets['solana'] = { address, type };
-  } else {
-    // EVM wallet covers all EVM chains
-    ['base','ethereum','bsc','arbitrum'].forEach(c => { chainWallets[c] = { address, type }; });
-  }
-  localStorage.setItem('raiders_chain_wallets', JSON.stringify(chainWallets));
-  updateChainSlotUI();
 
   // Update UI
   const short = address.slice(0,6) + '...' + address.slice(-4);
   document.getElementById('stat-wallet').textContent = short;
   document.getElementById('stat-wallet-sub').textContent = type;
-  const addrEl = document.getElementById('walletAddrDisplay');
-  if (addrEl) { addrEl.textContent = short; addrEl.style.display = ''; }
+  document.getElementById('walletAddrDisplay').textContent = short;
+  document.getElementById('walletAddrDisplay').style.display = '';
+
+  const btn = document.getElementById('btnConnectWallet');
+  btn.textContent = short;
+  btn.classList.add('connected');
 
   document.getElementById('btnConnectX').disabled = false;
   document.getElementById('walletStatus').textContent = 'Wallet connected — add X accounts to raid';
+
   toast('✅', 'Wallet connected: ' + short);
 
-  // Load data
+  // Load X accounts and jobs
   loadXAccounts();
   loadJobs();
   loadDcaSessions();
 }
 
 // ── X OAUTH ──────────────────────────────────────────────────────────────────
-async function connectX() {
+function connectX() {
   if (!connectedWallet) { toast('⚠', 'Connect wallet first'); return; }
-  try {
-    const res  = await fetch(`${RAIDERS_API}/auth/x/start?wallet=${encodeURIComponent(connectedWallet.address)}`);
-    const data = await res.json();
-    if (data.error) { toast('✕', 'X Auth error: ' + data.error); return; }
-    const popup = window.open(data.authUrl, 'x_oauth', 'width=600,height=700,left=200,top=100');
+  const url = `${RAIDERS_API}/auth/x/start?wallet=${encodeURIComponent(connectedWallet.address)}`;
+  const popup = window.open(url, 'x_oauth', 'width=600,height=700,left=200,top=100');
 
   // Poll for callback
   const poll = setInterval(() => {
