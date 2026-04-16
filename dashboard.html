@@ -6,18 +6,19 @@
   <title>War Room — Raiders of the Chain</title>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;600;700;900&family=Cinzel+Decorative:wght@400;700&family=IM+Fell+English:ital@0;1&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="style.css">
   <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'><rect width='32' height='32' rx='4' fill='%23FF4D00'/><text x='16' y='22' text-anchor='middle' font-family='monospace' font-weight='900' font-size='16' fill='%23000'>⚔</text></svg>">
   <style>
     *, *::before, *::after { box-sizing: border-box; }
 
+    /* ── WAR ROOM SHELL ── */
     .wr-shell {
       display: grid;
-      grid-template-columns: 320px 1fr 260px;
-      grid-template-rows: auto 1fr;
-      min-height: calc(100vh - 62px);
-      background: var(--temple);
+      grid-template-columns: 300px 1fr 220px;
+      grid-template-rows: auto auto 1fr;
+      min-height: calc(100vh - 56px);
+      background: #0a0a0a;
     }
 
     /* ── STATS BAR ── */
@@ -25,334 +26,553 @@
       grid-column: 1 / -1;
       display: grid;
       grid-template-columns: repeat(6, 1fr);
-      gap: 1px;
-      background: var(--gold-dim);
-      border-bottom: 2px solid var(--gold-dim);
+      gap: 0;
+      background: #111;
+      border-bottom: 1px solid #222;
     }
-    .wr-stat { background: var(--leather-dark); padding: .85rem 1.1rem; display: flex; flex-direction: column; gap: .2rem; }
-    .wr-stat-label { font-family: var(--font-heading); font-size: .75rem; color: var(--stone); text-transform: uppercase; letter-spacing: .14em; }
-    .wr-stat-val { font-family: var(--font-mono); font-size: 1.5rem; font-weight: 700; color: var(--gold-bright); }
-    .wr-stat-val.green { color: #4ade80; }
-    .wr-stat-val.red   { color: #f87171; }
-    .wr-stat-sub { font-family: var(--font-mono); font-size: .72rem; color: var(--stone); }
+    .wr-stat {
+      padding: 14px 18px;
+      display: flex; flex-direction: column; gap: 2px;
+      border-right: 1px solid #1a1a1a;
+    }
+    .wr-stat:last-child { border-right: none; }
+    .wr-stat-label {
+      font-family: 'Inter', system-ui, sans-serif;
+      font-size: 11px; font-weight: 500;
+      color: #888; text-transform: uppercase;
+      letter-spacing: 0.1em;
+    }
+    .wr-stat-val {
+      font-family: 'Inter', system-ui, sans-serif;
+      font-size: 28px; font-weight: 700;
+      color: #f0f0f0;
+    }
+    .wr-stat-val.green { color: #00c896; }
+    .wr-stat-val.red   { color: #ff4444; }
+    .wr-stat-sub {
+      font-family: 'Inter', system-ui, sans-serif;
+      font-size: 12px; color: #666;
+    }
 
     /* ── WALLET CONNECT BAR ── */
     .wallet-bar {
       grid-column: 1 / -1;
       display: flex; align-items: center; justify-content: space-between;
-      padding: .5rem 1rem;
-      background: rgba(0,0,0,.4);
-      border-bottom: 1px solid rgba(200,150,12,.2);
-      flex-wrap: wrap; gap: .5rem;
+      padding: 12px 20px;
+      background: #0d0d0d;
+      border-bottom: 1px solid #222;
+      flex-wrap: wrap; gap: 8px;
     }
-    .wallet-bar-left { display: flex; align-items: center; gap: .75rem; flex-wrap: wrap; }
+    .wallet-bar-left { display: flex; align-items: center; gap: 10px; flex-wrap: wrap; }
     .wallet-addr {
-      font-family: var(--font-mono); font-size: .85rem;
-      color: var(--gold-bright); background: rgba(200,150,12,.1);
-      border: 1px solid rgba(200,150,12,.25); border-radius: 4px;
-      padding: .35rem .75rem;
+      font-family: 'Inter', system-ui, sans-serif; font-size: 13px;
+      color: #c9a84c; background: rgba(201,168,76,.08);
+      border: 1px solid rgba(201,168,76,.2); border-radius: 20px;
+      padding: 6px 14px;
     }
     .x-account-pill {
-      display: inline-flex; align-items: center; gap: .4rem;
-      font-family: var(--font-mono); font-size: .82rem;
-      background: rgba(29,161,242,.12); border: 1px solid rgba(29,161,242,.3);
-      color: #60a5fa; border-radius: 20px; padding: .3rem .75rem;
+      display: inline-flex; align-items: center; gap: 6px;
+      font-family: 'Inter', system-ui, sans-serif; font-size: 13px;
+      background: rgba(29,155,240,.08); border: 1px solid rgba(29,155,240,.25);
+      color: #1d9bf0; border-radius: 20px; padding: 6px 14px;
       cursor: pointer; transition: background .15s;
     }
-    .x-account-pill:hover { background: rgba(29,161,242,.22); }
-    .x-account-pill .remove-x { color: #f87171; margin-left: .2rem; font-size: .75rem; }
+    .x-account-pill:hover { background: rgba(29,155,240,.15); }
+    .x-account-pill .remove-x { color: #ff4444; margin-left: 4px; font-size: 12px; }
     .btn-connect-wallet {
-      font-family: var(--font-heading); font-size: .9rem; font-weight: 700;
-      text-transform: uppercase; letter-spacing: .08em;
-      background: var(--gold); color: var(--leather-dark);
-      border: none; border-radius: 4px; padding: .6rem 1.2rem; cursor: pointer;
-      transition: background .15s; min-height: 44px;
+      font-family: 'Inter', system-ui, sans-serif; font-size: 13px; font-weight: 600;
+      background: #1a1a1a; color: #c9a84c;
+      border: 1px solid #c9a84c; border-radius: 20px;
+      padding: 8px 18px; cursor: pointer;
+      transition: all .15s; min-height: 36px;
     }
-    .btn-connect-wallet:hover { background: var(--gold-bright); }
-    .btn-connect-wallet.connected { background: rgba(74,222,128,.2); color: #4ade80; border: 1px solid rgba(74,222,128,.3); }
+    .btn-connect-wallet:hover { background: rgba(201,168,76,.1); }
+    .btn-connect-wallet.connected {
+      background: rgba(0,200,150,.08); color: #00c896;
+      border: 1px solid rgba(0,200,150,.3);
+    }
     .btn-connect-x {
-      font-family: var(--font-heading); font-size: .82rem; font-weight: 700;
-      text-transform: uppercase; letter-spacing: .06em;
-      background: rgba(29,161,242,.15); color: #60a5fa;
-      border: 1px solid rgba(29,161,242,.3); border-radius: 4px;
-      padding: .5rem 1rem; cursor: pointer; transition: all .15s; min-height: 44px;
+      font-family: 'Inter', system-ui, sans-serif; font-size: 13px; font-weight: 600;
+      background: #1a1a1a; color: #1d9bf0;
+      border: 1px solid #1d9bf0; border-radius: 20px;
+      padding: 8px 18px; cursor: pointer;
+      transition: all .15s; min-height: 36px;
     }
-    .btn-connect-x:hover { background: rgba(29,161,242,.28); }
-    .btn-connect-x:disabled { opacity: .4; cursor: not-allowed; }
+    .btn-connect-x:hover { background: rgba(29,155,240,.1); }
+    .btn-connect-x:disabled { opacity: .35; cursor: not-allowed; }
 
     /* ── LEFT: COMMAND PANEL ── */
     .cmd-panel {
-      background: var(--leather-dark);
-      border-right: 1px solid var(--gold-dim);
+      background: #0d0d0d;
+      border-right: 1px solid #222;
       overflow-y: auto;
-      height: calc(100vh - 62px - 56px - 44px);
+      height: calc(100vh - 56px - 64px - 52px);
       display: flex; flex-direction: column;
     }
     .cmd-panel::-webkit-scrollbar { width: 3px; }
-    .cmd-panel::-webkit-scrollbar-thumb { background: var(--gold-dim); border-radius: 2px; }
+    .cmd-panel::-webkit-scrollbar-thumb { background: #333; border-radius: 2px; }
 
-    .cmd-target { padding: 1rem 1rem .75rem; border-bottom: 1px solid rgba(200,150,12,.2); background: rgba(0,0,0,.25); }
-    .cmd-target-label { font-family: var(--font-heading); font-size: .8rem; color: var(--gold-dim); text-transform: uppercase; letter-spacing: .2em; margin-bottom: .4rem; }
+    .cmd-target {
+      padding: 16px 16px 12px;
+      border-bottom: 1px solid #1a1a1a;
+      background: #0a0a0a;
+    }
+    .cmd-target-label {
+      font-family: 'Inter', system-ui, sans-serif;
+      font-size: 11px; font-weight: 500;
+      color: #666; text-transform: uppercase;
+      letter-spacing: 0.1em; margin-bottom: 8px;
+    }
     .cmd-target-input {
-      width: 100%; background: rgba(0,0,0,.5); border: 1px solid var(--gold);
-      border-radius: 4px; padding: .55rem .75rem;
-      font-family: var(--font-mono); font-size: 1rem; color: var(--gold-bright); outline: none;
+      width: 100%; background: #0a0a0a;
+      border: 1px solid #333; border-radius: 8px;
+      padding: 10px 14px; height: 44px;
+      font-family: 'Inter', system-ui, sans-serif;
+      font-size: 15px; color: #f0f0f0; outline: none;
       transition: border-color .15s, box-shadow .15s;
     }
-    .cmd-target-input:focus { border-color: var(--gold-bright); box-shadow: 0 0 0 2px rgba(200,150,12,.2); }
-    .cmd-target-input::placeholder { color: var(--stone); }
-    .cmd-chain-row { display: flex; gap: .4rem; margin-top: .5rem; }
+    .cmd-target-input:focus { border-color: #c9a84c; box-shadow: 0 0 0 2px rgba(201,168,76,.12); }
+    .cmd-target-input::placeholder { color: #555; }
+    .cmd-chain-row { display: flex; gap: 6px; margin-top: 10px; }
     .cmd-chain-btn {
-      flex: 1; padding: .5rem .4rem;
-      font-family: var(--font-heading); font-size: .82rem;
-      text-transform: uppercase; letter-spacing: .06em;
-      background: rgba(0,0,0,.3); border: 1px solid rgba(200,150,12,.25);
-      color: var(--stone); border-radius: 3px; cursor: pointer; transition: all .15s;
+      flex: 1; padding: 6px 4px; height: 28px;
+      font-family: 'Inter', system-ui, sans-serif; font-size: 11px; font-weight: 500;
+      text-transform: uppercase;
+      background: #1a1a1a; border: 1px solid #333;
+      color: #888; border-radius: 6px; cursor: pointer; transition: all .15s;
     }
-    .cmd-chain-btn:hover { color: var(--gold-bright); border-color: var(--gold-dim); }
-    .cmd-chain-btn.active { background: var(--gold); color: var(--leather-dark); border-color: var(--gold); font-weight: 700; }
+    .cmd-chain-btn:hover { color: #f0f0f0; border-color: #444; }
+    .cmd-chain-btn.active { border-color: #c9a84c; color: #c9a84c; background: rgba(201,168,76,.06); font-weight: 600; }
 
     /* ── ALPHA SCANNER PANEL ── */
     .alpha-panel {
-      margin: .75rem;
-      background: rgba(0,0,0,.2);
-      border: 1px solid rgba(200,150,12,.2);
-      border-radius: 6px;
+      margin: 12px;
+      background: #111;
+      border: 1px solid #1a1a1a;
+      border-radius: 12px;
       overflow: hidden;
     }
     .alpha-head {
       display: flex; align-items: center; justify-content: space-between;
-      padding: .55rem .75rem;
-      background: rgba(0,0,0,.2);
-      border-bottom: 1px solid rgba(200,150,12,.12);
+      padding: 10px 14px;
+      background: #0d0d0d;
+      border-bottom: 1px solid #1a1a1a;
     }
-    .alpha-title { font-family: var(--font-heading); font-size: 1rem; font-weight: 700; color: var(--gold-bright); text-transform: uppercase; letter-spacing: .08em; }
+    .alpha-title {
+      font-family: 'Inter', system-ui, sans-serif;
+      font-size: 13px; font-weight: 600; color: #f0f0f0;
+      text-transform: uppercase; letter-spacing: 0.04em;
+    }
     .alpha-scan-btn {
-      font-family: var(--font-mono); font-size: .85rem; font-weight: 700;
-      background: rgba(200,150,12,.15); color: var(--gold-dim);
-      border: 1px solid rgba(200,150,12,.25); border-radius: 3px;
-      padding: .4rem .8rem; cursor: pointer; transition: all .15s;
+      font-family: 'Inter', system-ui, sans-serif; font-size: 12px; font-weight: 600;
+      background: rgba(201,168,76,.08); color: #c9a84c;
+      border: 1px solid rgba(201,168,76,.2); border-radius: 6px;
+      padding: 6px 14px; cursor: pointer; transition: all .15s;
     }
-    .alpha-scan-btn:hover { background: rgba(200,150,12,.3); color: var(--gold-bright); }
-    .alpha-results { padding: .4rem .5rem; max-height: 180px; overflow-y: auto; }
+    .alpha-scan-btn:hover { background: rgba(201,168,76,.15); }
+    .alpha-results { padding: 6px 8px; max-height: 180px; overflow-y: auto; }
     .alpha-token-row {
       display: flex; align-items: center; justify-content: space-between;
-      padding: .3rem .4rem; border-radius: 3px; cursor: pointer;
+      padding: 6px 8px; border-radius: 6px; cursor: pointer;
       transition: background .1s;
     }
-    .alpha-token-row:hover { background: rgba(200,150,12,.08); }
-    .alpha-token-sym { font-family: var(--font-mono); font-size: .9rem; color: var(--gold-bright); font-weight: 700; }
-    .alpha-token-meta { font-family: var(--font-mono); font-size: .78rem; color: var(--stone); }
-    .alpha-token-change { font-family: var(--font-mono); font-size: .85rem; font-weight: 700; }
-    .alpha-token-change.pos { color: #4ade80; }
-    .alpha-token-change.neg { color: #f87171; }
-    .alpha-empty { font-family: var(--font-mono); font-size: .82rem; color: var(--stone); padding: .6rem .4rem; text-align: center; }
+    .alpha-token-row:hover { background: rgba(255,255,255,.03); }
+    .alpha-token-sym { font-family: 'Inter', system-ui, sans-serif; font-size: 13px; color: #f0f0f0; font-weight: 600; }
+    .alpha-token-meta { font-family: 'Inter', system-ui, sans-serif; font-size: 12px; color: #666; }
+    .alpha-token-change { font-family: 'Inter', system-ui, sans-serif; font-size: 13px; font-weight: 600; }
+    .alpha-token-change.pos { color: #00c896; }
+    .alpha-token-change.neg { color: #ff4444; }
+    .alpha-empty { font-family: 'Inter', system-ui, sans-serif; font-size: 12px; color: #555; padding: 12px 8px; text-align: center; }
 
     /* action cards */
-    .cmd-actions { padding: .75rem .75rem 1.5rem; display: flex; flex-direction: column; gap: .6rem; }
+    .cmd-actions { padding: 12px 12px 24px; display: flex; flex-direction: column; gap: 8px; }
 
-    .action-card { background: rgba(0,0,0,.2); border: 1px solid rgba(200,150,12,.2); border-radius: 6px; overflow: hidden; transition: border-color .15s; }
-    .action-card:hover { border-color: rgba(200,150,12,.45); }
+    .action-card {
+      background: #111; border: 1px solid #1a1a1a;
+      border-radius: 12px; overflow: hidden; transition: border-color .15s;
+    }
+    .action-card:hover { border-color: #333; }
 
-    .action-card-head { display: flex; align-items: center; justify-content: space-between; padding: .65rem .85rem; cursor: pointer; user-select: none; }
-    .action-card-left { display: flex; align-items: center; gap: .65rem; }
-    .action-icon { width: 40px; height: 40px; border-radius: 6px; display: flex; align-items: center; justify-content: center; font-size: 1.2rem; flex-shrink: 0; }
-    .action-icon.raid   { background: rgba(251,191,36,.15); border: 1px solid rgba(251,191,36,.3); }
-    .action-icon.buy    { background: rgba(34,197,94,.15);  border: 1px solid rgba(34,197,94,.3); }
-    .action-icon.thread { background: rgba(59,130,246,.15); border: 1px solid rgba(59,130,246,.3); }
-    .action-icon.dca    { background: rgba(139,92,246,.15); border: 1px solid rgba(139,92,246,.3); }
+    .action-card-head {
+      display: flex; align-items: center; justify-content: space-between;
+      padding: 14px 16px; cursor: pointer; user-select: none;
+    }
+    .action-card-left { display: flex; align-items: center; gap: 12px; }
+    .action-icon {
+      width: 32px; height: 32px; border-radius: 50%;
+      background: #1a1a1a;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 14px; flex-shrink: 0;
+    }
+    .action-icon.raid   { background: rgba(201,168,76,.1); }
+    .action-icon.buy    { background: rgba(0,200,150,.1); }
+    .action-icon.thread { background: rgba(59,130,246,.1); }
+    .action-icon.dca    { background: rgba(201,168,76,.1); }
 
-    .action-name { font-family: var(--font-heading); font-size: 1.05rem; font-weight: 700; color: var(--gold-bright); text-transform: uppercase; letter-spacing: .06em; }
-    .action-tagline { font-family: var(--font-mono); font-size: .8rem; color: var(--stone); margin-top: .1rem; }
+    .action-name {
+      font-family: 'Inter', system-ui, sans-serif;
+      font-size: 15px; font-weight: 700; color: #f0f0f0;
+    }
+    .action-tagline {
+      font-family: 'Inter', system-ui, sans-serif;
+      font-size: 12px; color: #888; margin-top: 1px;
+      white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+    }
 
     .action-info-btn {
-      width: 28px; height: 28px; border-radius: 50%;
-      background: rgba(200,150,12,.1); border: 1px solid rgba(200,150,12,.25);
-      color: var(--gold-dim); font-family: var(--font-mono); font-size: .85rem;
-      font-weight: 700; cursor: pointer; flex-shrink: 0;
-      display: flex; align-items: center; justify-content: center; transition: all .15s;
+      width: 20px; height: 20px; border-radius: 50%;
+      background: transparent; border: 1px solid #333;
+      color: #666; font-family: 'Inter', system-ui, sans-serif;
+      font-size: 11px; font-weight: 600; cursor: pointer; flex-shrink: 0;
+      display: flex; align-items: center; justify-content: center;
+      transition: all .15s; line-height: 1;
     }
-    .action-info-btn:hover { background: rgba(200,150,12,.25); color: var(--gold-bright); }
+    .action-info-btn:hover { border-color: #555; color: #aaa; }
 
-    .action-info-box { display: none; padding: .6rem .85rem .75rem; font-family: var(--font-mono); font-size: .82rem; color: var(--dust); line-height: 1.7; border-top: 1px solid rgba(200,150,12,.1); background: rgba(0,0,0,.2); }
+    .action-info-box {
+      display: none; padding: 10px 16px 14px;
+      font-family: 'Inter', system-ui, sans-serif;
+      font-size: 13px; color: #888; line-height: 1.6;
+      border-top: 1px solid #1a1a1a; background: #0d0d0d;
+    }
     .action-info-box.open { display: block; }
 
-    .action-body { display: none; padding: 0 .85rem .85rem; border-top: 1px solid rgba(200,150,12,.15); }
+    .action-body {
+      display: none; padding: 0 16px 16px;
+      border-top: 1px solid #1a1a1a;
+    }
     .action-body.open { display: block; }
 
     .deploy-btn {
-      width: 100%; padding: .85rem;
-      font-family: var(--font-heading); font-size: 1rem; font-weight: 800;
-      text-transform: uppercase; letter-spacing: .1em;
-      border: none; border-radius: 5px; cursor: pointer;
-      display: flex; align-items: center; justify-content: center; gap: .5rem;
-      transition: all .2s; position: relative; overflow: hidden;
-      min-height: 48px;
+      width: 100%; padding: 0; height: 48px;
+      font-family: 'Inter', system-ui, sans-serif;
+      font-size: 14px; font-weight: 700;
+      text-transform: uppercase; letter-spacing: 0.05em;
+      border: none; border-radius: 8px; cursor: pointer;
+      display: flex; align-items: center; justify-content: center; gap: 8px;
+      transition: all .15s; position: relative; overflow: hidden;
     }
-    .deploy-btn::after { content: ''; position: absolute; inset: 0; background: linear-gradient(180deg, rgba(255,255,255,.07) 0%, transparent 100%); }
     .deploy-btn:active { transform: scale(.98); }
-    .deploy-btn:disabled { opacity: .5; cursor: not-allowed; }
+    .deploy-btn:disabled { opacity: .4; cursor: not-allowed; }
 
-    .deploy-btn.raid   { background: linear-gradient(135deg,#b45309,#d97706); color: #fff; box-shadow: 0 3px 12px rgba(180,83,9,.4); }
-    .deploy-btn.raid:hover:not(:disabled)   { background: linear-gradient(135deg,#d97706,#fbbf24); }
-    .deploy-btn.buy    { background: linear-gradient(135deg,#166534,#16a34a); color: #fff; box-shadow: 0 3px 12px rgba(22,163,74,.4); }
-    .deploy-btn.buy:hover:not(:disabled)    { background: linear-gradient(135deg,#16a34a,#4ade80); color: #052e16; }
-    .deploy-btn.thread { background: linear-gradient(135deg,#1e3a8a,#2563eb); color: #fff; box-shadow: 0 3px 12px rgba(37,99,235,.4); }
-    .deploy-btn.thread:hover:not(:disabled) { background: linear-gradient(135deg,#2563eb,#60a5fa); }
-    .deploy-btn.dca    { background: linear-gradient(135deg,#581c87,#7c3aed); color: #fff; box-shadow: 0 3px 12px rgba(124,58,237,.4); }
-    .deploy-btn.dca:hover:not(:disabled)    { background: linear-gradient(135deg,#7c3aed,#a78bfa); }
+    .deploy-btn.raid   { background: #c9a84c; color: #000; }
+    .deploy-btn.raid:hover:not(:disabled)   { background: #d4b85c; }
+    .deploy-btn.buy    { background: #c9a84c; color: #000; }
+    .deploy-btn.buy:hover:not(:disabled)    { background: #d4b85c; }
+    .deploy-btn.thread { background: #c9a84c; color: #000; }
+    .deploy-btn.thread:hover:not(:disabled) { background: #d4b85c; }
+    .deploy-btn.dca    { background: #c9a84c; color: #000; }
+    .deploy-btn.dca:hover:not(:disabled)    { background: #d4b85c; }
 
-    .ac-form { display: grid; gap: .55rem; margin-top: .65rem; }
-    .ac-row  { display: grid; grid-template-columns: 1fr 1fr; gap: .55rem; }
-    .ac-field label { display: block; font-family: var(--font-heading); font-size: .82rem; color: var(--dust); text-transform: uppercase; letter-spacing: .1em; margin-bottom: .25rem; }
-    .ac-field input, .ac-field select, .ac-field textarea {
-      width: 100%; background: rgba(0,0,0,.5); border: 1px solid var(--gold-dim);
-      border-radius: 3px; padding: .55rem .7rem;
-      font-family: var(--font-mono); font-size: .9rem; color: var(--parchment); outline: none; transition: border-color .15s;
+    .ac-form { display: grid; gap: 10px; margin-top: 12px; }
+    .ac-row  { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+    .ac-field label {
+      display: block;
+      font-family: 'Inter', system-ui, sans-serif;
+      font-size: 11px; font-weight: 500;
+      color: #666; text-transform: uppercase;
+      letter-spacing: 0.06em; margin-bottom: 6px;
     }
-    .ac-field input:focus, .ac-field select:focus { border-color: var(--gold-bright); }
-    .ac-field select option { background: var(--leather-dark); }
+    .ac-field input, .ac-field select, .ac-field textarea {
+      width: 100%; background: #0a0a0a; border: 1px solid #333;
+      border-radius: 8px; padding: 10px 12px;
+      font-family: 'Inter', system-ui, sans-serif;
+      font-size: 13px; color: #f0f0f0; outline: none;
+      transition: border-color .15s;
+    }
+    .ac-field input:focus, .ac-field select:focus, .ac-field textarea:focus { border-color: #c9a84c; }
+    .ac-field select option { background: #111; color: #f0f0f0; }
     .ac-field textarea { resize: vertical; min-height: 56px; line-height: 1.5; }
 
     /* DCA sessions */
-    .dca-sessions { margin-top: .5rem; display: flex; flex-direction: column; gap: .3rem; }
+    .dca-sessions { margin-top: 8px; display: flex; flex-direction: column; gap: 4px; }
     .dca-session-row {
       display: flex; align-items: center; justify-content: space-between;
-      padding: .45rem .65rem;
-      background: rgba(139,92,246,.08); border: 1px solid rgba(139,92,246,.2); border-radius: 4px;
-      font-family: var(--font-mono); font-size: .82rem; color: var(--dust-light);
+      padding: 8px 12px;
+      background: rgba(201,168,76,.04); border: 1px solid #222; border-radius: 8px;
+      font-family: 'Inter', system-ui, sans-serif; font-size: 12px; color: #aaa;
     }
     .dca-stop-btn {
-      font-family: var(--font-mono); font-size: .78rem;
-      background: rgba(248,113,113,.12); color: #f87171;
-      border: 1px solid rgba(248,113,113,.25); border-radius: 3px;
-      padding: .3rem .6rem; cursor: pointer; transition: all .15s;
+      font-family: 'Inter', system-ui, sans-serif; font-size: 12px; font-weight: 600;
+      background: #1a1a1a; color: #ff4444;
+      border: 1px solid #ff4444; border-radius: 6px;
+      padding: 4px 10px; cursor: pointer; transition: all .15s;
     }
-    .dca-stop-btn:hover { background: rgba(248,113,113,.25); }
+    .dca-stop-btn:hover { background: rgba(255,68,68,.1); }
 
     /* X account sections */
-    .x-accounts-list { display: flex; flex-direction: column; gap: .3rem; margin-top: .5rem; }
+    .x-accounts-list { display: flex; flex-direction: column; gap: 4px; margin-top: 8px; }
     .x-acct-row {
       display: flex; align-items: center; justify-content: space-between;
-      padding: .4rem .65rem;
-      background: rgba(29,161,242,.06); border: 1px solid rgba(29,161,242,.18); border-radius: 4px;
-      font-family: var(--font-mono); font-size: .82rem; color: #93c5fd;
+      padding: 6px 12px;
+      background: rgba(29,155,240,.04); border: 1px solid rgba(29,155,240,.15); border-radius: 8px;
+      font-family: 'Inter', system-ui, sans-serif; font-size: 13px; color: #1d9bf0;
     }
-    .x-acct-remove { color: #f87171; cursor: pointer; padding: 0 .25rem; transition: color .15s; }
-    .x-acct-remove:hover { color: #fca5a5; }
+    .x-acct-remove { color: #ff4444; cursor: pointer; padding: 0 4px; transition: color .15s; }
+    .x-acct-remove:hover { color: #ff6666; }
 
     /* ── CENTER: JOB FEED ── */
-    .job-feed { display: flex; flex-direction: column; overflow: hidden; height: calc(100vh - 62px - 56px - 44px); }
-    .job-feed-head { display: flex; align-items: center; justify-content: space-between; padding: .7rem 1rem; background: rgba(0,0,0,.25); border-bottom: 1px solid var(--gold-dim); flex-shrink: 0; }
-    .job-feed-title { font-family: var(--font-heading); font-size: 1rem; font-weight: 700; color: var(--gold-bright); text-transform: uppercase; letter-spacing: .08em; display: flex; align-items: center; gap: .5rem; }
-    .live-dot { width: 7px; height: 7px; border-radius: 50%; background: #4ade80; animation: pulse 1.5s infinite; }
-    .live-dot.red { background: #f87171; }
-    .job-filter-tabs { display: flex; gap: .3rem; }
-    .jf-tab { padding: .4rem .75rem; font-family: var(--font-heading); font-size: .78rem; text-transform: uppercase; letter-spacing: .06em; background: transparent; border: 1px solid rgba(200,150,12,.25); color: var(--stone); border-radius: 3px; cursor: pointer; transition: all .15s; }
-    .jf-tab:hover { color: var(--gold-bright); border-color: var(--gold-dim); }
-    .jf-tab.active { background: rgba(200,150,12,.18); color: var(--gold-bright); border-color: var(--gold); }
+    .job-feed {
+      display: flex; flex-direction: column; overflow: hidden;
+      height: calc(100vh - 56px - 64px - 52px);
+      background: #0a0a0a;
+    }
+    .job-feed-head {
+      display: flex; align-items: center; justify-content: space-between;
+      padding: 12px 16px;
+      background: #0d0d0d;
+      border-bottom: 1px solid #222;
+      flex-shrink: 0;
+    }
+    .job-feed-title {
+      font-family: 'Inter', system-ui, sans-serif;
+      font-size: 10px; font-weight: 500;
+      color: #888; text-transform: uppercase;
+      letter-spacing: 0.1em;
+      display: flex; align-items: center; gap: 8px;
+    }
+    .live-dot { width: 7px; height: 7px; border-radius: 50%; background: #00c896; animation: pulse 1.5s infinite; }
+    .live-dot.red { background: #ff4444; }
+    .job-filter-tabs { display: flex; gap: 4px; }
+    .jf-tab {
+      padding: 6px 12px;
+      font-family: 'Inter', system-ui, sans-serif;
+      font-size: 12px; font-weight: 500;
+      background: transparent; border: none;
+      color: #666; border-radius: 6px; cursor: pointer;
+      transition: all .15s;
+    }
+    .jf-tab:hover { color: #aaa; background: #1a1a1a; }
+    .jf-tab.active { background: #222; color: #f0f0f0; }
+    .jf-tab-clear { color: #555 !important; }
 
-    .job-scroll { flex: 1; overflow-y: auto; padding: .35rem 0; }
+    .job-scroll { flex: 1; overflow-y: auto; padding: 0; }
     .job-scroll::-webkit-scrollbar { width: 3px; }
-    .job-scroll::-webkit-scrollbar-thumb { background: var(--gold-dim); border-radius: 2px; }
+    .job-scroll::-webkit-scrollbar-thumb { background: #333; border-radius: 2px; }
 
-    .job-row { display: grid; grid-template-columns: 72px 90px 1fr auto auto; gap: .5rem; align-items: center; padding: .6rem 1rem; border-bottom: 1px solid rgba(200,150,12,.07); transition: background .1s; }
-    .job-row:hover { background: rgba(200,150,12,.04); }
+    .job-row {
+      display: grid; grid-template-columns: 72px 90px 1fr auto auto;
+      gap: 8px; align-items: center;
+      padding: 10px 16px; min-height: 44px;
+      border-bottom: 1px solid #1a1a1a;
+      transition: background .1s;
+    }
+    .job-row:nth-child(odd) { background: #0d0d0d; }
+    .job-row:nth-child(even) { background: #111; }
+    .job-row:hover { background: #1a1a1a; }
     .job-row.new { animation: rowSlide .3s ease both; }
-    .job-time   { font-family: var(--font-mono); font-size: .78rem; color: var(--stone); }
-    .job-agent  { font-family: var(--font-mono); font-size: .82rem; color: var(--gold-dim); font-weight: 700; }
-    .job-msg    { font-family: var(--font-mono); font-size: .82rem; color: var(--dust-light); line-height: 1.4; }
-    .job-badge  { padding: .2rem .55rem; border-radius: 3px; font-family: var(--font-mono); font-size: .72rem; font-weight: 700; white-space: nowrap; }
-    .jb-buy    { background: rgba(34,197,94,.12);  color: #4ade80; border: 1px solid rgba(34,197,94,.2); }
-    .jb-raid   { background: rgba(251,191,36,.12); color: #fbbf24; border: 1px solid rgba(251,191,36,.2); }
-    .jb-post   { background: rgba(59,130,246,.12); color: #60a5fa; border: 1px solid rgba(59,130,246,.2); }
-    .jb-swap   { background: rgba(139,92,246,.12); color: #a78bfa; border: 1px solid rgba(139,92,246,.2); }
-    .jb-arb    { background: rgba(236,72,153,.12); color: #f472b6; border: 1px solid rgba(236,72,153,.2); }
-    .jb-dca    { background: rgba(99,102,241,.12); color: #818cf8; border: 1px solid rgba(99,102,241,.2); }
-    .jb-alpha  { background: rgba(251,146,60,.12); color: #fb923c; border: 1px solid rgba(251,146,60,.2); }
-    .feed-empty { display: flex; flex-direction: column; align-items: center; justify-content: center; height: 100%; gap: .5rem; font-family: var(--font-mono); font-size: .9rem; color: var(--stone); }
-    .feed-empty-icon { font-size: 2rem; opacity: .3; }
+    .job-time {
+      font-family: 'Inter', system-ui, sans-serif;
+      font-size: 12px; color: #555;
+    }
+    .job-agent {
+      font-family: 'Inter', system-ui, sans-serif;
+      font-size: 13px; color: #f0f0f0; font-weight: 600;
+    }
+    .job-msg {
+      font-family: 'Inter', system-ui, sans-serif;
+      font-size: 13px; color: #aaa; line-height: 1.4;
+      white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+    }
+    .job-badge {
+      padding: 3px 8px; border-radius: 4px;
+      font-family: 'Inter', system-ui, sans-serif;
+      font-size: 11px; font-weight: 600; white-space: nowrap;
+    }
+    .jb-buy    { background: rgba(0,200,150,.1);  color: #00c896; }
+    .jb-raid   { background: rgba(59,130,246,.1);  color: #60a5fa; }
+    .jb-post   { background: rgba(168,85,247,.1);  color: #a855f7; }
+    .jb-swap   { background: rgba(201,168,76,.1);  color: #c9a84c; }
+    .jb-arb    { background: rgba(236,72,153,.1);  color: #f472b6; }
+    .jb-dca    { background: rgba(201,168,76,.1);  color: #c9a84c; }
+    .jb-alpha  { background: rgba(0,200,150,.1);   color: #00c896; }
+    .feed-empty {
+      display: flex; flex-direction: column; align-items: center;
+      justify-content: center; height: 100%; gap: 8px;
+      font-family: 'Inter', system-ui, sans-serif;
+      font-size: 14px; color: #444;
+    }
+    .feed-empty-icon { font-size: 2rem; opacity: .2; }
 
     /* ── RIGHT: AGENT ROSTER ── */
-    .agent-roster { background: var(--leather-dark); border-left: 1px solid var(--gold-dim); overflow-y: auto; height: calc(100vh - 62px - 56px - 44px); }
+    .agent-roster {
+      background: #0d0d0d; border-left: 1px solid #222;
+      overflow-y: auto;
+      height: calc(100vh - 56px - 64px - 52px);
+    }
     .agent-roster::-webkit-scrollbar { width: 3px; }
-    .agent-roster::-webkit-scrollbar-thumb { background: var(--gold-dim); border-radius: 2px; }
+    .agent-roster::-webkit-scrollbar-thumb { background: #333; border-radius: 2px; }
 
-    .roster-head { padding: .7rem .85rem .5rem; border-bottom: 1px solid rgba(200,150,12,.2); background: rgba(0,0,0,.2); position: sticky; top: 0; z-index: 2; }
-    .roster-title { font-family: var(--font-heading); font-size: .95rem; font-weight: 700; color: var(--gold-bright); text-transform: uppercase; letter-spacing: .1em; }
-    .roster-subtitle { font-family: var(--font-mono); font-size: .78rem; color: var(--stone); margin-top: .15rem; }
+    .roster-head {
+      padding: 14px 14px 10px;
+      border-bottom: 1px solid #1a1a1a;
+      background: #0d0d0d; position: sticky; top: 0; z-index: 2;
+    }
+    .roster-title {
+      font-family: 'Inter', system-ui, sans-serif;
+      font-size: 10px; font-weight: 500;
+      color: #888; text-transform: uppercase;
+      letter-spacing: 0.1em;
+    }
+    .roster-subtitle {
+      font-family: 'Inter', system-ui, sans-serif;
+      font-size: 12px; color: #555; margin-top: 2px;
+    }
 
-    .roster-body { padding: .5rem; }
+    .roster-body { padding: 8px; }
 
-    .agent-chip { display: flex; align-items: center; gap: .6rem; padding: .6rem .65rem; background: rgba(0,0,0,.2); border: 1px solid rgba(200,150,12,.15); border-radius: 5px; margin-bottom: .4rem; position: relative; overflow: hidden; transition: border-color .15s; }
-    .agent-chip:hover { border-color: rgba(200,150,12,.4); }
+    .agent-chip {
+      display: flex; align-items: center; gap: 10px;
+      padding: 8px 10px; height: 40px;
+      background: #111; border: 1px solid #1a1a1a;
+      border-radius: 8px; margin-bottom: 6px;
+      position: relative; overflow: hidden; transition: border-color .15s;
+    }
+    .agent-chip:hover { border-color: #333; }
     .agent-chip::before { content: ''; position: absolute; left: 0; top: 0; bottom: 0; width: 2px; }
-    .agent-chip.buying::before  { background: #4ade80; }
-    .agent-chip.raiding::before { background: #fbbf24; }
-    .agent-chip.posting::before { background: #60a5fa; }
-    .agent-chip.idle::before    { background: var(--stone); }
+    .agent-chip.buying::before  { background: #00c896; }
+    .agent-chip.raiding::before { background: #60a5fa; }
+    .agent-chip.posting::before { background: #a855f7; }
+    .agent-chip.idle::before    { background: #333; }
 
-    .agent-chip-avatar { width: 36px; height: 36px; border-radius: 50%; flex-shrink: 0; background: rgba(200,150,12,.12); border: 1px solid rgba(200,150,12,.25); display: flex; align-items: center; justify-content: center; font-family: var(--font-mono); font-size: .85rem; font-weight: 700; color: var(--gold-bright); }
+    .agent-chip-avatar {
+      width: 32px; height: 32px; border-radius: 50%; flex-shrink: 0;
+      background: #1a1a1a;
+      display: flex; align-items: center; justify-content: center;
+      font-family: 'Inter', system-ui, sans-serif;
+      font-size: 12px; font-weight: 700; color: #f0f0f0;
+    }
     .agent-chip-info { flex: 1; min-width: 0; }
-    .agent-chip-name { font-family: var(--font-heading); font-size: .9rem; font-weight: 700; color: var(--gold-bright); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-    .agent-chip-action { font-family: var(--font-mono); font-size: .78rem; color: var(--dust); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; margin-top: .1rem; }
+    .agent-chip-name {
+      font-family: 'Inter', system-ui, sans-serif;
+      font-size: 13px; font-weight: 600; color: #f0f0f0;
+      white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+    }
+    .agent-chip-action {
+      font-family: 'Inter', system-ui, sans-serif;
+      font-size: 11px; color: #666;
+      white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+      margin-top: 1px;
+    }
     .agent-chip-status { flex-shrink: 0; }
 
     .status-dot { width: 8px; height: 8px; border-radius: 50%; }
-    .status-dot.buying  { background: #4ade80; animation: pulse 1.5s infinite; }
-    .status-dot.raiding { background: #fbbf24; animation: pulse 1.5s infinite; }
-    .status-dot.posting { background: #60a5fa; animation: pulse 1.5s infinite; }
-    .status-dot.idle    { background: var(--stone); }
+    .status-dot.buying  { background: #00c896; animation: pulse 1.5s infinite; }
+    .status-dot.raiding { background: #60a5fa; animation: pulse 1.5s infinite; }
+    .status-dot.posting { background: #a855f7; animation: pulse 1.5s infinite; }
+    .status-dot.idle    { background: #444; }
 
-    .agent-chip-stats { display: flex; gap: .5rem; margin-top: .3rem; }
-    .ac-stat-val { font-family: var(--font-mono); font-size: .82rem; color: var(--gold-dim); font-weight: 700; }
-    .ac-stat-lbl { font-family: var(--font-heading); font-size: .72rem; color: var(--stone); text-transform: uppercase; letter-spacing: .08em; }
+    .agent-chip-stats { display: flex; gap: 8px; margin-top: 4px; }
+    .ac-stat-val { font-family: 'Inter', system-ui, sans-serif; font-size: 12px; color: #c9a84c; font-weight: 600; }
+    .ac-stat-lbl { font-family: 'Inter', system-ui, sans-serif; font-size: 10px; color: #666; text-transform: uppercase; letter-spacing: 0.06em; }
 
-    .cmd-settings { margin-top: auto; border-top: 1px solid rgba(200,150,12,.15); padding: .65rem .85rem; }
-    .cmd-settings-title { font-family: var(--font-heading); font-size: .8rem; color: var(--stone); text-transform: uppercase; letter-spacing: .15em; margin-bottom: .45rem; }
+    .cmd-settings {
+      margin-top: auto;
+      border-top: 1px solid #1a1a1a;
+      padding: 12px 14px;
+    }
+    .cmd-settings-title {
+      font-family: 'Inter', system-ui, sans-serif;
+      font-size: 10px; font-weight: 500;
+      color: #666; text-transform: uppercase;
+      letter-spacing: 0.1em; margin-bottom: 8px;
+    }
 
-    .wr-btn { display: inline-flex; align-items: center; gap: .4rem; padding: .55rem 1rem; font-family: var(--font-heading); font-size: .85rem; font-weight: 700; text-transform: uppercase; letter-spacing: .08em; border-radius: var(--r); cursor: pointer; border: none; transition: all .15s; }
-    .wr-btn-dim { background: rgba(200,150,12,.12); color: var(--dust-light); border: 1px solid rgba(200,150,12,.2); }
-    .wr-btn-dim:hover { background: rgba(200,150,12,.22); color: var(--gold-bright); }
-    .wr-btn-sm { padding: .4rem .8rem; font-size: .78rem; }
-    .wr-btn-gold { background: var(--gold); color: var(--leather-dark); }
-    .wr-btn-gold:hover { background: var(--gold-bright); }
+    .wr-btn {
+      display: inline-flex; align-items: center; gap: 6px;
+      padding: 8px 14px;
+      font-family: 'Inter', system-ui, sans-serif;
+      font-size: 13px; font-weight: 600;
+      border-radius: 8px; cursor: pointer; border: none;
+      transition: all .15s;
+    }
+    .wr-btn-dim { background: #1a1a1a; color: #888; border: 1px solid #333; }
+    .wr-btn-dim:hover { background: #222; color: #f0f0f0; }
+    .wr-btn-sm { padding: 6px 12px; font-size: 12px; }
+    .wr-btn-gold { background: #c9a84c; color: #000; }
+    .wr-btn-gold:hover { background: #d4b85c; }
 
     /* TOAST */
-    .wr-toast { position: fixed; bottom: 1.5rem; right: 1.5rem; z-index: 999; background: var(--leather-dark); border: 1px solid var(--gold); border-radius: var(--r); padding: .8rem 1.2rem; font-family: var(--font-heading); font-size: .9rem; color: var(--gold-bright); display: flex; align-items: center; gap: .5rem; transform: translateY(100px); opacity: 0; transition: all .3s; pointer-events: none; max-width: 380px; }
+    .wr-toast {
+      position: fixed; bottom: 24px; right: 24px; z-index: 999;
+      background: #1a1a1a; border: 1px solid #333;
+      border-radius: 10px; padding: 12px 18px;
+      font-family: 'Inter', system-ui, sans-serif;
+      font-size: 13px; color: #f0f0f0;
+      display: flex; align-items: center; gap: 8px;
+      transform: translateY(100px); opacity: 0;
+      transition: all .3s; pointer-events: none;
+      max-width: 380px;
+      box-shadow: 0 8px 32px rgba(0,0,0,.5);
+    }
     .wr-toast.show { transform: translateY(0); opacity: 1; }
 
     /* CONNECT MODAL */
-    .modal-overlay { position: fixed; inset: 0; background: rgba(0,0,0,.75); z-index: 200; display: flex; align-items: center; justify-content: center; opacity: 0; pointer-events: none; transition: opacity .2s; }
+    .modal-overlay {
+      position: fixed; inset: 0;
+      background: rgba(0,0,0,.8); backdrop-filter: blur(4px);
+      z-index: 200; display: flex; align-items: center; justify-content: center;
+      opacity: 0; pointer-events: none; transition: opacity .2s;
+    }
     .modal-overlay.open { opacity: 1; pointer-events: all; }
-    .modal-box { background: var(--leather-dark); border: 1px solid var(--gold); border-radius: 8px; padding: 1.5rem; max-width: 380px; width: 90%; }
-    .modal-title { font-family: var(--font-heading); font-size: 1.1rem; font-weight: 700; color: var(--gold-bright); margin-bottom: .4rem; }
-    .modal-sub { font-family: var(--font-mono); font-size: .85rem; color: var(--stone); margin-bottom: 1rem; line-height: 1.6; }
-    .modal-provider-btn { width: 100%; display: flex; align-items: center; gap: .75rem; padding: .8rem 1.1rem; background: rgba(0,0,0,.3); border: 1px solid rgba(200,150,12,.25); border-radius: 5px; font-family: var(--font-heading); font-size: .95rem; color: var(--gold-bright); cursor: pointer; transition: all .15s; margin-bottom: .4rem; min-height: 48px; }
-    .modal-provider-btn:hover { border-color: var(--gold); background: rgba(200,150,12,.1); }
-    .modal-close { float: right; background: none; border: none; color: var(--stone); font-size: 1.2rem; cursor: pointer; margin-top: -.5rem; }
+    .modal-box {
+      background: #1a1a1a; border: 1px solid #333;
+      border-radius: 16px; padding: 24px; max-width: 380px; width: 90%;
+    }
+    .modal-title {
+      font-family: 'Inter', system-ui, sans-serif;
+      font-size: 18px; font-weight: 700; color: #f0f0f0;
+      margin-bottom: 6px;
+    }
+    .modal-sub {
+      font-family: 'Inter', system-ui, sans-serif;
+      font-size: 13px; color: #888; margin-bottom: 16px; line-height: 1.6;
+    }
+    .modal-provider-btn {
+      width: 100%; display: flex; align-items: center; gap: 12px;
+      padding: 12px 16px; background: #111;
+      border: 1px solid #222; border-radius: 10px;
+      font-family: 'Inter', system-ui, sans-serif;
+      font-size: 14px; color: #f0f0f0; cursor: pointer;
+      transition: all .15s; margin-bottom: 6px; min-height: 48px;
+    }
+    .modal-provider-btn:hover { border-color: #444; background: #1a1a1a; }
+    .modal-close {
+      float: right; background: none; border: none;
+      color: #666; font-size: 18px; cursor: pointer; margin-top: -4px;
+    }
+    .modal-close:hover { color: #aaa; }
 
-    @media (max-width: 1100px) { .wr-shell { grid-template-columns: 280px 1fr 0px; } .agent-roster { display: none; } }
-    @media (max-width: 760px) { .wr-shell { grid-template-columns: 1fr; } .wr-statsbar { grid-template-columns: repeat(3,1fr); } .cmd-panel, .agent-roster { height: auto; } .job-feed { height: 60vh; } }
+    @media (max-width: 1100px) {
+      .wr-shell { grid-template-columns: 280px 1fr 0px; }
+      .agent-roster { display: none; }
+    }
+    @media (max-width: 760px) {
+      .wr-shell { grid-template-columns: 1fr; }
+      .wr-statsbar { grid-template-columns: repeat(3,1fr); }
+      .cmd-panel, .agent-roster { height: auto; }
+      .job-feed { height: 60vh; }
+    }
 
     @keyframes pulse { 0%,100%{opacity:1} 50%{opacity:.4} }
-    @keyframes fadeIn { from{opacity:0;transform:translateY(6px)} to{opacity:1;transform:translateY(0)} }
-    @keyframes rowSlide { from{opacity:0;transform:translateX(-8px)} to{opacity:1;transform:translateX(0)} }
+    @keyframes fadeIn { from{opacity:0;transform:translateY(4px)} to{opacity:1;transform:translateY(0)} }
+    @keyframes rowSlide { from{opacity:0;transform:translateX(-6px)} to{opacity:1;transform:translateX(0)} }
     .fade-in { animation: fadeIn .2s ease both; }
 
-    .progress-wrap { background: rgba(0,0,0,.3); border-radius: 20px; height: 4px; margin: .3rem 0; overflow: hidden; }
-    .progress-bar { height: 100%; border-radius: 20px; background: linear-gradient(90deg,var(--gold-dim),var(--gold-bright)); transition: width .5s; }
+    .progress-wrap { background: #1a1a1a; border-radius: 20px; height: 3px; margin: 4px 0; overflow: hidden; }
+    .progress-bar { height: 100%; border-radius: 20px; background: linear-gradient(90deg,#a08030,#c9a84c); transition: width .5s; }
 
     /* Send to Telegram button */
     .btn-tg {
-      padding: .25rem .55rem;
-      font-family: var(--font-mono); font-size: .72rem; font-weight: 700;
-      background: rgba(0,136,204,.12); color: #38bdf8;
-      border: 1px solid rgba(0,136,204,.25); border-radius: 3px;
+      padding: 4px 8px; height: 28px;
+      font-family: 'Inter', system-ui, sans-serif;
+      font-size: 11px; font-weight: 600;
+      background: rgba(0,136,204,.08); color: #38bdf8;
+      border: 1px solid rgba(0,136,204,.2); border-radius: 6px;
       cursor: pointer; transition: all .15s; white-space: nowrap;
     }
-    .btn-tg:hover { background: rgba(0,136,204,.25); color: #7dd3fc; }
-    .btn-tg:disabled { opacity: .4; cursor: not-allowed; }
+    .btn-tg:hover { background: rgba(0,136,204,.15); color: #7dd3fc; }
+    .btn-tg:disabled { opacity: .35; cursor: not-allowed; }
   </style>
 </head>
 <body>
@@ -365,7 +585,7 @@
   </a>
   <div class="nav-links">
     <a href="index.html">Home</a>
-    <a href="dashboard.html" style="color:var(--gold-bright)">War Room</a>
+    <a href="dashboard.html" style="color:#c9a84c">War Room</a>
     <a href="#" class="nav-cta">Launch App</a>
   </div>
 </nav>
@@ -377,7 +597,7 @@
   <div class="wr-statsbar">
     <div class="wr-stat">
       <span class="wr-stat-label">Wallet</span>
-      <span class="wr-stat-val" id="stat-wallet" style="font-size:.95rem;">Not Connected</span>
+      <span class="wr-stat-val" id="stat-wallet" style="font-size:14px;color:#c9a84c;">Not Connected</span>
       <span class="wr-stat-sub" id="stat-wallet-sub">Connect to raid</span>
     </div>
     <div class="wr-stat">
@@ -402,7 +622,7 @@
     </div>
     <div class="wr-stat">
       <span class="wr-stat-label">Clock</span>
-      <span class="wr-stat-val" id="wrClock" style="font-size:.95rem;">—</span>
+      <span class="wr-stat-val" id="wrClock" style="font-size:16px;">—</span>
       <span class="wr-stat-sub">UTC</span>
     </div>
   </div>
@@ -415,11 +635,15 @@
       <button class="btn-connect-x" id="btnConnectX" onclick="connectX()" disabled>+ Connect X Account</button>
       <div id="xAccountsBar"></div>
     </div>
-    <span id="walletStatus" style="font-family:var(--font-mono);font-size:.82rem;color:var(--stone);">Connect your wallet to start raiding</span>
+    <span id="walletStatus" style="font-family:'Inter',system-ui,sans-serif;font-size:13px;color:#666;">Connect your wallet to start raiding</span>
   </div>
 
   <!-- ══ LEFT: COMMAND PANEL ══ -->
   <aside class="cmd-panel">
+
+    <div style="padding:14px 16px 10px;border-bottom:1px solid #1a1a1a;">
+      <div style="font-family:'Inter',system-ui,sans-serif;font-size:10px;font-weight:500;color:#888;text-transform:uppercase;letter-spacing:0.1em;border-left:3px solid #c9a84c;padding-left:10px;">Command Center</div>
+    </div>
 
     <!-- Alpha Scanner Panel -->
     <div class="alpha-panel">
@@ -480,9 +704,9 @@
                 </select>
               </div>
               <div class="ac-field">
-                <label>Post As — @handle or select connected</label>
-                <input type="text" id="raid-account-custom" placeholder="@yourhandle (leave blank for default)" style="margin-bottom:.3rem;">
-                <select id="raid-account">
+                <label>Post As</label>
+                <input type="text" id="raid-account-custom" placeholder="@yourhandle">
+                <select id="raid-account" style="margin-top:6px;">
                   <option value="gsb">@AGENTGASBIBLE (default)</option>
                 </select>
               </div>
@@ -569,14 +793,14 @@
                 </select>
               </div>
               <div class="ac-field">
-                <label>Post As — @handle or select connected</label>
-                <input type="text" id="thread-account-custom" placeholder="@yourhandle (leave blank for default)" style="margin-bottom:.3rem;">
-                <select id="thread-account">
+                <label>Post As</label>
+                <input type="text" id="thread-account-custom" placeholder="@yourhandle">
+                <select id="thread-account" style="margin-top:6px;">
                   <option value="gsb">@AGENTGASBIBLE (default)</option>
                 </select>
               </div>
             </div>
-            <div id="thread-preview-box" style="display:none;background:rgba(0,0,0,.3);border:1px solid rgba(59,130,246,.25);border-radius:4px;padding:.65rem .8rem;font-family:var(--font-mono);font-size:.82rem;color:var(--parchment-aged);line-height:1.7;white-space:pre-line;max-height:140px;overflow-y:auto;"></div>
+            <div id="thread-preview-box" style="display:none;background:#0d0d0d;border:1px solid #222;border-radius:8px;padding:10px 14px;font-family:'Inter',system-ui,sans-serif;font-size:13px;color:#aaa;line-height:1.7;white-space:pre-line;max-height:140px;overflow-y:auto;"></div>
             <div style="display:flex;gap:.4rem;">
               <button class="wr-btn wr-btn-dim" onclick="generateThread()" style="flex:1;justify-content:center;">✍ Generate</button>
               <button class="deploy-btn thread" id="deployThreadBtn" onclick="deployThread()" style="flex:2;" disabled>🚀 Deploy to X</button>
@@ -591,7 +815,7 @@
     <div class="cmd-settings">
       <div class="cmd-settings-title">Config</div>
       <div style="display:flex;gap:.4rem;align-items:center;">
-        <input id="cfg-api" type="text" style="flex:1;background:rgba(0,0,0,.4);border:1px solid var(--gold-dim);border-radius:3px;padding:.5rem .7rem;font-family:var(--font-mono);font-size:.85rem;color:var(--dust-light);outline:none;" placeholder="API base URL">
+        <input id="cfg-api" type="text" style="flex:1;background:#0a0a0a;border:1px solid #333;border-radius:8px;padding:8px 12px;font-family:'Inter',system-ui,sans-serif;font-size:13px;color:#f0f0f0;outline:none;" placeholder="API base URL">
         <button class="wr-btn wr-btn-dim wr-btn-sm" onclick="saveSettings()">Save</button>
       </div>
     </div>
@@ -603,7 +827,7 @@
     <div class="job-feed-head">
       <div class="job-feed-title">
         <span class="live-dot" id="feedDot"></span>
-        Live Job Feed
+        Live Feed
       </div>
       <div class="job-filter-tabs">
         <button class="jf-tab active" onclick="filterFeed('all',this)">All</button>
@@ -611,7 +835,7 @@
         <button class="jf-tab" onclick="filterFeed('dca',this)">DCA</button>
         <button class="jf-tab" onclick="filterFeed('post',this)">Post</button>
         <button class="jf-tab" onclick="filterFeed('alpha',this)">Alpha</button>
-        <button class="jf-tab jf-tab-clear" onclick="clearFeed()" style="margin-left:.4rem;color:var(--stone);">Clear</button>
+        <button class="jf-tab jf-tab-clear" onclick="clearFeed()" style="margin-left:6px;">Clear</button>
       </div>
     </div>
     <div class="job-scroll" id="jobScroll">
@@ -625,12 +849,12 @@
   <!-- ══ RIGHT: AGENT ROSTER ══ -->
   <aside class="agent-roster">
     <div class="roster-head">
-      <div class="roster-title">⚔ Agent Roster</div>
+      <div class="roster-title">Squad</div>
       <div class="roster-subtitle" id="rosterSub">Standing by</div>
     </div>
     <div class="roster-body" id="rosterBody">
-      <div class="roster-standby" style="padding:1.5rem .85rem;text-align:center;font-family:var(--font-mono);font-size:.85rem;color:var(--stone);line-height:1.7;">
-        <div style="font-size:1.5rem;margin-bottom:.4rem;opacity:.4;">⚔</div>
+      <div class="roster-standby" style="padding:24px 14px;text-align:center;font-family:'Inter',system-ui,sans-serif;font-size:13px;color:#555;line-height:1.7;">
+        <div style="font-size:1.5rem;margin-bottom:8px;opacity:.3;">⚔</div>
         Connect wallet to activate your raid squad.
       </div>
     </div>
@@ -654,36 +878,36 @@
     <div id="walletProviderBtns">
       <button class="modal-provider-btn" onclick="connectMetaMask()">
         <span style="font-size:1.3rem;">🦊</span>
-        <span><strong>MetaMask</strong><br><span style="font-size:.82rem;opacity:.6;">Browser extension — Base / EVM</span></span>
+        <span><strong>MetaMask</strong><br><span style="font-size:12px;color:#666;">Browser extension — Base / EVM</span></span>
       </button>
       <button class="modal-provider-btn" onclick="connectPhantom()">
         <span style="font-size:1.3rem;">👻</span>
-        <span><strong>Phantom</strong><br><span style="font-size:.82rem;opacity:.6;">Solana + EVM</span></span>
+        <span><strong>Phantom</strong><br><span style="font-size:12px;color:#666;">Solana + EVM</span></span>
       </button>
       <button class="modal-provider-btn" onclick="connectCoinbase()">
         <span style="font-size:1.3rem;">🔵</span>
-        <span><strong>Coinbase Wallet</strong><br><span style="font-size:.82rem;opacity:.6;">Base-native · also X wallet</span></span>
+        <span><strong>Coinbase Wallet</strong><br><span style="font-size:12px;color:#666;">Base-native · also X wallet</span></span>
       </button>
       <button class="modal-provider-btn" onclick="connectXWallet()">
         <span style="font-size:1.3rem;">𝕏</span>
-        <span><strong>X Wallet</strong><br><span style="font-size:.82rem;opacity:.6;">Scan QR from X app → Wallet tab</span></span>
+        <span><strong>X Wallet</strong><br><span style="font-size:12px;color:#666;">Scan QR from X app → Wallet tab</span></span>
       </button>
       <button class="modal-provider-btn" onclick="connectWalletConnect()">
         <span style="font-size:1.3rem;">🔗</span>
-        <span><strong>WalletConnect</strong><br><span style="font-size:.82rem;opacity:.6;">Any mobile wallet — Trust, Rainbow, etc.</span></span>
+        <span><strong>WalletConnect</strong><br><span style="font-size:12px;color:#666;">Any mobile wallet — Trust, Rainbow, etc.</span></span>
       </button>
     </div>
 
     <!-- WC QR section -->
-    <div id="wcQrSection" style="display:none;flex-direction:column;align-items:center;margin-top:.5rem;">
-      <div id="wcQrBox" style="width:200px;height:200px;background:#fff;border-radius:10px;display:flex;align-items:center;justify-content:center;overflow:hidden;"></div>
-      <div style="font-size:.85rem;color:#888;margin:.5rem 0;">Open your wallet app and scan this code</div>
-      <button class="modal-provider-btn" onclick="cancelWalletConnect()" style="width:auto;padding:.4rem 1rem;">← Back</button>
+    <div id="wcQrSection" style="display:none;flex-direction:column;align-items:center;margin-top:8px;">
+      <div id="wcQrBox" style="width:200px;height:200px;background:#fff;border-radius:12px;display:flex;align-items:center;justify-content:center;overflow:hidden;"></div>
+      <div style="font-size:13px;color:#666;margin:8px 0;">Open your wallet app and scan this code</div>
+      <button class="modal-provider-btn" onclick="cancelWalletConnect()" style="width:auto;padding:6px 16px;">← Back</button>
     </div>
 
     <!-- Status / error -->
-    <div id="wcStatus" style="display:none;font-size:.85rem;color:#f5c842;margin-top:.5rem;text-align:center;"></div>
-    <div id="wcError"  style="display:none;font-size:.85rem;color:#f87171;margin-top:.4rem;padding:.5rem;background:rgba(239,68,68,.1);border-radius:6px;text-align:center;"></div>
+    <div id="wcStatus" style="display:none;font-size:13px;color:#c9a84c;margin-top:8px;text-align:center;"></div>
+    <div id="wcError"  style="display:none;font-size:13px;color:#ff4444;margin-top:6px;padding:8px;background:rgba(255,68,68,.08);border-radius:8px;text-align:center;"></div>
   </div>
 </div>
 
@@ -1445,7 +1669,7 @@ async function deployThread() {
 function renderRoster() {
   const body = document.getElementById('rosterBody');
   if (!connectedWallet) {
-    body.innerHTML = `<div style="padding:1.5rem .85rem;text-align:center;font-family:var(--font-mono);font-size:.85rem;color:var(--stone);line-height:1.7;"><div style="font-size:1.5rem;margin-bottom:.4rem;opacity:.4;">⚔</div>Connect wallet to activate your raid squad.</div>`;
+    body.innerHTML = `<div style="padding:24px 14px;text-align:center;font-family:'Inter',system-ui,sans-serif;font-size:13px;color:#555;line-height:1.7;"><div style="font-size:1.5rem;margin-bottom:8px;opacity:.3;">⚔</div>Connect wallet to activate your raid squad.</div>`;
     return;
   }
 
@@ -1483,7 +1707,7 @@ function renderRoster() {
     });
   }
   if (!chips.length) {
-    body.innerHTML = `<div style="padding:1.5rem .85rem;text-align:center;font-family:var(--font-mono);font-size:.85rem;color:var(--stone);line-height:1.7;"><div style="font-size:1.5rem;margin-bottom:.4rem;opacity:.4;">⚔</div>Add X accounts or start DCA to see your squad here.</div>`;
+    body.innerHTML = `<div style="padding:24px 14px;text-align:center;font-family:'Inter',system-ui,sans-serif;font-size:13px;color:#555;line-height:1.7;"><div style="font-size:1.5rem;margin-bottom:8px;opacity:.3;">⚔</div>Add X accounts or start DCA to see your squad here.</div>`;
     return;
   }
   body.innerHTML = chips.join('');
